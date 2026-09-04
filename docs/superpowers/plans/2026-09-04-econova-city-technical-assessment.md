@@ -1,6 +1,8 @@
 # ECONOVA: CITY Technical Assessment and Implementation Plan
 
-> **For agentic workers:** Before implementation, obtain product-owner approval and close the critical decisions in Sections 20 and 23. During implementation, use `superpowers:subagent-driven-development` or `superpowers:executing-plans` task by task, with review gates between tasks.
+> **Historical Phase 0 assessment:** Product-owner approval has since been granted and the former gameplay blockers were resolved in `docs/GAME_DESIGN_SPEC.md` Version 2.0 and DECISION-044 through DECISION-046. Statements below describing those items as blocked record the pre-approval assessment state and must not override the canonical specification.
+
+> **For agentic workers:** Use `docs/GAME_DESIGN_SPEC.md` as the gameplay source of truth. During implementation, follow the approved phase brief task by task, with review gates between tasks.
 
 **Goal:** Establish a secure, recoverable, low-latency technical foundation for two simultaneous ECONOVA: CITY games without changing or inventing gameplay.
 
@@ -8,7 +10,7 @@
 
 **Tech Stack:** TypeScript, React, Vite, Tailwind CSS, restrained Framer Motion, Fastify, WebSockets, Zod, PostgreSQL, Vitest, Playwright.
 
-**Spec:** `README.md`, `docs/PRODUCT.md`, `docs/GAME_RULES.md`, `docs/ARCHITECTURE.md`, `docs/VISUAL_SYSTEM.md`, `docs/SECURITY.md`, `docs/PERFORMANCE.md`, `docs/TESTING.md`, and `docs/DECISIONS.md`.
+**Spec:** `docs/GAME_DESIGN_SPEC.md`, `README.md`, `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, `docs/VISUAL_SYSTEM.md`, `docs/SECURITY.md`, `docs/PERFORMANCE.md`, `docs/TESTING.md`, and `docs/DECISIONS.md`. `docs/GAME_RULES.md` is retained as a superseded historical reference.
 
 **Assessment date:** 2026-09-04  
 **Scope:** Analysis and planning only. Production implementation has intentionally not started.
@@ -1003,4 +1005,3 @@ NOT STARTED
 6. **What information is public during play?** Confirm whether exact credits, Influence, property values/development, partial scores, trade terms/results, and vote participation/counts are public before their reveal points. **Why it matters:** projection schemas must be fixed before frontend or WebSocket work; an incorrect default can leak strategy. **Recommendation:** publish only ownership/development/demand/current public event/policy/turn plus expressly approved score information; keep resources/cards/objectives/votes/private trade details private.
 7. **What event hardware and network are guaranteed?** Specify host OS/specs, database/container availability, router control/client-isolation settings, server hostname/IP, HTTPS/WSS feasibility, projector specs/browser, representative phones, backup machine, and power/network backup. **Why it matters:** deployment packaging, certificates/cookies, startup scripts, performance budgets, and recovery procedures depend on the actual environment. **Recommendation:** dedicated controlled LAN and server address, local services/assets, primary plus fully prepared backup machine.
 8. **What loss/recovery window is acceptable if the entire event machine fails?** Distinguish process restart from disk/machine loss and confirm how often an external backup may be written. **Why it matters:** local PostgreSQL can provide zero loss across process restart, but whole-machine zero-loss recovery would require synchronous replication or another storage path and materially increases complexity. **Recommendation:** zero acknowledged-action loss for process restart; frequent verified second-device backups and a documented, explicitly accepted recovery point for total machine failure.
-

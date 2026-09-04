@@ -1,19 +1,19 @@
 # ECONOVA: CITY
-# CANONICAL GAME-CONTENT SPECIFICATION
+# PHASE 0 GAME-CONTENT STRUCTURE (SUPERSEDED)
 
-This document defines the canonical structure for data-driven ECONOVA: CITY game content.
+This document preserves the Phase 0 structure that was used to identify missing data-driven ECONOVA: CITY game content.
 
-It does not add gameplay rules and it does not approve missing values. `docs/GAME_RULES.md` remains the source of truth for gameplay. If this document conflicts with `docs/GAME_RULES.md`, report the conflict and do not implement the affected content.
+It is no longer an implementation source. The approved values, catalogs, formulas, and gameplay rules are in `docs/GAME_DESIGN_SPEC.md`; that specification wins if this historical template conflicts with it.
 
 ---
 
 # 1. CURRENT STATUS
 
-Specification structure: ESTABLISHED
+Specification structure: SUPERSEDED BY `docs/GAME_DESIGN_SPEC.md`
 
-Gameplay content: BLOCKED PENDING PRODUCT DECISIONS
+Gameplay content: APPROVED
 
-Approved content set: NONE
+Approved content set: `docs/GAME_DESIGN_SPEC.md` Version 2.0
 
 Implementation status: NOT STARTED
 
@@ -27,15 +27,15 @@ An unspecified value is not a default, zero, empty collection, random choice, or
 
 # 2. AUTHORITY AND CHANGE CONTROL
 
-This file is the intended canonical location for approved game-content values once those values are supplied and reviewed.
+This file was the intended canonical location for approved game-content values before the complete specification was supplied and reviewed.
 
-Until then:
+Current authority:
 
-- existing gameplay rules remain authoritative in `docs/GAME_RULES.md`
+- approved gameplay rules and content are authoritative in `docs/GAME_DESIGN_SPEC.md`
 - approved permanent decisions remain authoritative in `docs/DECISIONS.md`
-- `PROPOSED` decisions are unresolved and must not be implemented as rules
+- DECISION-044, DECISION-045, and DECISION-046 are APPROVED
 - no client, server, test fixture, seed file, or visual mockup may invent a missing value
-- a content value must have a source and product-owner approval before its status changes from `UNSPECIFIED`
+- this historical template's `UNSPECIFIED` markers do not override approved values in `docs/GAME_DESIGN_SPEC.md`
 
 Any approved content change must update this file, affected rules, implementation, tests, and the decision log when the change is material.
 
@@ -99,15 +99,15 @@ The lifecycle specification must define:
 
 | Field | Required definition | Current value |
 |---|---|---|
-| Canonical phase order | Complete ordered list of phases and subphases | BLOCKED — DECISION-044 AND DECISION-045 |
+| Canonical phase order | Complete ordered list of phases and subphases | DEFINED — `docs/GAME_DESIGN_SPEC.md` Section 8 |
 | Round entry conditions | State required to start each round | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Turn order | How players receive turns or action opportunities | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Allowed actions per phase | Exact action allowlist for every phase | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Action limits | Counts, cooldowns, or restrictions where applicable | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Turn completion rule | Manual, automatic, timed, or other approved boundary | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Round-resolution formula | Income, costs, demand, and other ordered resolution steps | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
-| Market/event boundary | Exact point at which market and event changes take effect | BLOCKED — DECISION-044 |
-| Council boundary | Exact Council entry, policy-effective, and exit points | BLOCKED — DECISION-045 |
+| Market/event boundary | Exact point at which market and event changes take effect | DEFINED — `docs/GAME_DESIGN_SPEC.md` Section 8.2 |
+| Council boundary | Exact Council entry, policy-effective, and exit points | DEFINED — `docs/GAME_DESIGN_SPEC.md` Sections 8.3 and 23 |
 | Final-round boundary | Exact transition from Round 8 into final scoring | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 
 ---
@@ -167,7 +167,7 @@ The content set must define every input used by the server's economic calculatio
 | Development effect | Exact economic effect of each level | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Round income timing | Phase in which income is calculated and credited | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Rounding rule | Integer or rounding behavior for all calculations | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
-| Financial-failure behavior | Legal recovery actions and resulting state | BLOCKED IN PART — DECISION-046 AND OTHER UNSPECIFIED RULES |
+| Financial-failure behavior | Legal recovery actions and resulting state | DEFINED — `docs/GAME_DESIGN_SPEC.md` Section 28 |
 
 ---
 
@@ -181,7 +181,7 @@ Each event record must contain enough information for one deterministic server i
 | Title | Public event title | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Description | Player-facing explanation | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Selection rule | Eligibility, deck behavior, or approved selection method | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
-| Timing | Exact lifecycle point at which the event resolves | BLOCKED — DECISION-044 |
+| Timing | Exact lifecycle point at which the event resolves | DEFINED — `docs/GAME_DESIGN_SPEC.md` Sections 8 and 22 |
 | Effect | Complete authoritative state change | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Duration | Instant, fixed duration, or explicit expiry boundary | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Interaction rule | Stacking, precedence, and conflict behavior | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
@@ -247,7 +247,7 @@ Each policy option must contain:
 | Voting rule | Influence use, vote limits, and legal submissions | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Tie rule | Deterministic outcome for tied voting | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Effect | Complete authoritative state change | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
-| Effective boundary | Exact point at which the policy begins to apply | BLOCKED — DECISION-045 |
+| Effective boundary | Exact point at which the policy begins to apply | DEFINED — `docs/GAME_DESIGN_SPEC.md` Sections 8.3 and 23 |
 | Duration/expiry | Exact point at which the policy stops applying | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Interaction rule | Stacking, replacement, and precedence behavior | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
 | Visibility | Private vote data and public result data | UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED |
@@ -272,9 +272,9 @@ The trade specification must define:
 
 The direct-selling specification must define eligibility, price/value, timing, ownership transfer, demand interaction, and scoring interaction if selling is approved.
 
-Direct selling status: BLOCKED — DECISION-046.
+Direct selling status: APPROVED — no voluntary direct bank selling; emergency bank sale exists only for mandatory landing-fee recovery under `docs/GAME_DESIGN_SPEC.md` Section 28.2.
 
-No sale formula or default sale action exists in this specification.
+The approved emergency-sale formula and behavior exist only in `docs/GAME_DESIGN_SPEC.md`; this superseded template must not be implemented.
 
 ---
 
@@ -311,39 +311,30 @@ Before a content set may be marked approved, validation must confirm:
 - every effect has one unambiguous server interpretation
 - every content item declares its public/private visibility
 - every card, event, policy, objective, property, and scoring rule has tests
-- the content set contains no `UNSPECIFIED` or `BLOCKED` gameplay-affecting value
+- the active canonical content set contains no unresolved gameplay-affecting value
 - the content set has a recorded product-owner approval
 
 These validation requirements define readiness checks; they do not supply missing content.
 
 ---
 
-# 17. UNRESOLVED DECISION INDEX
+# 17. RESOLVED DECISION INDEX
 
 | Decision | Conflict | Status | Implementation effect |
 |---|---|---|---|
-| DECISION-044 | Market/event ordering | PROPOSED | Phase order and affected content remain blocked |
-| DECISION-045 | City Council timing/boundary | PROPOSED | Council and policy timing remain blocked |
-| DECISION-046 | Selling mechanic | PROPOSED | Direct selling remains blocked |
+| DECISION-044 | Market/event ordering | APPROVED | Implement `docs/GAME_DESIGN_SPEC.md` Section 8 |
+| DECISION-045 | City Council timing/boundary | APPROVED | Implement `docs/GAME_DESIGN_SPEC.md` Sections 8.3 and 23 |
+| DECISION-046 | Selling mechanic | APPROVED | Implement `docs/GAME_DESIGN_SPEC.md` Section 28 |
 
 See `docs/DECISIONS.md` for the full conflict records, options, impacts, and recommendations.
 
 ---
 
-# 18. COMPLETION GATE
+# 18. COMPLETION GATE (HISTORICAL)
 
-This specification is ready for implementation only when:
+This Phase 0 structure is superseded and is not an implementation gate. Its former gate was satisfied when the product owner approved `docs/GAME_DESIGN_SPEC.md` Version 2.0, including DECISION-044, DECISION-045, and DECISION-046.
 
-1. DECISION-044, DECISION-045, and DECISION-046 are approved or rejected by the product owner.
-2. All gameplay-affecting fields required for the initial release have approved values.
-3. The property, event, card, objective, and policy catalogs are complete for the initial release.
-4. Every formula, timing boundary, visibility rule, and interaction rule is explicit.
-5. Cross-document consistency has been checked against `PRODUCT.md`, `GAME_RULES.md`, and `DECISIONS.md`.
-6. The product owner has approved the versioned content set.
-
-Until every gate passes:
-
-GAMEPLAY CONTENT: BLOCKED PENDING PRODUCT DECISIONS
+GAMEPLAY CONTENT: APPROVED IN `docs/GAME_DESIGN_SPEC.md`
 
 ---
 

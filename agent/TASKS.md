@@ -7,7 +7,7 @@ No agent should invent major tasks without authorization.
 
 ---
 
-## CURRENT AUTHORIZED TASK
+## COMPLETED TASK
 
 ### TASK-P0-001 — Documentation baseline
 
@@ -43,7 +43,7 @@ Out of scope:
 Completion criteria:
 
 - all Markdown fences are balanced
-- the three conflicts are recorded as unresolved `PROPOSED` decisions
+- the three conflicts are recorded for product-owner resolution (they were later approved on 2026-09-04)
 - every unapproved content value remains visibly unspecified
 - agent coordination files reflect the Phase 0 state
 - consistency checks complete without unrecorded conflicts
@@ -60,13 +60,41 @@ Verification:
 
 ---
 
-## BLOCKED PRODUCT DECISIONS
+### TASK-GD-001 — Lock approved gameplay clarifications
+
+Owner: Codex
+
+Status: COMPLETE
+
+Scope:
+
+- apply the approved City Center and Entertainment movement rule
+- define SC12 Insurance Policy as a landing-fee reaction exception
+- define sequential Secret Objective setup for 4–6 players
+- define deterministic emergency-sale timeout and disconnect behavior
+- define universal modifier precedence
+- define normal-turn and sub-phase timer interaction
+- finalize DECISION-045 and DECISION-046
+- synchronize affected documentation and run a repository-wide consistency audit
+
+Completion criteria:
+
+- the exact approved rules are present in `docs/GAME_DESIGN_SPEC.md`
+- repeated implementation-critical references agree
+- DECISION-044, DECISION-045, and DECISION-046 are APPROVED
+- superseded source documents cannot override the canonical specification
+- documentation validation and consistency checks pass
+- no production implementation has started
+
+---
+
+## RESOLVED PRODUCT DECISIONS
 
 ### TASK-PO-001 — Approve market/event ordering
 
 Owner: Product owner
 
-Status: BLOCKED PENDING PRODUCT DECISION
+Status: RESOLVED — APPROVED
 
 Decision record: `docs/DECISIONS.md` DECISION-044
 
@@ -74,15 +102,15 @@ Decision record: `docs/DECISIONS.md` DECISION-044
 
 Owner: Product owner
 
-Status: BLOCKED PENDING PRODUCT DECISION
+Status: RESOLVED — APPROVED
 
 Decision record: `docs/DECISIONS.md` DECISION-045
 
-### TASK-PO-003 — Approve or reject a direct selling mechanic
+### TASK-PO-003 — Approve the initial-release selling boundary
 
 Owner: Product owner
 
-Status: BLOCKED PENDING PRODUCT DECISION
+Status: RESOLVED — APPROVED
 
 Decision record: `docs/DECISIONS.md` DECISION-046
 
@@ -90,15 +118,37 @@ Decision record: `docs/DECISIONS.md` DECISION-046
 
 Owner: Product owner
 
-Status: BLOCKED PENDING PRODUCT DECISIONS
+Status: RESOLVED — APPROVED
 
-Specification: `docs/GAME_CONTENT.md`
+Specification: `docs/GAME_DESIGN_SPEC.md`
+
+---
+
+## NEXT AUTHORIZED TASK
+
+### TASK-P1-001 — Foundation and authoritative game engine
+
+Owner: Codex
+
+Status: READY — NOT STARTED
+
+Authorization: Product owner approved Phase 1 after completion of the gameplay documentation lock and consistency audit.
+
+Scope: Follow the attached Phase 1 brief using `docs/GAME_DESIGN_SPEC.md` as the gameplay source of truth. Phase 1 includes the project foundation, shared contracts/content, authoritative game engine and room runtime, protocol/persistence foundations, isolation, recovery, health endpoints, and critical automated tests.
+
+Dependencies:
+
+- Approved architecture: SATISFIED
+- Approved canonical gameplay specification: SATISFIED
+- Documentation consistency audit: SATISFIED
+
+Do not start Phase 2 automatically.
 
 ---
 
 ## NOT AUTHORIZED
 
-Phase 1 and all production implementation remain NOT STARTED. No agent may begin them without explicit product-owner approval.
+Phase 2 and work beyond the approved Phase 1 brief remain NOT AUTHORIZED. Phase 1 implementation is authorized but remains NOT STARTED at this documentation handoff.
 
 ---
 

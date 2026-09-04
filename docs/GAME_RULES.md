@@ -2,20 +2,16 @@
 # GAME RULES
 
 Version: 1.0
-Status: MASTER GAMEPLAY RULESET
-Purpose: Authoritative gameplay reference for all development agents
+Status: SUPERSEDED BY `docs/GAME_DESIGN_SPEC.md`
+Purpose: Historical gameplay reference retained for context
 
 ---
 
 # 1. PURPOSE OF THIS DOCUMENT
 
-This document defines the complete gameplay rules for ECONOVA: CITY.
+This document is retained as the original gameplay reference for ECONOVA: CITY.
 
-It is the primary source of truth for gameplay.
-
-All game-engine logic, server validation, player actions, scoring, UI states, projector states, and automated tests must follow this document.
-
-If another document or implementation conflicts with this document, the conflict must be reported instead of silently choosing an interpretation.
+`docs/GAME_DESIGN_SPEC.md` is the approved single source of truth for gameplay. All game-engine logic, server validation, player actions, scoring, UI states, projector states, and automated tests must follow that specification. Where this historical document conflicts with it, `docs/GAME_DESIGN_SPEC.md` wins.
 
 Agents must not invent gameplay rules that are not defined here.
 
@@ -753,13 +749,7 @@ The City Council introduces collective decision-making.
 
 City Council sessions occur at designated points in the game.
 
-Standard Council sessions occur after:
-
-Round 3
-
-and
-
-Round 6
+Standard Council sessions occur at the start of Rounds 3 and 6, after Breaking News and before player turns. The approved policy takes effect immediately.
 
 The Council may introduce a policy that affects the city.
 
@@ -1022,11 +1012,13 @@ ROUND
 ↓
 EVENT / MARKET UPDATE
 ↓
+STRATEGY CARD DRAW WHEN APPLICABLE
+↓
+COUNCIL WHEN APPLICABLE
+↓
 PLAYER ACTIONS
 ↓
 TRADING / STRATEGY
-↓
-COUNCIL WHEN APPLICABLE
 ↓
 ROUND RESOLUTION
 ↓
@@ -1136,8 +1128,6 @@ The action is rejected.
 
 The player may use legal alternatives such as:
 
-selling assets
-
 trading
 
 changing strategy
@@ -1169,26 +1159,9 @@ A transaction that would create an invalid negative balance must be rejected.
 
 48. ASSET SELLING
 
-If asset selling is implemented, it must follow defined rules.
+Voluntary direct bank selling is not permitted.
 
-Selling must specify:
-
-what can be sold
-
-sale value
-
-whether development is affected
-
-whether ownership changes
-
-whether restrictions apply
-
-when selling is allowed
-
-
-Agents must not invent a sale price or mechanic.
-
-If no sale rule is defined, selling is not automatically permitted.
+Emergency bank sale is permitted only when a player cannot pay a mandatory landing fee. The sale value, timeout/disconnect behavior, ownership reset, and deterministic liquidation order are defined in `docs/GAME_DESIGN_SPEC.md` Section 28.2. Agents must not infer any additional selling mechanic.
 
 
 ---
@@ -1868,33 +1841,31 @@ The intended high-level flow is:
 
 5. ROUND 1 BEGINS
 
-6. GAME STATE / MARKET CONDITIONS ARE PRESENTED
+6. BREAKING NEWS / MARKET CONDITIONS CHANGE
 
-7. PLAYERS PERFORM AVAILABLE ACTIONS
+7. STRATEGY CARD DRAW OCCURS AT THE START OF ROUND 4
 
-8. TRADES / STRATEGIC INTERACTIONS OCCUR
+8. CITY COUNCIL OCCURS AT THE START OF ROUNDS 3 AND 6, AFTER BREAKING NEWS
 
-9. ROUND RESOLVES
+9. POLICY IS RESOLVED AND TAKES EFFECT IMMEDIATELY
 
-10. NEXT ROUND
+10. PLAYERS PERFORM AVAILABLE ACTIONS
 
-11. BREAKING NEWS / MARKET CONDITIONS CHANGE
+11. TRADES / STRATEGIC INTERACTIONS OCCUR
 
-12. PLAY CONTINUES
+12. ROUND RESOLVES
 
-13. CITY COUNCIL OCCURS AT DEFINED ROUNDS
+13. NEXT ROUND
 
-14. POLICY IS RESOLVED
+14. ROUNDS 7 AND 8 COMPLETE
 
-15. ROUNDS 7 AND 8 COMPLETE
+15. FINAL SCORING
 
-16. FINAL SCORING
+16. WINNER REVEAL
 
-17. WINNER REVEAL
+17. GAME COMPLETE
 
-18. GAME COMPLETE
-
-The exact action ordering within each phase must follow the authoritative implementation and this document.
+The exact action ordering within each phase must follow `docs/GAME_DESIGN_SPEC.md` and the authoritative implementation.
 
 
 ---
@@ -2035,7 +2006,7 @@ Do not rebalance based solely on theoretical assumptions.
 
 Any gameplay rule change requires:
 
-1. Update GAME_RULES.md.
+1. Update GAME_DESIGN_SPEC.md.
 
 
 2. Explain the change.
@@ -2138,14 +2109,14 @@ UI requirements
 tests
 
 
-It must then be added to this document before becoming authoritative.
+It must then be added to `docs/GAME_DESIGN_SPEC.md` before becoming authoritative.
 
 
 ---
 
 83. RULES THAT ARE NOT DEFINED
 
-If a specific numerical value, card effect, property value, event effect, policy effect, or scoring modifier is not defined in this document or an explicitly referenced canonical configuration:
+If a specific numerical value, card effect, property value, event effect, policy effect, or scoring modifier is not defined in `docs/GAME_DESIGN_SPEC.md` or an explicitly referenced canonical configuration:
 
 DO NOT INVENT IT.
 

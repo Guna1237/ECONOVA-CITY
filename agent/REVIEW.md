@@ -5,7 +5,7 @@ This file records bugs, security issues, architectural concerns, performance pro
 
 ---
 
-## OPEN FINDINGS
+## RESOLVED GAME-DESIGN FINDINGS
 
 ### REVIEW-002
 
@@ -17,11 +17,11 @@ Found By: Codex
 
 Date: 2026-09-04
 
-Status: BLOCKED PENDING PRODUCT OWNER — DECISION-044 PROPOSED
+Status: RESOLVED — DECISION-044 APPROVED
 
 Problem:
 
-`docs/PRODUCT.md` section 9 places player/game actions before market/event changes, while `docs/GAME_RULES.md` section 40 places the event/market update before player actions and section 73 places Breaking News/market changes around the next-round boundary.
+Before resolution, `docs/PRODUCT.md` section 9 placed player/game actions before market/event changes, while `docs/GAME_RULES.md` section 40 placed the event/market update before player actions and section 73 placed Breaking News/market changes around the next-round boundary.
 
 Reproduction:
 
@@ -33,7 +33,7 @@ Different implementations would use different market conditions for actions and 
 
 Recommended Fix:
 
-Product owner approves one canonical transition order using DECISION-044, then all affected source documents and tests are updated together.
+Implement the canonical transition order in `docs/GAME_DESIGN_SPEC.md` Section 8 and keep affected source documents and tests aligned.
 
 Required Test:
 
@@ -41,7 +41,7 @@ Deterministic full-round transition tests proving the approved event, market, ac
 
 Resolution:
 
-Unresolved. No affected gameplay implementation is authorized.
+Resolved by product-owner approval: Breaking News and market/event changes occur at round start before player turns. Documentation is synchronized; deterministic engine tests remain required in Phase 1.
 
 ---
 
@@ -55,11 +55,11 @@ Found By: Codex
 
 Date: 2026-09-04
 
-Status: BLOCKED PENDING PRODUCT OWNER — DECISION-045 PROPOSED
+Status: RESOLVED — DECISION-045 APPROVED
 
 Problem:
 
-`docs/GAME_RULES.md` section 29 says City Council occurs after Round 3 and Round 6, while section 40 places City Council before round resolution. The policy-effective boundary is not defined.
+Before resolution, `docs/GAME_RULES.md` section 29 said City Council occurred after Round 3 and Round 6, while section 40 placed City Council before round resolution. The policy-effective boundary was not defined.
 
 Reproduction:
 
@@ -71,7 +71,7 @@ A policy may or may not affect the current round's resolution depending on inter
 
 Recommended Fix:
 
-Product owner defines the Council subphase, policy-effective start, and expiry boundary using DECISION-045.
+Implement the approved Council subphase and policy boundary in `docs/GAME_DESIGN_SPEC.md` Sections 8.3 and 23.
 
 Required Test:
 
@@ -79,7 +79,7 @@ Boundary tests around Rounds 3 and 6, including vote closure, policy activation,
 
 Resolution:
 
-Unresolved. Council and policy timing implementation is not authorized.
+Resolved by product-owner approval: Council occurs at the start of Rounds 3 and 6 after Breaking News and before player turns; the winning policy takes effect immediately. Boundary tests remain required in Phase 1.
 
 ---
 
@@ -93,11 +93,11 @@ Found By: Codex
 
 Date: 2026-09-04
 
-Status: BLOCKED PENDING PRODUCT OWNER — DECISION-046 PROPOSED
+Status: RESOLVED — DECISION-046 APPROVED
 
 Problem:
 
-`docs/PRODUCT.md` section 11 presents “hold or sell” as a strategy example. `docs/GAME_RULES.md` section 46 conditionally mentions selling, while section 48 states that no selling mechanic or value is defined and selling is not automatically permitted.
+Before resolution, `docs/PRODUCT.md` section 11 presented “hold or sell” as a strategy example. `docs/GAME_RULES.md` section 46 conditionally mentioned selling, while section 48 stated that no selling mechanic or value was defined and selling was not automatically permitted.
 
 Reproduction:
 
@@ -109,7 +109,7 @@ Selling cannot be implemented or advertised consistently. Inventing it would cha
 
 Recommended Fix:
 
-Product owner approves or rejects direct selling using DECISION-046. If approved, supply complete eligibility, value, timing, transfer, and interaction rules.
+Implement no voluntary direct bank selling and the mandatory-payment emergency sale defined in `docs/GAME_DESIGN_SPEC.md` Section 28.2.
 
 Required Test:
 
@@ -117,7 +117,7 @@ Tests for the approved absence or presence of selling, including ownership trans
 
 Resolution:
 
-Unresolved. No selling action or formula exists.
+Resolved by product-owner approval: emergency bank sale is available only for mandatory landing-fee recovery at 50% of current Property Value, with deterministic timeout/disconnect liquidation. Engine tests remain required in Phase 1.
 
 ---
 
@@ -131,7 +131,7 @@ Found By: Codex
 
 Date: 2026-09-04
 
-Status: BLOCKED PENDING PRODUCT DECISIONS
+Status: RESOLVED — CANONICAL CONTENT APPROVED
 
 Problem:
 
@@ -147,7 +147,7 @@ The authoritative game engine cannot be implemented faithfully, balanced, or tes
 
 Recommended Fix:
 
-Product owner supplies and approves a versioned canonical content set using the structure in `docs/GAME_CONTENT.md`.
+Implement the approved versioned content set in `docs/GAME_DESIGN_SPEC.md` Version 2.0.
 
 Required Test:
 
@@ -155,11 +155,11 @@ Content-schema validation, referential-integrity checks, deterministic rule test
 
 Resolution:
 
-Unresolved. Gameplay content remains blocked.
+Resolved by product-owner approval of `docs/GAME_DESIGN_SPEC.md` Version 2.0. Content-schema, integrity, rule, and scoring tests remain required in Phase 1.
 
 ---
 
-## RESOLVED FINDINGS
+## OTHER RESOLVED FINDINGS
 
 ### REVIEW-001
 

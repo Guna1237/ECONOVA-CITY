@@ -36,7 +36,7 @@ This document does NOT define the gameplay rules themselves.
 
 Gameplay rules belong in:
 
-`docs/GAME_RULES.md`
+`docs/GAME_DESIGN_SPEC.md`
 
 Product and experience requirements belong in:
 
@@ -411,7 +411,7 @@ The Game Engine should manage:
 
 The exact gameplay behavior must come from:
 
-`docs/GAME_RULES.md`
+`docs/GAME_DESIGN_SPEC.md`
 
 Do not duplicate gameplay rules in multiple systems.
 
@@ -551,7 +551,7 @@ Examples:
 
 These are examples only.
 
-The actual action list belongs to `docs/GAME_RULES.md`.
+The actual action list belongs to `docs/GAME_DESIGN_SPEC.md`.
 
 Actions should have:
 

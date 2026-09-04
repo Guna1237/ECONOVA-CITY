@@ -789,7 +789,7 @@ VOTING
 SCORING
 FINISHED
 
-The exact phases must follow GAME_RULES.md.
+The exact phases must follow GAME_DESIGN_SPEC.md.
 
 An action valid during one phase must be rejected during another phase.
 

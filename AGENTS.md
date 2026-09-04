@@ -47,6 +47,7 @@ At minimum, read:
 - `AGENTS.md`
 - `README.md`
 - `docs/PRODUCT.md`
+- `docs/GAME_DESIGN_SPEC.md`
 - `docs/GAME_RULES.md`
 - `docs/ARCHITECTURE.md`
 - `docs/VISUAL_SYSTEM.md`
@@ -85,7 +86,7 @@ Source of truth for:
 - admin experience
 - overall product goals
 
-## `docs/GAME_RULES.md`
+## `docs/GAME_DESIGN_SPEC.md`
 
 Source of truth for:
 
@@ -107,13 +108,13 @@ Never invent or silently change gameplay rules.
 
 If implementation conflicts with the documented rules, stop and report the conflict.
 
+## `docs/GAME_RULES.md`
+
+Superseded gameplay reference retained for historical context. Where it conflicts with `docs/GAME_DESIGN_SPEC.md`, the approved canonical specification wins and this file must not be used for implementation.
+
 ## `docs/GAME_CONTENT.md`
 
-Canonical structure for approved game-content values and catalogs.
-
-Until a value is explicitly approved, it must remain marked as unspecified and must not be invented in code, tests, fixtures, or mockups.
-
-This file does not supersede `docs/GAME_RULES.md`.
+Superseded Phase 0 structure retained for historical context. Approved values and catalogs now live in `docs/GAME_DESIGN_SPEC.md`.
 
 ## `docs/ARCHITECTURE.md`
 
@@ -1091,7 +1092,7 @@ Examples:
 
 Gameplay change:
 
-`GAME_RULES.md`
+`GAME_DESIGN_SPEC.md`
 
 Architecture change:
 

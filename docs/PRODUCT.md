@@ -261,11 +261,17 @@ PLAYER JOIN
   ↓
 GAME START
   ↓
-ROUND
+ROUND START
   ↓
-PLAYER / GAME ACTIONS
+BREAKING NEWS / MARKET UPDATE
   ↓
-MARKET / EVENT CHANGES
+STRATEGY CARD DRAW (ROUND 4 ONLY)
+  ↓
+CITY COUNCIL (ROUNDS 3 AND 6 ONLY)
+  ↓
+PLAYER TURNS / GAME ACTIONS
+  ↓
+ROUND RESOLUTION
   ↓
 NEXT ROUND
   ↓
@@ -278,7 +284,7 @@ RESULTS
 
 The exact gameplay rules belong in:
 
-docs/GAME_RULES.md
+docs/GAME_DESIGN_SPEC.md
 
 This document defines the product experience rather than duplicating the complete rules.
 
@@ -306,7 +312,7 @@ multiple groups can experience it during the event
 organizers can run repeated sessions if necessary
 
 
-The exact round structure and timing rules belong in GAME_RULES.md.
+The exact round structure and timing rules belong in GAME_DESIGN_SPEC.md.
 
 
 ---
@@ -323,7 +329,7 @@ which properties to acquire
 
 when to develop
 
-whether to hold or sell
+whether to hold a property or offer it in trade
 
 whether to trade
 
@@ -897,7 +903,7 @@ Players should generally remain involved throughout the game.
 
 A player falling behind should still have meaningful decisions available.
 
-The exact rules for bankruptcy, loss, recovery or other exceptional conditions belong in GAME_RULES.md.
+The exact rules for bankruptcy, loss, recovery or other exceptional conditions belong in GAME_DESIGN_SPEC.md.
 
 
 ---
@@ -997,7 +1003,7 @@ the projector has no meaningful information
 one player can monopolize the entire game
 
 
-The exact timing and turn structure belong in GAME_RULES.md.
+The exact timing and turn structure belong in GAME_DESIGN_SPEC.md.
 
 
 ---
@@ -1530,7 +1536,7 @@ The objective is to create the best possible 20–30 minute competitive game exp
 
 All detailed gameplay rules belong in:
 
-docs/GAME_RULES.md
+docs/GAME_DESIGN_SPEC.md
 
 All technical implementation decisions belong in:
 

@@ -9,78 +9,82 @@ This file communicates important work between AI agents.
 
 FROM: Codex
 
-TO: Product owner, then the next explicitly authorized agent
+TO: Codex (for approved Phase 1 implementation)
 
-TASK: TASK-P0-001 — Documentation baseline
+TASK: Product-owner gameplay clarification and documentation lock
 
-STATUS: PHASE 0 COMPLETE
+STATUS: COMPLETE — READY FOR IMPLEMENTATION
 
 COMPLETED:
 
-- repository-wide architecture and requirements assessment
-- eight broken Markdown fence repairs with no requirement wording changes
-- unresolved conflict records DECISION-044, DECISION-045, and DECISION-046
-- structure-only canonical game-content specification
-- populated task, status, review, and handoff coordination records
+- Full canonical game design specification written to `docs/GAME_DESIGN_SPEC.md`
+- DECISION-044 resolved: Breaking News/events before player turns
+- DECISION-045 resolved: City Council at start of Rounds 3 and 6
+- DECISION-046 resolved: Emergency bank sale for mandatory payments only
+- 20-space city map with 16 named properties across 4 districts
+- Complete property economics (prices, values, development costs, income, fees)
+- 12 Strategy Cards with exact effects
+- 10 Breaking News events
+- 8 Special Events
+- 8 City Council policies (4 pairs)
+- 10 Secret Objectives
+- District control bonuses and Full Control scoring
+- Turn timing, disconnect/reconnect, auction, trade rules
+- Tie-breaking procedure
+- Economy balance analysis
+- Consistency audit (20 cross-cutting questions resolved)
+- City Center passing now uses total forward movement after applicable modifiers; Shortcut backward movement never awards the bonus
+- SC12 Insurance Policy is an immediate pre-payment reaction that consumes 1 Action and makes the landing fee 0
+- Secret Objectives use sequential two-card offers from one shuffled 10-objective pool for 4–6 players
+- Emergency-sale timeout/disconnect auto-liquidation is deterministic by ascending current liquidation value, then lowest property ID
+- Universal modifier precedence is defined for purchase price, development cost, property income, and landing fees
+- The 60-second normal turn timer pauses for 30-second Auction and Emergency Sale sub-phases; Council has a separate 45-second timer
+- DECISION-044, DECISION-045, and DECISION-046 are APPROVED and no longer block implementation
+- Source-of-truth and affected legacy documentation are synchronized to `docs/GAME_DESIGN_SPEC.md`
 
-REMAINING IN PHASE 0:
+REMAINING:
 
-- None. The documentation baseline is the commit containing this handoff.
+- Implement the game engine based on `docs/GAME_DESIGN_SPEC.md`
+- Implement server, room system, WebSocket layer
+- Implement frontend player and projector interfaces
+- Security and integrity review
 
-REMAINING AFTER PHASE 0:
+FILES CHANGED:
 
-- product-owner decisions for DECISION-044, DECISION-045, and DECISION-046
-- approved canonical gameplay values and catalogs in `docs/GAME_CONTENT.md`
-- explicit product-owner approval before Phase 1
-
-FILES MODIFIED OR CREATED:
-
-- `AGENTS.md`
-- `README.md`
-- `docs/PRODUCT.md`
-- `docs/GAME_RULES.md`
-- `docs/SECURITY.md`
-- `docs/PERFORMANCE.md`
-- `docs/TESTING.md`
-- `docs/VISUAL_SYSTEM.md`
-- `docs/DECISIONS.md`
-- `docs/GAME_CONTENT.md`
-- `docs/superpowers/plans/2026-09-04-econova-city-technical-assessment.md`
-- `agent/TASKS.md`
-- `agent/STATUS.md`
-- `agent/REVIEW.md`
-- `agent/HANDOFF.md`
+- `docs/GAME_DESIGN_SPEC.md` (NEW)
+- `docs/DECISIONS.md` (MODIFIED — decisions 044, 045, 046 marked APPROVED)
+- `agent/STATUS.md` (MODIFIED)
+- `agent/HANDOFF.md` (MODIFIED — this file)
+- `AGENTS.md` (MODIFIED — gameplay source-of-truth routing)
+- `README.md` (MODIFIED — canonical specification discoverability)
+- `docs/PRODUCT.md` (MODIFIED — canonical phase order and selling language)
+- `docs/GAME_RULES.md` (MODIFIED — supersession notice and affected legacy clauses)
+- `docs/GAME_CONTENT.md` (MODIFIED — superseded Phase 0 template and approved decision status)
+- `agent/TASKS.md` (MODIFIED — gameplay lock complete; Phase 1 ready/not started)
+- `agent/REVIEW.md` (MODIFIED — former gameplay blockers resolved)
 
 TESTS RUN:
 
-- Markdown/document structure validation: PASS; 16 Markdown files and 30 fence delimiters checked
-- Local Markdown link/path validation: PASS
-- Required-document and agent-file validation: PASS
-- Decision-log and content-guard validation: PASS
-- Cross-document key-constraint consistency audit: PASS; no unrecorded conflict found
-- Out-of-scope production implementation/artifact scan: PASS
-
-No application test suite exists and no production tests are applicable.
+- Internal consistency audit of the 34-section specification: PASS
+- Economy balance analysis with expected value calculations: PASS
+- District/property/space count verification: PASS (16 properties + 4 special = 20)
+- No application tests exist (implementation not started)
 
 KNOWN ISSUES:
 
-- Market/event ordering is unresolved; see DECISION-044 and REVIEW-002.
-- City Council timing and policy-effective boundary are unresolved; see DECISION-045 and REVIEW-003.
-- Direct selling is unresolved; see DECISION-046 and REVIEW-004.
-- Canonical gameplay values and catalogs are incomplete; see REVIEW-005 and `docs/GAME_CONTENT.md`.
+- None for game design. All gameplay questions are resolved.
+- No remaining blocker in the approved gameplay clarification set.
 
 IMPORTANT NOTES:
 
-- `PROPOSED` decision entries are not approved gameplay rules.
-- The recommendation in each conflict record must not be implemented without product-owner approval.
-- `docs/GAME_RULES.md` remains the gameplay source of truth.
-- `docs/GAME_CONTENT.md` is structure-only and contains no approved complete content set.
-- No framework, dependency stack, frontend, backend, game engine, WebSocket layer, database migration, or visual redesign has been created.
-- The approved production architecture was not changed.
+- `docs/GAME_DESIGN_SPEC.md` is now the SINGLE SOURCE OF TRUTH for gameplay.
+- Where `GAME_RULES.md` or `PRODUCT.md` conflicts with `GAME_DESIGN_SPEC.md`, the spec wins.
+- The spec contains exact formulas, exact card/event/objective/policy content, exact timing rules, and worked examples. An implementer should not need to guess.
+- No production code, framework, or dependency has been created. Only documentation.
 
 RECOMMENDED NEXT ACTION:
 
-Wait for product-owner decisions and explicit Phase 1 approval. After the product owner resolves the three proposed decisions and approves the required content work, update the authoritative documents before any affected gameplay implementation.
+After this documentation-only handoff, Codex may begin the separately approved Phase 1 brief using `docs/GAME_DESIGN_SPEC.md` as the authoritative rules reference. Do not begin Phase 2 automatically.
 
 ---
 

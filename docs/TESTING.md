@@ -340,7 +340,7 @@ Test data should be easy to understand and reset.
 
 The game engine is one of the highest-priority test areas.
 
-Test every documented game rule in GAME_RULES.md.
+Test every documented game rule in GAME_DESIGN_SPEC.md.
 
 
 ---
@@ -562,8 +562,8 @@ Test boundary conditions.
 
 For example, if demand has a defined minimum and maximum:
 
-below minimum → clamp/reject according to GAME_RULES.md
-maximum + increase → clamp/reject according to GAME_RULES.md
+below minimum → clamp/reject according to GAME_DESIGN_SPEC.md
+maximum + increase → clamp/reject according to GAME_DESIGN_SPEC.md
 
 Never allow demand to move outside its documented range.
 
@@ -778,7 +778,7 @@ final scoring occurs correctly
 
 winner is correct
 
-ties are handled according to GAME_RULES.md
+ties are handled according to GAME_DESIGN_SPEC.md
 
 projector receives final state
 

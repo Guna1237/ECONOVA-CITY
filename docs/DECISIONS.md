@@ -1512,7 +1512,7 @@ APPROVED
 When deciding what should be followed, use this hierarchy:
 
 1. Explicit product-owner decision
-2. `docs/GAME_RULES.md` for gameplay
+2. `docs/GAME_DESIGN_SPEC.md` for gameplay
 3. `docs/ARCHITECTURE.md` for architecture
 4. `docs/SECURITY.md` for security
 5. `docs/PERFORMANCE.md` for performance
@@ -1660,9 +1660,9 @@ and create a new decision explaining the replacement.
 
 ---
 
-# UNRESOLVED PRODUCT DECISIONS
+# PRODUCT DECISIONS
 
-The following entries record known conflicts. Their `PROPOSED` status means that no option is approved and no implementation may treat the recommendation as a game rule.
+The following entries record the three formerly conflicting gameplay decisions. All three are now approved and final; `docs/GAME_DESIGN_SPEC.md` contains their canonical implementation rules.
 
 ---
 
@@ -1670,16 +1670,16 @@ The following entries record known conflicts. Their `PROPOSED` status means that
 ## Canonical Market and Event Ordering
 
 ### Status
-PROPOSED
+APPROVED
 
 ### Date
 2026-09-04
 
 ### Decision
-UNRESOLVED. The product owner must approve one canonical position for market and event changes within the round lifecycle.
+RESOLVED. Breaking News and market/event changes resolve at the START of each round, BEFORE player turns. See `docs/GAME_DESIGN_SPEC.md` Section 8.
 
 ### Context
-`docs/PRODUCT.md` section 9 places player/game actions before market/event changes. `docs/GAME_RULES.md` section 40 places the event/market update before player actions, while section 73 places Breaking News/market changes between one round and continued play.
+At the time this decision was opened, `docs/PRODUCT.md` section 9 placed player/game actions before market/event changes. `docs/GAME_RULES.md` section 40 placed the event/market update before player actions, while section 73 placed Breaking News/market changes between one round and continued play.
 
 ### Why It Matters
 The interpretation determines which market and event state governs purchases, development, income, action legality, client projections, animations, and tests.
@@ -1690,19 +1690,19 @@ The interpretation determines which market and event state governs purchases, de
 2. Market/event changes resolve before player actions, matching `docs/GAME_RULES.md` section 40.
 
 ### Chosen Approach
-UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED.
+Option 2 — Market/event changes resolve before player actions. Full specification in `docs/GAME_DESIGN_SPEC.md` Section 8.1.
 
 ### Recommended Resolution
-A round begins, its event/market change is resolved and broadcast, players act under that state, any applicable Council resolves at its separately approved boundary, and the round then closes. All affected flow descriptions must be updated together after approval.
+A round begins, its Breaking News and market/event change is resolved and broadcast, any applicable City Council resolves, players act under that state, and the round then closes.
 
 ### Consequences
-No authoritative phase machine, event timing, market timing, or affected gameplay tests may be finalized until this decision is approved.
+The authoritative phase machine, event timing, market timing, and affected gameplay tests must implement the approved order in `docs/GAME_DESIGN_SPEC.md` Section 8.
 
 ### Constraints
 
 - Do not silently choose an ordering from one diagram.
 - Do not implement both interpretations.
-- Approval must be reflected consistently in `PRODUCT.md`, `GAME_RULES.md`, `GAME_CONTENT.md`, engine contracts, and tests.
+- The approved order must be reflected consistently in source documents, engine contracts, and tests.
 
 ### Related Documents
 
@@ -1711,7 +1711,7 @@ No authoritative phase machine, event timing, market timing, or affected gamepla
 - `docs/GAME_CONTENT.md`
 
 ### Approved By
-PENDING — Product owner
+Product owner — 2026-09-04
 
 ---
 
@@ -1719,16 +1719,16 @@ PENDING — Product owner
 ## Canonical City Council Timing and Effect Boundary
 
 ### Status
-PROPOSED
+APPROVED
 
 ### Date
 2026-09-04
 
 ### Decision
-UNRESOLVED. The product owner must define the exact City Council subphase boundary and when an approved policy begins to affect game state.
+RESOLVED. City Council occurs at the START of Rounds 3 and 6, after Breaking News, before player turns. Winning policy takes effect immediately. See `docs/GAME_DESIGN_SPEC.md` Section 23.
 
 ### Context
-`docs/GAME_RULES.md` section 29 says City Council occurs after Round 3 and after Round 6. Section 40 places City Council before round resolution. The documents do not state whether the resulting policy affects the just-completed round's resolution or begins with the following round.
+At the time this decision was opened, `docs/GAME_RULES.md` section 29 said City Council occurred after Round 3 and after Round 6. Section 40 placed City Council before round resolution. The documents did not state whether the resulting policy affected the just-completed round's resolution or began with the following round.
 
 ### Why It Matters
 The boundary changes economic outcomes, legal actions, income/value calculation, policy duration, projector timing, scoring, and deterministic replay.
@@ -1741,19 +1741,19 @@ The boundary changes economic outcomes, legal actions, income/value calculation,
 For either option, the policy's effective start and expiry boundary must also be stated explicitly.
 
 ### Chosen Approach
-UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED.
+Approved resolution — Council resolves as a named subphase after Breaking News but before player actions. Policy affects that same round. Full specification in `docs/GAME_DESIGN_SPEC.md` Sections 8.3 and 23.
 
 ### Recommended Resolution
-Model Council as a named subphase with explicit entry and exit conditions. After normal actions in Round 3 or Round 6, enter Council and resolve the policy, then follow the approved round boundary. State separately whether the policy affects that round's resolution or begins with the next round.
+Model Council as a named subphase at the start of Rounds 3 and 6, after Breaking News and before player turns. The winning policy takes effect immediately and applies during that same round.
 
 ### Consequences
-The Council state machine, policy-duration calculations, affected scoring logic, projector transition, and related tests remain blocked.
+The Council state machine, policy-duration calculations, affected scoring logic, projector transition, and related tests must implement the approved boundary in `docs/GAME_DESIGN_SPEC.md` Sections 8.3 and 23.
 
 ### Constraints
 
 - Do not infer policy timing from visual sequence alone.
 - Voting must remain private until the approved reveal point.
-- Approval must update all affected lifecycle descriptions together.
+- The approved boundary must remain consistent across all affected lifecycle descriptions.
 
 ### Related Documents
 
@@ -1761,7 +1761,7 @@ The Council state machine, policy-duration calculations, affected scoring logic,
 - `docs/GAME_CONTENT.md`
 
 ### Approved By
-PENDING — Product owner
+Product owner — 2026-09-04
 
 ---
 
@@ -1769,16 +1769,16 @@ PENDING — Product owner
 ## Selling Mechanic for the Initial Release
 
 ### Status
-PROPOSED
+APPROVED
 
 ### Date
 2026-09-04
 
 ### Decision
-UNRESOLVED. The product owner must decide whether the initial release has a direct asset-selling mechanic.
+RESOLVED. Emergency bank sale at 50% of current Property Value is available ONLY for mandatory payments (landing fees). No voluntary bank selling. See `docs/GAME_DESIGN_SPEC.md` Section 28.
 
 ### Context
-`docs/PRODUCT.md` section 11 presents “hold or sell” as a strategy example. `docs/GAME_RULES.md` section 46 conditionally mentions selling as a recovery option, while section 48 states that selling is not automatically permitted because no sale mechanic or sale value is defined.
+At the time this decision was opened, `docs/PRODUCT.md` section 11 presented “hold or sell” as a strategy example. `docs/GAME_RULES.md` section 46 conditionally mentioned selling as a recovery option, while section 48 stated that selling was not automatically permitted because no sale mechanic or sale value was defined.
 
 ### Why It Matters
 Selling changes financial recovery, property availability, balance, scoring, UI actions, authorization, atomic state transitions, and test cases.
@@ -1789,19 +1789,19 @@ Selling changes financial recovery, property availability, balance, scoring, UI 
 2. Add a direct selling mechanic after the product owner supplies complete eligibility, valuation, timing, ownership-transfer, and interaction rules.
 
 ### Chosen Approach
-UNSPECIFIED — PRODUCT OWNER DECISION REQUIRED.
+Option 2 with restrictions — emergency bank sale is permitted only for mandatory landing-fee payments. No voluntary direct bank sale. Full rules in `docs/GAME_DESIGN_SPEC.md` Section 28.2.
 
 ### Recommended Resolution
-Use no direct bank sale action for the initial release unless a complete sale rule is approved. Remove selling from expected strategy if that option is selected; do not imply a mechanic that players cannot perform.
+Use no voluntary direct bank sale action for the initial release. Permit emergency bank sale only for mandatory landing-fee payments under the complete rules in `docs/GAME_DESIGN_SPEC.md` Section 28.2.
 
 ### Consequences
-Selling UI, selling actions, recovery behavior, and related engine tests remain blocked. Other independent foundations do not need a selling implementation.
+No voluntary selling UI or action is permitted. Mandatory-payment recovery behavior and related engine tests must implement the approved emergency-sale rule.
 
 ### Constraints
 
-- Do not infer a sale price or formula.
-- Do not treat conditional wording as permission to implement selling.
-- Do not assume tradeable asset types until the trade content is approved.
+- Use the approved 50% current Property Value liquidation formula; do not infer any additional sale price or formula.
+- Do not treat the emergency rule as permission to implement voluntary selling.
+- Tradeable asset types are limited to Credits and Properties as approved in `docs/GAME_DESIGN_SPEC.md` Section 19.
 
 ### Related Documents
 
@@ -1810,7 +1810,7 @@ Selling UI, selling actions, recovery behavior, and related engine tests remain 
 - `docs/GAME_CONTENT.md`
 
 ### Approved By
-PENDING — Product owner
+Product owner — 2026-09-04
 
 ---
 

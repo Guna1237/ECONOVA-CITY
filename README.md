@@ -506,13 +506,13 @@ The game should maintain momentum.
 
 The detailed gameplay rules belong in:
 
-docs/GAME_RULES.md
+docs/GAME_DESIGN_SPEC.md
 
 This README intentionally does not duplicate every gameplay rule.
 
-Agents must consult GAME_RULES.md before implementing or changing gameplay.
+Agents must consult GAME_DESIGN_SPEC.md before implementing or changing gameplay.
 
-If the implementation and GAME_RULES.md conflict, do not silently choose one.
+If the implementation and GAME_DESIGN_SPEC.md conflict, do not silently choose one.
 
 
 ---
@@ -1136,6 +1136,7 @@ The repository documentation is divided by responsibility.
 
 docs/
 ├── PRODUCT.md
+├── GAME_DESIGN_SPEC.md
 ├── GAME_RULES.md
 ├── ARCHITECTURE.md
 ├── VISUAL_SYSTEM.md
@@ -1160,13 +1161,17 @@ PRODUCT.md
 
 Product vision and experience.
 
-GAME_RULES.md
+GAME_DESIGN_SPEC.md
 
 Gameplay source of truth.
 
+GAME_RULES.md
+
+Superseded gameplay reference retained for historical context.
+
 GAME_CONTENT.md
 
-Canonical structure for approved game-content values. It is currently structure-only; unspecified values require product-owner approval.
+Superseded Phase 0 game-content structure retained for historical context.
 
 ARCHITECTURE.md
 
