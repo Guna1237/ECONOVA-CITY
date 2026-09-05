@@ -29,8 +29,8 @@ Legend for columns: **Test ID | Scenario | Preconditions | Action | Expected Res
 | MOVE-01 | Basic roll & move | Player's turn | Roll dice | Server generates 1–6 uniformly, applies movement modifiers, and moves by the resulting total movement distance | P0 |
 | MOVE-02 | Wrap-around | Player near Space 19 | Total forward movement crosses Space 0 | Position wraps via (current + total forward movement distance) mod 20 | P0 |
 | MOVE-03 | Dice fairness | Many turns sampled | Aggregate dice results | Roughly uniform distribution 1–6 | P2 |
-| MOVE-04 | Rush Hour override | Player has SC01 in hand | Play SC01 before rolling | No roll occurs; result is forced 6; Entertainment bonus still applies on top | P1 |
-| MOVE-05 | Shortcut backward move | Player has SC11, has rolled, applicable Entertainment modifier known | Play SC11, choose backward | Player moves backward by the same total movement distance after modifiers; no City Center passing bonus is awarded | P1 |
+| MOVE-04 | Rush Hour override | Player has SC01 in hand | Play SC01 before rolling | No roll occurs; result is forced 6; Entertainment bonus still applies on top for normal forward movement | P1 |
+| MOVE-05 | Shortcut backward move | Player has SC11, has rolled, and controls Entertainment | Play SC11, choose backward | Player moves backward by the unmodified die result; Entertainment does not apply; no City Center passing bonus is awarded | P0 |
 
 ---
 
@@ -149,7 +149,7 @@ Legend for columns: **Test ID | Scenario | Preconditions | Action | Expected Res
 | DIST-01 | 3/4 control threshold | Player owns 3 of 4 in a district | Round Resolution 4b | Control recognized; 3/4 benefit applied | P0 |
 | DIST-02 | 4/4 full control | Player owns all 4 in a district | Round Resolution 4b | Full control recognized; 4/4 benefit replaces 3/4 (not additive) | P0 |
 | DIST-03 | Immediate recalculation on ownership change | Purchase/trade/emergency sale changes ownership | Ownership change event | Control recalculated immediately, not just at Round Resolution | P0 |
-| DIST-04 | Entertainment movement bonus | Player has Entertainment Control | Roll dice | +1 (3/4) or +2 (4/4) added after the roll to produce total movement distance; can move beyond 6 (up to 8) | P0 |
+| DIST-04 | Entertainment movement bonus | Player has Entertainment Control | Roll dice | +1 (3/4) or +2 (4/4) applies only to normal forward movement after the roll; Shortcut backward movement receives no bonus | P0 |
 | DIST-05 | Stacking multiple district controls | Player controls 2+ districts | Round Resolution | All applicable benefits apply simultaneously (e.g., Food credits + Tech discount) | P1 |
 | DIST-06 | Losing control mid-game | Player sells/trades away 4th property | Ownership change | Control status downgraded immediately; loses future benefits and Full Control final-score eligibility | P1 |
 | DIST-07 | Final score district bonus | Game end, player has 3/4 or 4/4 in a district | Final Scoring | +50 (3/4) or +100 (4/4, replaces) per district | P0 |

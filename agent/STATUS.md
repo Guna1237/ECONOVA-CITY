@@ -71,7 +71,7 @@ Status: COMPLETE
 
 ## COMPLETED WORK (Gameplay Lock — by Codex)
 
-- Replaced City Center passing detection with total forward movement after applicable modifiers, including Entertainment bonuses; Shortcut backward movement never awards the bonus.
+- Replaced City Center passing detection with total forward movement after applicable forward modifiers, including Entertainment bonuses; Entertainment applies only to normal forward movement, and Shortcut backward movement uses the unmodified die result and never awards the bonus.
 - Defined SC12 Insurance Policy as an immediate pre-payment reaction that makes the landing fee 0, consumes 1 Action, and counts toward the one-card-per-turn limit.
 - Defined sequential Secret Objective offering from the same shuffled 10-objective pool for 4–6 players, with chosen objectives removed and unchosen objectives returned to the bottom.
 - Defined deterministic emergency-sale timeout/disconnect liquidation by ascending current liquidation value and then lowest property ID.
@@ -79,6 +79,10 @@ Status: COMPLETE
 - Defined the 60-second normal turn timer, sub-phase pause/resume behavior, and separate Council timer.
 - Finalized DECISION-045 and DECISION-046 as APPROVED and removed obsolete implementation-blocked wording from DECISION-044 through DECISION-046.
 - Synchronized source-of-truth references and the exact affected legacy clauses without starting production implementation.
+- Applied the final audited clarification that Entertainment movement bonuses apply only to normal forward movement; Shortcut backward movement uses the unmodified die result.
+- Verified Markdown structure across 20 files and 22 fenced blocks: PASS.
+- Ran 25 targeted cross-document gameplay consistency checks: 25/25 PASS.
+- Ran `git diff --check`: PASS.
 
 ---
 

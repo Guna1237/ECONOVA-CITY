@@ -241,11 +241,12 @@ Each player's turn within a round:
 
 ```
 1. ROLL DICE (server generates 1d6, result 1–6)
-2. DETERMINE TOTAL MOVEMENT DISTANCE (apply all applicable movement modifiers, including Entertainment control; SC11 Shortcut may change the direction to backward)
-3. MOVE (use the total movement distance in the selected direction)
-4. RESOLVE LANDING (depends on space type)
-5. TAKE REMAINING ACTIONS (from: Develop, Influence, Trade, Use Strategy Card)
-6. END TURN (automatic after 2 actions used, or player explicitly ends turn)
+2. RESOLVE MOVEMENT DIRECTION (normal forward movement, or SC11 Shortcut backward movement)
+3. DETERMINE MOVEMENT DISTANCE (apply Entertainment control only to normal forward movement; Shortcut backward movement uses the unmodified die result)
+4. MOVE (use the resulting movement distance in the selected direction)
+5. RESOLVE LANDING (depends on space type)
+6. TAKE REMAINING ACTIONS (from: Develop, Influence, Trade, Use Strategy Card)
+7. END TURN (automatic after 2 actions used, or player explicitly ends turn)
 ```
 
 ### 9.1 Action Details
@@ -284,7 +285,7 @@ Landing exactly on City Center during forward movement counts as passing it. The
 City Center passing is determined using the player's total forward movement distance after all applicable movement modifiers, including Entertainment district movement bonuses. If the resulting forward movement crosses or lands on Space 0, award the City Center passing bonus. Backward movement caused by Shortcut never triggers the City Center passing bonus.
 
 ### 10.5 Entertainment District Control Movement Bonus
-See Section 18 (District Control). After the roll, the Entertainment bonus adds +1 (or +2 for Full Control) to produce the total movement distance; it does NOT change the die face. It is applied before movement direction is resolved. This can cause movement beyond 6 (up to 8 with Full Control). For forward movement, the modified total movement distance is used for City Center passing detection. If SC11 Shortcut changes the direction to backward, the player moves backward by that same modified total movement distance, but no City Center passing bonus can be awarded.
+See Section 18 (District Control). The Entertainment movement bonus applies only to normal forward movement. After the roll, it adds +1 (or +2 for Full Control) to produce the total forward movement distance; it does NOT change the die face. This can cause forward movement beyond 6 (up to 8 with Full Control), and that modified total forward movement distance is used for City Center passing detection. If SC11 Shortcut changes the direction to backward, the Entertainment bonus does not apply: the player moves backward by the unmodified die result, and no City Center passing bonus can be awarded.
 
 ---
 
@@ -574,14 +575,14 @@ District control is **recalculated at Round Resolution** (step 4b) and **immedia
 |---|---|---|---|
 | **Food** | Income | +30 Credits per round | +50 Credits per round (replaces the 30) |
 | **Tech** | Development | −20 Credits discount on all development costs this round | −30 Credits discount (replaces the 20) |
-| **Entertainment** | Movement | +1 to total movement distance after the roll (not retroactively) | +2 to total movement distance after the roll (replaces the +1) |
+| **Entertainment** | Movement | +1 to normal forward movement distance after the roll (not retroactively) | +2 to normal forward movement distance after the roll (replaces the +1) |
 | **Mobility** | Influence | +2 Influence per round | +3 Influence per round (replaces the 2) |
 
 **Important rules:**
 - Benefits are **simple fixed effects**, not percentages.
 - The 4/4 benefit **replaces** the 3/4 benefit (not additive).
 - **Tech discount:** Development costs for all properties (not just Tech properties) are reduced by the stated amount, to a minimum cost of 10 Credits. The discount is checked and applied at the moment a player performs a development action (during their turn), using the most recent district-control state, rather than waiting for Round Resolution.
-- **Entertainment bonus:** Applied after rolling to determine total movement distance, before movement direction is resolved. Example: Player rolls 3 with Entertainment Control → total movement distance 4. With Full Control → total movement distance 5. If SC11 Shortcut changes the direction to backward, that same total is moved backward, but backward movement never triggers the City Center passing bonus. Total movement can exceed 6 (up to 8 with Full Control).
+- **Entertainment bonus:** Applies only to normal forward movement. Example: Player rolls 3 with Entertainment Control → moves forward 4 spaces. With Full Control → moves forward 5 spaces. If SC11 Shortcut changes the direction to backward, the bonus does not apply and the player moves backward by the unmodified die result. Forward movement can exceed 6 (up to 8 with Full Control); backward Shortcut movement never triggers the City Center passing bonus.
 - **Food bonus:** Flat Credits added to the owner's balance at Round Resolution.
 - **Mobility bonus:** Influence added at Round Resolution.
 
@@ -648,7 +649,7 @@ This bonus is awarded if the player holds 4/4 at the time of final scoring. Losi
 | SC08 | **Urban Renewal** | Choose one of your properties. It generates double income this round (applied at Round Resolution). | Play during Action phase. Costs 1 Action. |
 | SC09 | **Lobbying Power** | Gain +3 Influence. | Play during Action phase. Costs 1 Action. |
 | SC10 | **Toll Booth** | The next player to land on any of your properties this round pays double the normal Landing Fee. | Play during Action phase. Costs 1 Action. Effect expires at end of round. |
-| SC11 | **Shortcut** | After rolling and applying movement modifiers, you may choose to move backward instead of forward using the same total movement distance. | Play after rolling, before moving. Does NOT cost an Action. |
+| SC11 | **Shortcut** | After rolling, you may choose to move backward instead of forward using the unmodified die result. Entertainment movement bonuses do not apply to this backward movement. | Play after rolling, before moving. Does NOT cost an Action. |
 | SC12 | **Insurance Policy** | When a player would owe a landing fee, they may play Insurance Policy immediately before fee payment. The landing fee becomes 0. Playing the card consumes 1 Action from the current turn and counts toward the one-card-per-turn limit. | Explicit reaction exception before fee payment. |
 
 ### 20.2 Card Rules
@@ -1069,7 +1070,7 @@ These rules must be enforced exactly. Misimplementation would cause gameplay bug
 
 4. **Landing fee is paid BEFORE the normal Action phase.** SC12 Insurance Policy is the only reaction exception: it may be played immediately before payment, makes the fee 0, consumes 1 Action from the current turn, and counts toward the one-card-per-turn limit.
 
-5. **Movement wraps modularly.** For forward movement, new position = (current + total forward movement distance) mod 20. For Shortcut backward movement, subtract the total movement distance and normalize to the 0–19 range.
+5. **Movement wraps modularly.** For forward movement, new position = (current + total forward movement distance after applicable forward modifiers) mod 20. For Shortcut backward movement, subtract the unmodified die result and normalize to the 0–19 range; Entertainment does not apply.
 
 6. **City Center passing detection uses modified forward distance.** City Center passing is determined using the player's total forward movement distance after all applicable movement modifiers, including Entertainment district movement bonuses. If the resulting forward movement crosses or lands on Space 0, award +150 Credits. Backward movement caused by Shortcut never triggers the bonus.
 
@@ -1077,7 +1078,7 @@ These rules must be enforced exactly. Misimplementation would cause gameplay bug
 
 8. **Property income minimum is 0.** Landing fee minimum is 5.
 
-9. **Strategy Card "Rush Hour" replaces the roll entirely.** The player does NOT roll; the result is 6. Entertainment bonus still applies on top.
+9. **Strategy Card "Rush Hour" replaces the roll entirely.** The player does NOT roll; the result is 6. Entertainment bonus still applies on top for normal forward movement.
 
 10. **"Flash Sale" discount** is a flat 40 Credits off the Base Price. Minimum purchase price = 40.
 
@@ -1156,7 +1157,7 @@ These rules must be enforced exactly. Misimplementation would cause gameplay bug
 | How do City Center passing and lap bonuses differ? | **Unified for forward movement.** +150 Credits whenever forward movement passes or lands on Space 0; Shortcut backward movement never awards it. (Section 10.2) |
 | How is Influence earned? | Setup (5), Mobility control, special events, specific cards. (Section 17.1) |
 | How is Influence spent? | Demand manipulation (1 per ±1) and Council voting (1 = 1 vote). (Section 17.2) |
-| How does Entertainment movement bonus work? | +1 (or +2 for full control) added after rolling to produce total movement distance. For forward movement, that total is used for City Center passing detection. (Sections 10.4, 18.3) |
+| How does Entertainment movement bonus work? | +1 (or +2 for full control) applies only to normal forward movement after rolling. Shortcut backward movement uses the unmodified die result and receives no Entertainment bonus. (Sections 10.4, 18.3) |
 | How does Mobility Influence bonus work? | +2 (or +3) Influence awarded at Round Resolution. (Section 18.3) |
 | How is final Property Value calculated? | BaseValue + (DevLevel × DevValueBonus). (Section 6.2) |
 | How is Full District Control scored? | +100 in District Control bonus + +100 in Full Control bonus = +200 total per district. (Sections 26.3, 26.4) |

@@ -33,7 +33,7 @@ COMPLETED:
 - Tie-breaking procedure
 - Economy balance analysis
 - Consistency audit (20 cross-cutting questions resolved)
-- City Center passing now uses total forward movement after applicable modifiers; Shortcut backward movement never awards the bonus
+- City Center passing now uses total forward movement after applicable forward modifiers; Entertainment applies only to normal forward movement, and Shortcut backward movement uses the unmodified die result and never awards the bonus
 - SC12 Insurance Policy is an immediate pre-payment reaction that consumes 1 Action and makes the landing fee 0
 - Secret Objectives use sequential two-card offers from one shuffled 10-objective pool for 4–6 players
 - Emergency-sale timeout/disconnect auto-liquidation is deterministic by ascending current liquidation value, then lowest property ID
@@ -68,6 +68,9 @@ TESTS RUN:
 - Internal consistency audit of the 34-section specification: PASS
 - Economy balance analysis with expected value calculations: PASS
 - District/property/space count verification: PASS (16 properties + 4 special = 20)
+- Final Markdown structure validation: PASS (20 files, 22 fenced blocks)
+- Final targeted gameplay consistency audit: PASS (25/25 checks)
+- Git whitespace/error check: PASS (`git diff --check`)
 - No application tests exist (implementation not started)
 
 KNOWN ISSUES:

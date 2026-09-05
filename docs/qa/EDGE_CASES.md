@@ -69,7 +69,7 @@
 
 - SC11 (Shortcut) played, and the backward move crosses Space 0 — City Center passing bonus must NOT trigger (Section 10.4 explicit rule).
 - SC11 backward move lands exactly on Space 0 — no City Center passing bonus applies; the backward-movement exclusion covers crossing and landing.
-- SC11 combined with Entertainment district movement bonus — apply the Entertainment +1/+2 to total movement distance before direction is resolved, use that same total backward, and never award the City Center passing bonus for the backward move.
+- SC11 combined with Entertainment district movement control — the backward move uses the unmodified die result. Do not apply the Entertainment +1/+2, and never award the City Center passing bonus for the backward move.
 
 ## Tech Discount Timing
 
