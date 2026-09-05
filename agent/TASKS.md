@@ -124,13 +124,13 @@ Specification: `docs/GAME_DESIGN_SPEC.md`
 
 ---
 
-## NEXT AUTHORIZED TASK
+## COMPLETED PHASE 1 TASK
 
 ### TASK-P1-001 — Foundation and authoritative game engine
 
 Owner: Codex
 
-Status: READY — NOT STARTED
+Status: COMPLETE
 
 Authorization: Product owner approved Phase 1 after completion of the gameplay documentation lock and consistency audit.
 
@@ -142,13 +142,27 @@ Dependencies:
 - Approved canonical gameplay specification: SATISFIED
 - Documentation consistency audit: SATISFIED
 
+Outputs:
+
+- npm workspace foundation for three React/Vite clients, Fastify server, and shared packages
+- strict shared Zod contracts and centralized locked game content
+- deterministic authoritative game engine with invariant checks and state projections
+- isolated serialized room runtimes, authenticated sessions, WebSocket foundation, persistence/recovery foundation, health endpoints, and initial PostgreSQL migration
+- regression coverage for checkpoint defects, including trade timeout, sub-phase timers, reconnect fallbacks, modifier precedence, and district validation
+
+Verification:
+
+- `npm run typecheck`: PASS
+- `npm run build`: PASS
+- `npm test`: PASS (84/84)
+
 Do not start Phase 2 automatically.
 
 ---
 
 ## NOT AUTHORIZED
 
-Phase 2 and work beyond the approved Phase 1 brief remain NOT AUTHORIZED. Phase 1 implementation is authorized but remains NOT STARTED at this documentation handoff.
+Phase 2 and work beyond the approved Phase 1 brief remain NOT AUTHORIZED.
 
 ---
 

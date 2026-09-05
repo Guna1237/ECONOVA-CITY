@@ -5,7 +5,70 @@ This file communicates important work between AI agents.
 
 ---
 
-## CURRENT HANDOFF
+## CURRENT HANDOFF — PHASE 1 COMPLETE
+
+FROM: Codex
+
+TO: Product owner / next authorized implementation agent
+
+TASK: Phase 1 foundation, authoritative engine, and checkpoint completion
+
+STATUS: COMPLETE — AWAITING PHASE 2 APPROVAL
+
+COMPLETED:
+
+- npm/TypeScript monorepo foundation with shared contracts, centralized game content, deterministic game engine, Fastify server, WebSocket transport, room/session isolation, projections, persistence/recovery interfaces, PostgreSQL migration, and critical tests
+- pending trades auto-reject safely when the proposing turn ends or times out
+- auction and emergency-sale sub-phases pause/resume the normal turn timer across manual, timeout, and disconnect completion
+- reconnect timeout deterministically resolves pending event district and card-discard choices
+- Special Event district commands accept only canonical district IDs
+- modifier precedence overlap is regression-tested and matches the locked specification
+- Council begins without stale player-turn state and uses its separate timer boundary
+- player/projector/admin Vite applications have minimal build entrypoints only
+
+REMAINING:
+
+- Phase 2 feature UI and browser flows
+- visual implementation and visual QA
+- deployment/event-release work beyond the Phase 1 foundation
+
+RELEVANT FILES:
+
+- `packages/contracts/src/schemas.ts`
+- `packages/game-content/src/`
+- `packages/game-engine/src/`
+- `apps/server/src/`
+- `database/migrations/001_initial.sql`
+- `apps/player/index.html`, `apps/projector/index.html`, `apps/admin/index.html`
+- `packages/game-engine/test/`, `apps/server/test/`, `packages/contracts/test/`
+
+TESTS PERFORMED:
+
+- `npm run typecheck`: PASS
+- `npm run build`: PASS
+- `npm test`: PASS (84/84)
+- `git diff --check`: PASS
+
+KNOWN ISSUES:
+
+- No known blocker remains in Phase 1 scope.
+- The three client roots are intentionally minimal and are not product UI.
+- Phase 2 has not been authorized or started.
+
+IMPORTANT IMPLEMENTATION DETAILS:
+
+- `docs/GAME_DESIGN_SPEC.md` remains the gameplay source of truth.
+- Active game state is server-authoritative; client commands carry request/action IDs and expected state versions.
+- Each room has an isolated serialized runtime and independently quarantines on persistence or invariant failure.
+- Never send full authoritative state to player/projector clients; use the existing projection functions.
+
+RECOMMENDED NEXT ACTION:
+
+Product owner reviews the Phase 1 commit and explicitly authorizes Phase 2. Do not begin Phase 2 automatically.
+
+---
+
+## PREVIOUS HANDOFF — GAMEPLAY LOCK
 
 FROM: Codex
 

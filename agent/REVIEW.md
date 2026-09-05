@@ -199,6 +199,108 @@ Closing delimiters were added at the eight intended boundaries. Requirement word
 
 ---
 
+## RESOLVED PHASE 1 CHECKPOINT FINDINGS
+
+### REVIEW-006
+
+Severity: HIGH
+
+Area: Trade lifecycle
+
+Status: RESOLVED
+
+Problem: A pending trade caused normal turn completion and timeout to throw `TRADE_PENDING`, which could quarantine the room.
+
+Resolution: Turn completion now clears the trade, emits the existing `trade_rejected` event, and advances normally.
+
+Required Test: Pending-trade timeout clears state and advances the turn without throwing. PASS.
+
+### REVIEW-007
+
+Severity: HIGH
+
+Area: Turn timers
+
+Status: RESOLVED
+
+Problem: Auction and emergency-sale sub-phases ran without pausing the normal 60-second turn deadline.
+
+Resolution: Both sub-phases now store remaining normal-turn time, clear the normal deadline, and restore/clear stored time on manual completion, timeout, and disconnect completion.
+
+Required Test: Auction and emergency-sale manual, timeout, and disconnect paths preserve remaining time. PASS.
+
+### REVIEW-008
+
+Severity: MEDIUM
+
+Area: Build foundation
+
+Status: RESOLVED
+
+Problem: Vite clients had no `index.html` entry documents, so the root production build failed.
+
+Resolution: Added minimal entry documents and React roots for player, projector, and admin clients without implementing Phase 2 UI.
+
+Required Test: Root `npm run build`. PASS.
+
+### REVIEW-009
+
+Severity: MEDIUM
+
+Area: Calculation precedence
+
+Status: RESOLVED — IMPLEMENTATION CONFIRMED CORRECT
+
+Problem: Overlap between temporary multipliers and policy additives lacked an explicit regression test.
+
+Resolution: Added income and landing-fee overlap tests confirming temporary modifiers apply before policy additives and clamps remain in the approved position.
+
+Required Test: Modifier-overlap calculation tests. PASS.
+
+### REVIEW-010
+
+Severity: HIGH
+
+Area: Reconnect timeout
+
+Status: RESOLVED
+
+Problem: Reconnect timeout during `awaiting_event_choice` or `awaiting_card_discard` threw `MANUAL_CHOICE_REQUIRED` and could halt progression.
+
+Resolution: The server now chooses the first canonical district whose demand can change, or the first canonical district if all are clamped, and discards the lowest Strategy Card ID; both use the same resolution helpers as manual choices.
+
+Required Test: Both reconnect-timeout pending-choice paths resolve deterministically and advance. PASS.
+
+### REVIEW-011
+
+Severity: MEDIUM
+
+Area: Command validation
+
+Status: RESOLVED
+
+Problem: `select_event_district` accepted any generic identifier at the network boundary.
+
+Resolution: The command now uses `districtIdSchema`. Council IDs remain bounded generic protocol identifiers and are matched against authoritative Council state.
+
+Required Test: Reject a syntactically valid but non-canonical district. PASS.
+
+### REVIEW-012
+
+Severity: HIGH
+
+Area: Council timer isolation
+
+Status: RESOLVED
+
+Problem: Entering a separately timed Council phase retained the completed player's stale turn and normal deadline.
+
+Resolution: Round entry clears completed turn state before Council/strategy-draw processing; a new turn is created only when player-turn phase begins.
+
+Required Test: Round 3 Council begins with `turn === null` and its own deadline. PASS.
+
+---
+
 ## REVIEW ITEM FORMAT
 
 ### REVIEW-XXX

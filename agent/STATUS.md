@@ -7,13 +7,13 @@ This file records the current development state.
 
 ## CURRENT STATE
 
-Phase 0 documentation baseline is complete.
+Phase 1 foundation and authoritative game engine are complete on `phase1/foundation-engine`.
 
 **Canonical Game Design Specification has been APPROVED and written to `docs/GAME_DESIGN_SPEC.md`.**
 
 Architecture: APPROVED
 
-Implementation: NOT STARTED
+Implementation: PHASE 1 COMPLETE
 
 Gameplay content: APPROVED — see `docs/GAME_DESIGN_SPEC.md`
 
@@ -21,15 +21,40 @@ Gameplay content: APPROVED — see `docs/GAME_DESIGN_SPEC.md`
 
 ## ACTIVE AGENT
 
-Codex — completed the product-owner gameplay clarification and documentation lock.
+Codex — completed the approved Phase 1 implementation and checkpoint corrections.
 
 ---
 
 ## CURRENT TASK
 
-Approved gameplay-rule synchronization and final consistency audit.
+Phase 1 foundation, authoritative game engine, server/runtime foundations, and checkpoint fixes.
 
 Status: COMPLETE
+
+---
+
+## COMPLETED WORK (Phase 1 — by Codex)
+
+- Initialized the npm/TypeScript workspace without starting Phase 2 UI work.
+- Added shared Zod command/message contracts and centralized locked game content.
+- Implemented the deterministic authoritative game engine, scoring, invariant validation, public/player/admin projections, and administrative pause/resume controls.
+- Implemented serialized per-room runtimes, room isolation, authenticated session boundaries, WebSocket state delivery, idempotent command receipts, and room-level quarantine on persistence/invariant failures.
+- Added PostgreSQL persistence/recovery foundations and the initial migration for games, players, sessions, events, receipts, results, admin audit, and schema migrations.
+- Added Fastify health, room, session, projector, admin, and WebSocket foundations.
+- Added minimal build entrypoints for player, projector, and admin Vite clients; no production UI was implemented.
+- Corrected pending-trade turn completion to auto-reject and advance safely.
+- Corrected normal-turn timer pause/resume for auction and emergency-sale manual, timeout, and disconnect paths.
+- Added deterministic reconnect-timeout fallbacks for pending Special Event district choice and card discard.
+- Tightened `select_event_district` to the canonical district schema; retained dynamic Council ID validation with authoritative state matching.
+- Verified temporary multipliers precede policy additives for income and landing-fee calculations.
+- Removed stale player-turn state when entering separately timed City Council phases.
+
+Verification completed before handoff:
+
+- `npm run typecheck`: PASS
+- `npm run build`: PASS
+- `npm test`: PASS (14 files, 84 tests)
+- `git diff --check`: PASS
 
 ---
 
@@ -113,25 +138,16 @@ Status: COMPLETE
 
 **None for game design.** All gameplay content questions are resolved.
 
-Phase 1 is authorized and ready to begin, but production implementation remains NOT STARTED in this documentation task.
+No known blocker remains within Phase 1 scope. Phase 2 remains unauthorized pending product-owner approval.
 
 ---
 
 ## NEXT STEP
 
-Begin only the approved Phase 1 brief: establish the foundation, shared contracts/content, authoritative deterministic game engine, room/runtime/protocol/persistence foundations, and critical tests. Do not begin Phase 2 automatically.
+Review and approve the Phase 1 checkpoint. Do not begin Phase 2 automatically.
 
 ---
 
 ## SCOPE CONFIRMATION
 
-The following have not been initialized or implemented:
-
-- application framework
-- production dependencies
-- frontend
-- backend
-- game engine
-- WebSockets
-- database or migrations
-- visual redesign
+Phase 2 player/projector/admin feature UI, visual polish, browser flows, and deployment release work have not started. No visual redesign was made in Phase 1.

@@ -1,0 +1,43 @@
+{
+  "name": "econova-city",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=11.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build:packages && npm run build:server && npm run build:clients",
+    "build:packages": "npm run build -w @econova/contracts && npm run build -w @econova/game-content && npm run build -w @econova/game-engine",
+    "build:server": "npm run build -w @econova/server",
+    "build:clients": "npm run build -w @econova/player && npm run build -w @econova/projector && npm run build -w @econova/admin",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "dev:server": "npm run dev -w @econova/server",
+    "dev:player": "npm run dev -w @econova/player",
+    "dev:projector": "npm run dev -w @econova/projector",
+    "dev:admin": "npm run dev -w @econova/admin",
+    "db:migrate": "npm run db:migrate -w @econova/server"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.4.1",
+    "@types/pg": "8.23.1",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "@types/ws": "8.18.1",
+    "@vitejs/plugin-react": "6.1.1",
+    "@vitest/coverage-v8": "5.0.0",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "vite": "8.2.2",
+    "vitest": "5.0.0"
+  }
+}

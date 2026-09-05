@@ -1,0 +1,25 @@
+{
+  "name": "@econova/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js",
+    "db:migrate": "tsx src/persistence/migrate.ts"
+  },
+  "dependencies": {
+    "@econova/contracts": "0.1.0",
+    "@econova/game-content": "0.1.0",
+    "@econova/game-engine": "0.1.0",
+    "@fastify/cors": "11.3.0",
+    "@fastify/websocket": "11.3.0",
+    "fastify": "5.12.3",
+    "pg": "8.23.0",
+    "zod": "4.5.4"
+  }
+}

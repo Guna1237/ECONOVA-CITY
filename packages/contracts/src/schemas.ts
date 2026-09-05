@@ -1,0 +1,215 @@
+import { z } from "zod";
+
+const identifierSchema = z
+  .string()
+  .min(1)
+  .max(128)
+  .regex(/^[A-Za-z0-9_-]+$/);
+
+export const requestIdSchema = identifierSchema.brand<"RequestId">();
+export const actionIdSchema = identifierSchema.brand<"ActionId">();
+export const roomIdSchema = identifierSchema.brand<"RoomId">();
+export const playerIdSchema = identifierSchema.brand<"PlayerId">();
+export const propertyIdSchema = identifierSchema.brand<"PropertyId">();
+export const cardIdSchema = identifierSchema.brand<"CardId">();
+export const auctionIdSchema = identifierSchema.brand<"AuctionId">();
+export const tradeIdSchema = identifierSchema.brand<"TradeId">();
+export const objectiveIdSchema = identifierSchema.brand<"ObjectiveId">();
+export const districtIdSchema = z.enum(["food", "tech", "entertainment", "mobility"]);
+
+const commandEnvelopeShape = {
+  requestId: requestIdSchema,
+  actionId: actionIdSchema,
+  expectedStateVersion: z.number().int().nonnegative()
+};
+
+const command = <T extends z.ZodRawShape>(shape: T) =>
+  z.object({ ...commandEnvelopeShape, ...shape }).strict();
+
+const propertyListSchema = z.array(propertyIdSchema).max(16);
+
+export const clientCommandSchema = z.discriminatedUnion("type", [
+  command({
+    type: z.literal("choose_objective"),
+    objectiveId: objectiveIdSchema
+  }),
+  command({ type: z.literal("roll") }),
+  command({
+    type: z.literal("choose_shortcut"),
+    useShortcut: z.boolean()
+  }),
+  command({
+    type: z.literal("buy_property"),
+    propertyId: propertyIdSchema
+  }),
+  command({
+    type: z.literal("decline_property"),
+    propertyId: propertyIdSchema
+  }),
+  command({
+    type: z.literal("start_auction"),
+    propertyId: propertyIdSchema
+  }),
+  command({
+    type: z.literal("submit_bid"),
+    auctionId: auctionIdSchema,
+    amount: z.number().int().nonnegative()
+  }),
+  command({
+    type: z.literal("pass_auction"),
+    auctionId: auctionIdSchema
+  }),
+  command({
+    type: z.literal("develop_property"),
+    propertyId: propertyIdSchema
+  }),
+  command({
+    type: z.literal("change_demand"),
+    districtId: districtIdSchema,
+    delta: z.union([z.literal(-1), z.literal(1)])
+  }),
+  command({
+    type: z.literal("play_card"),
+    cardId: cardIdSchema,
+    targetPlayerId: playerIdSchema.optional(),
+    targetPropertyId: propertyIdSchema.optional(),
+    targetDistrictId: districtIdSchema.optional(),
+    reactionTo: z.literal("landing_fee").optional()
+  }),
+  command({
+    type: z.literal("propose_trade"),
+    counterpartyPlayerId: playerIdSchema,
+    offeredCredits: z.number().int().nonnegative(),
+    offeredPropertyIds: propertyListSchema,
+    requestedCredits: z.number().int().nonnegative(),
+    requestedPropertyIds: propertyListSchema
+  }),
+  command({
+    type: z.literal("respond_trade"),
+    tradeId: tradeIdSchema,
+    response: z.enum(["accept", "reject"])
+  }),
+  command({
+    type: z.literal("council_vote"),
+    councilId: identifierSchema,
+    optionAInfluence: z.number().int().nonnegative(),
+    optionBInfluence: z.number().int().nonnegative()
+  }),
+  command({
+    type: z.literal("select_event_district"),
+    eventId: identifierSchema,
+    districtId: districtIdSchema
+  }),
+  command({
+    type: z.literal("discard_card"),
+    cardId: cardIdSchema
+  }),
+  command({
+    type: z.literal("emergency_sell"),
+    propertyIds: propertyListSchema.min(1)
+  }),
+  command({ type: z.literal("pay_landing_fee") }),
+  command({ type: z.literal("end_turn") })
+]);
+
+export const adminCommandSchema = z.discriminatedUnion("type", [
+  command({ type: z.literal("admin_start_game") }),
+  command({
+    type: z.literal("admin_pause_game"),
+    reason: z.string().trim().min(1).max(240)
+  }),
+  command({ type: z.literal("admin_resume_game") }),
+  command({
+    type: z.literal("admin_skip_turn"),
+    reason: z.string().trim().min(1).max(240)
+  }),
+  command({
+    type: z.literal("admin_end_game"),
+    reason: z.string().trim().min(1).max(240)
+  })
+]);
+
+export const resumeMessageSchema = z
+  .object({
+    type: z.literal("resume"),
+    sessionToken: z.string().min(32).max(512),
+    lastSeenStateVersion: z.number().int().nonnegative().optional()
+  })
+  .strict();
+
+export const pingMessageSchema = z
+  .object({
+    type: z.literal("ping"),
+    clientTime: z.number().int().nonnegative()
+  })
+  .strict();
+
+export const clientMessageSchema = z.union([
+  resumeMessageSchema,
+  pingMessageSchema,
+  clientCommandSchema
+]);
+
+const rejectionCodeSchema = z.enum([
+  "AUTHENTICATION_REQUIRED",
+  "AUTHORIZATION_DENIED",
+  "ROOM_UNAVAILABLE",
+  "ROOM_QUARANTINED",
+  "INVALID_COMMAND",
+  "INVALID_PHASE",
+  "NOT_CURRENT_PLAYER",
+  "STALE_STATE",
+  "DUPLICATE_ACTION",
+  "ACTION_CONFLICT",
+  "GAME_RULE_VIOLATION",
+  "INTERNAL_ERROR"
+]);
+
+export const serverMessageSchema = z.discriminatedUnion("type", [
+  z
+    .object({
+      type: z.literal("state_snapshot"),
+      roomId: roomIdSchema,
+      stateVersion: z.number().int().nonnegative(),
+      projection: z.record(z.string(), z.unknown())
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("action_accepted"),
+      requestId: requestIdSchema,
+      actionId: actionIdSchema,
+      stateVersion: z.number().int().nonnegative()
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("action_rejected"),
+      requestId: requestIdSchema.optional(),
+      actionId: actionIdSchema.optional(),
+      code: rejectionCodeSchema,
+      message: z.string().min(1).max(240),
+      currentStateVersion: z.number().int().nonnegative().optional()
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("pong"),
+      clientTime: z.number().int().nonnegative(),
+      serverTime: z.number().int().nonnegative()
+    })
+    .strict()
+]);
+
+export type ClientCommand = z.infer<typeof clientCommandSchema>;
+export type AdminCommand = z.infer<typeof adminCommandSchema>;
+export type ClientMessage = z.infer<typeof clientMessageSchema>;
+export type ServerMessage = z.infer<typeof serverMessageSchema>;
+export type RequestId = z.infer<typeof requestIdSchema>;
+export type ActionId = z.infer<typeof actionIdSchema>;
+export type RoomId = z.infer<typeof roomIdSchema>;
+export type PlayerId = z.infer<typeof playerIdSchema>;
+export type PropertyId = z.infer<typeof propertyIdSchema>;
+export type CardId = z.infer<typeof cardIdSchema>;
+export type ObjectiveId = z.infer<typeof objectiveIdSchema>;
+export type DistrictId = z.infer<typeof districtIdSchema>;

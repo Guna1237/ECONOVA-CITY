@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/contracts" },
+    { "path": "packages/game-content" },
+    { "path": "packages/game-engine" },
+    { "path": "apps/server" },
+    { "path": "apps/player" },
+    { "path": "apps/projector" },
+    { "path": "apps/admin" }
+  ]
+}
