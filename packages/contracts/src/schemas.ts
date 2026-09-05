@@ -1,21 +1,26 @@
 import { z } from "zod";
 
-const identifierSchema = z
-  .string()
-  .min(1)
-  .max(128)
-  .regex(/^[A-Za-z0-9_-]+$/);
+import {
+  actionIdSchema,
+  auctionIdSchema,
+  cardIdSchema,
+  districtIdSchema,
+  identifierSchema,
+  objectiveIdSchema,
+  playerIdSchema,
+  propertyIdSchema,
+  requestIdSchema,
+  roomIdSchema,
+  sessionTokenSchema,
+  tradeIdSchema
+} from "./primitives.js";
+import {
+  adminProjectionSchema,
+  playerProjectionSchema,
+  projectorProjectionSchema
+} from "./projections.js";
 
-export const requestIdSchema = identifierSchema.brand<"RequestId">();
-export const actionIdSchema = identifierSchema.brand<"ActionId">();
-export const roomIdSchema = identifierSchema.brand<"RoomId">();
-export const playerIdSchema = identifierSchema.brand<"PlayerId">();
-export const propertyIdSchema = identifierSchema.brand<"PropertyId">();
-export const cardIdSchema = identifierSchema.brand<"CardId">();
-export const auctionIdSchema = identifierSchema.brand<"AuctionId">();
-export const tradeIdSchema = identifierSchema.brand<"TradeId">();
-export const objectiveIdSchema = identifierSchema.brand<"ObjectiveId">();
-export const districtIdSchema = z.enum(["food", "tech", "entertainment", "mobility"]);
+export * from "./primitives.js";
 
 const commandEnvelopeShape = {
   requestId: requestIdSchema,
@@ -132,7 +137,7 @@ export const adminCommandSchema = z.discriminatedUnion("type", [
 export const resumeMessageSchema = z
   .object({
     type: z.literal("resume"),
-    sessionToken: z.string().min(32).max(512),
+    sessionToken: sessionTokenSchema,
     lastSeenStateVersion: z.number().int().nonnegative().optional()
   })
   .strict();
@@ -165,15 +170,38 @@ const rejectionCodeSchema = z.enum([
   "INTERNAL_ERROR"
 ]);
 
-export const serverMessageSchema = z.discriminatedUnion("type", [
+const stateSnapshotMessageSchema = z.discriminatedUnion("audience", [
   z
     .object({
       type: z.literal("state_snapshot"),
+      audience: z.literal("player"),
       roomId: roomIdSchema,
       stateVersion: z.number().int().nonnegative(),
-      projection: z.record(z.string(), z.unknown())
+      projection: playerProjectionSchema
     })
     .strict(),
+  z
+    .object({
+      type: z.literal("state_snapshot"),
+      audience: z.literal("projector"),
+      roomId: roomIdSchema,
+      stateVersion: z.number().int().nonnegative(),
+      projection: projectorProjectionSchema
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("state_snapshot"),
+      audience: z.literal("admin"),
+      roomId: roomIdSchema,
+      stateVersion: z.number().int().nonnegative(),
+      projection: adminProjectionSchema
+    })
+    .strict()
+]);
+
+export const serverMessageSchema = z.union([
+  stateSnapshotMessageSchema,
   z
     .object({
       type: z.literal("action_accepted"),
@@ -205,11 +233,3 @@ export type ClientCommand = z.infer<typeof clientCommandSchema>;
 export type AdminCommand = z.infer<typeof adminCommandSchema>;
 export type ClientMessage = z.infer<typeof clientMessageSchema>;
 export type ServerMessage = z.infer<typeof serverMessageSchema>;
-export type RequestId = z.infer<typeof requestIdSchema>;
-export type ActionId = z.infer<typeof actionIdSchema>;
-export type RoomId = z.infer<typeof roomIdSchema>;
-export type PlayerId = z.infer<typeof playerIdSchema>;
-export type PropertyId = z.infer<typeof propertyIdSchema>;
-export type CardId = z.infer<typeof cardIdSchema>;
-export type ObjectiveId = z.infer<typeof objectiveIdSchema>;
-export type DistrictId = z.infer<typeof districtIdSchema>;

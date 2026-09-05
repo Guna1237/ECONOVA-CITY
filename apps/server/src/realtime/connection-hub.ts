@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 
+import { serverMessageSchema, type ServerMessage } from "@econova/contracts";
+
 import {
   createAdminProjection,
   createPlayerProjection,
@@ -9,7 +11,7 @@ import {
 
 import type { AuthenticatedSession } from "../auth/types.js";
 
-export type ConnectionSender = (message: Record<string, unknown>) => void;
+export type ConnectionSender = (message: ServerMessage) => void;
 
 interface Connection {
   readonly connectionId: string;
@@ -34,47 +36,49 @@ export class ConnectionHub {
   broadcastState(state: GameState): void {
     for (const connection of this.bySessionId.values()) {
       if (connection.session.roomId !== state.roomId) continue;
-      let projection: Record<string, unknown>;
+      let projection: unknown;
       if (connection.session.role === "player") {
         if (connection.session.playerId === null) continue;
         projection = createPlayerProjection(
           state,
           connection.session.playerId
-        ) as unknown as Record<string, unknown>;
+        );
       } else if (connection.session.role === "projector") {
-        projection = createProjectorProjection(state) as unknown as Record<string, unknown>;
+        projection = createProjectorProjection(state);
       } else {
-        projection = createAdminProjection(state) as unknown as Record<string, unknown>;
+        projection = createAdminProjection(state);
       }
-      connection.send({
+      connection.send(serverMessageSchema.parse({
         type: "state_snapshot",
+        audience: connection.session.role,
         roomId: state.roomId,
         stateVersion: state.version,
         projection
-      });
+      }));
     }
   }
 
   sendCurrentState(state: GameState, sessionId: string): void {
     const connection = this.bySessionId.get(sessionId);
     if (connection === undefined || connection.session.roomId !== state.roomId) return;
-    let projection: Record<string, unknown>;
+    let projection: unknown;
     if (connection.session.role === "player") {
       if (connection.session.playerId === null) return;
       projection = createPlayerProjection(
         state,
         connection.session.playerId
-      ) as unknown as Record<string, unknown>;
+      );
     } else if (connection.session.role === "projector") {
-      projection = createProjectorProjection(state) as unknown as Record<string, unknown>;
+      projection = createProjectorProjection(state);
     } else {
-      projection = createAdminProjection(state) as unknown as Record<string, unknown>;
+      projection = createAdminProjection(state);
     }
-    connection.send({
+    connection.send(serverMessageSchema.parse({
       type: "state_snapshot",
+      audience: connection.session.role,
       roomId: state.roomId,
       stateVersion: state.version,
       projection
-    });
+    }));
   }
 }

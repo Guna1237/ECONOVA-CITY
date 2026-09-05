@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  adminProjectionSchema,
+  playerProjectionSchema,
+  projectorProjectionSchema,
+  publicProjectionSchema
+} from "@econova/contracts";
+
+import {
   chooseSecretObjective,
   createAdminProjection,
   createInitialGame,
@@ -8,6 +15,7 @@ import {
   createProjectorProjection,
   createPublicProjection,
   createSeededRandom,
+  startGame,
   type GameState
 } from "../src/index.js";
 
@@ -91,5 +99,32 @@ describe("recipient-specific projections", () => {
     expect(admin.players).toHaveLength(4);
     expect(admin).not.toHaveProperty("strategyDeck");
     expect(admin).not.toHaveProperty("objectiveDeck");
+  });
+
+  it("emits projections that conform to every role contract", () => {
+    const state = createState();
+    const playerId = state.turnOrder[0]!;
+
+    expect(publicProjectionSchema.safeParse(createPublicProjection(state)).success).toBe(true);
+    expect(projectorProjectionSchema.safeParse(createProjectorProjection(state)).success).toBe(true);
+    expect(playerProjectionSchema.safeParse(createPlayerProjection(state, playerId)).success).toBe(
+      true
+    );
+    expect(adminProjectionSchema.safeParse(createAdminProjection(state)).success).toBe(true);
+  });
+
+  it("derives interaction capabilities from the authoritative turn state", () => {
+    const state = createState();
+    const started = startGame(state, createSeededRandom(8), 1_000).state;
+    const playerId = started.turn!.playerId;
+
+    expect(createPlayerProjection(started, playerId).self.capabilities).toEqual({
+      expectedStateVersion: started.version,
+      commandTypes: ["roll"]
+    });
+    expect(
+      createPlayerProjection(started, started.turnOrder.find((id) => id !== playerId)!).self
+        .capabilities.commandTypes
+    ).toEqual([]);
   });
 });

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { serverMessageSchema } from "@econova/contracts";
+
 import {
   chooseSecretObjective,
   createInitialGame,
@@ -62,6 +64,24 @@ describe("connection projection hub", () => {
     expect(JSON.stringify(projectorMessages[0])).not.toContain("SC12");
     expect(otherRoomMessages).toHaveLength(0);
     expect(JSON.stringify(playerMessages[0])).not.toContain(roomB.gameId);
+    expect(serverMessageSchema.parse(playerMessages[0])).toMatchObject({ audience: "player" });
+    expect(serverMessageSchema.parse(projectorMessages[0])).toMatchObject({
+      audience: "projector"
+    });
+  });
+
+  it("emits a schema-valid room-scoped admin snapshot", () => {
+    const state = game("room-a");
+    const messages: unknown[] = [];
+    const hub = new ConnectionHub();
+    hub.add(session("admin", "room-a", null), (message) => messages.push(message));
+
+    hub.sendCurrentState(state, "admin-room-a-none");
+
+    expect(serverMessageSchema.parse(messages[0])).toMatchObject({
+      audience: "admin",
+      roomId: "room-a"
+    });
   });
 
   it("replaces stale connections for the same session", () => {
