@@ -5,6 +5,16 @@ This file tracks authorized work and its ownership.
 
 No agent should invent major tasks without authorization.
 
+## Current Phase 2 integration checkpoint — 2026-09-06
+
+Owner: Codex. Runtime/server/client-core changes are implemented in the shared working tree; verification is recorded in `docs/qa/PHASE2_ENGINEERING_PASS.md`. Preserve all concurrent light-premium-tabletop frontend work.
+
+Completed this continuation: REVIEW-018 connected timeout emergency-sale fix; REVIEW-019 owner-approved pause/frozen reconnect/deferred disconnect effects; client-core adapter integration; timing-specific card capability repair; recovered game identity/version binding checks; 12-player/two-room real socket privacy/replacement-reconnect regression; opt-in real PostgreSQL process-recovery infrastructure.
+
+Live PostgreSQL verification: COMPLETE for the existing process-recovery suite on PostgreSQL 18.6 / dedicated econova_test. Targeted test executed and passed; full suite executed 243 tests with no skips. Fresh-schema migrations 001–004 and idempotent repeat passed. No code/config/credential changes required.
+
+Remaining / owner: Claude — REVIEW-023 shared UI crest asset packaging build failure, browser reconnect/refresh/uncertain-result/private-inspection completion and frontend QA, preserving light-premium-tabletop visuals. Astra — complete canonical catalog trace audit, performance/failure soak, event startup/backup/restore rehearsal. Phase 2 is not release-complete. Contracts, client-core, root workspace configuration, and agent records require one active editor; Astra does not edit Claude's CSS/UI in parallel.
+
 ---
 
 ## COMPLETED TASK

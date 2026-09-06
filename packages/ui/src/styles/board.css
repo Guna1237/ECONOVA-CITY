@@ -1,0 +1,1133 @@
+/*
+ * ECONOVA: CITY — the board.
+ *
+ * This is one physical object: a pressed board plate with twenty printed
+ * spaces divided by hairline rules, and an inlaid centre. Ownership,
+ * development and player pieces are physical things resting on top of the
+ * print — they are the only elements permitted to cast a shadow.
+ */
+
+/* =================================================================
+ * 1. THE BOARD PLATE
+ * ============================================================== */
+
+.eco-board {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  padding: var(--board-pad);
+  border-radius: var(--radius-board);
+  /* A warm rim around a lighter printed field, like a boxed board. */
+  background:
+    linear-gradient(180deg, #e8dcc2, #d8c8a6 60%, #cdbb95);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -2px 3px rgba(120, 95, 55, 0.28),
+    var(--depth-board);
+  isolation: isolate;
+  container-type: inline-size;
+  z-index: var(--z-board);
+}
+
+/* The printed field, seated inside the rim. */
+.eco-board::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--board-pad) * 0.42);
+  border-radius: calc(var(--radius-board) - 5px);
+  background: var(--board-field);
+  box-shadow:
+    inset 0 1px 3px rgba(120, 95, 55, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+/* Paper grain and a soft light from above — barely there, but it stops the
+   field reading as flat screen white. */
+.eco-board::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-board);
+  background:
+    radial-gradient(ellipse 110% 80% at 50% -8%, rgba(255, 255, 255, 0.5), transparent 58%),
+    repeating-linear-gradient(
+      112deg,
+      rgba(120, 95, 55, 0.028) 0 1px,
+      transparent 1px 3px
+    );
+  pointer-events: none;
+}
+
+.eco-board__grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 1px;
+  height: 100%;
+  background: var(--board-rule);
+  border-radius: calc(var(--radius-board) - 9px);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--board-rule);
+}
+
+/* =================================================================
+ * 2. A PRINTED SPACE
+ * ============================================================== */
+
+.eco-space {
+  --band: 13%;
+  --owner: transparent;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 6% 7%;
+  background: var(--board-cell);
+  color: var(--ink);
+  text-align: left;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition:
+    background var(--motion-shift) var(--ease-out),
+    box-shadow var(--motion-shift) var(--ease-out);
+}
+
+.eco-space[data-edge='top'] { padding-top: calc(var(--band) + 5%); }
+.eco-space[data-edge='bottom'] { padding-bottom: calc(var(--band) + 5%); }
+.eco-space[data-edge='left'] { padding-left: calc(var(--band) + 5%); }
+.eco-space[data-edge='right'] { padding-right: calc(var(--band) + 5%); }
+
+.eco-space[data-interactive='true'] { cursor: pointer; }
+
+.eco-space[data-interactive='true']:hover {
+  background: var(--board-cell-lit);
+}
+
+/* Owned: the printed field takes the owner's tint. Subtle — the claim
+   chip and the band stripe do the loud work. */
+.eco-space[data-owned='true'] {
+  background: color-mix(in srgb, var(--owner) 9%, var(--board-cell));
+}
+
+.eco-space[data-owned='true'][data-interactive='true']:hover {
+  background: color-mix(in srgb, var(--owner) 15%, var(--board-cell));
+}
+
+/* Selected for inspection: brass keyline, drawn inside so the grid stays flush. */
+.eco-space[data-selected='true'] {
+  box-shadow:
+    inset 0 0 0 2px var(--brass),
+    inset 0 0 20px -6px rgba(169, 112, 28, 0.3);
+}
+
+/* The space a piece is about to land on, during movement. */
+.eco-space[data-destination='true'] {
+  animation: eco-destination var(--motion-event) var(--ease-out) 2;
+}
+
+@keyframes eco-destination {
+  0%, 100% { box-shadow: inset 0 0 0 0 rgba(169, 112, 28, 0); }
+  50% { box-shadow: inset 0 0 0 3px var(--brass); }
+}
+
+/* ---- district enamel band, seated on the board's outer edge ---- */
+
+.eco-space__band {
+  position: absolute;
+  background: var(--district);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.16);
+}
+
+.eco-space[data-edge='top'] .eco-space__band { inset: 0 0 auto 0; height: var(--band); }
+.eco-space[data-edge='bottom'] .eco-space__band { inset: auto 0 0 0; height: var(--band); }
+.eco-space[data-edge='left'] .eco-space__band { inset: 0 auto 0 0; width: var(--band); }
+.eco-space[data-edge='right'] .eco-space__band { inset: 0 0 0 auto; width: var(--band); }
+
+/* An owned space carries the owner's claim stripe along the inner lip of
+   the district band — district identity and ownership never share a colour. */
+.eco-space__claim-stripe {
+  position: absolute;
+  background: var(--owner);
+}
+
+.eco-space[data-edge='top'] .eco-space__claim-stripe {
+  inset: var(--band) 0 auto 0;
+  height: 4%;
+}
+.eco-space[data-edge='bottom'] .eco-space__claim-stripe {
+  inset: auto 0 var(--band) 0;
+  height: 4%;
+}
+.eco-space[data-edge='left'] .eco-space__claim-stripe {
+  inset: 0 auto 0 var(--band);
+  width: 4%;
+}
+.eco-space[data-edge='right'] .eco-space__claim-stripe {
+  inset: 0 var(--band) 0 auto;
+  width: 4%;
+}
+
+/* ---- printed content ---- */
+
+.eco-space__district {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--district-lit);
+  font-size: clamp(6px, 0.85cqw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.eco-space__district svg {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+.eco-space__name {
+  margin-top: 2px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(8px, 1.45cqw, 21px);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.eco-space__foot {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.eco-space__price {
+  font-family: var(--font-numeric);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(7px, 1cqw, 15px);
+  color: var(--ink-soft);
+}
+
+.eco-space[data-owned='true'] .eco-space__price { color: var(--ink-faint); }
+
+/* ---- the claim chip: a physical enamel disc pressed onto the space ---- */
+
+.eco-space__claim {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 5px;
+  border-radius: 999px;
+  background: var(--owner);
+  color: #fffdf8;
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-size: clamp(6px, 0.85cqw, 13px);
+  line-height: 1;
+  box-shadow: var(--depth-piece);
+}
+
+.eco-space__claim svg {
+  width: 0.85em;
+  height: 0.85em;
+}
+
+/* =================================================================
+ * 3. ARTWORK — the printed motif, and the city standing on it
+ * ============================================================== */
+
+/* Screen-printed onto the space: present, never competing with the name. */
+.eco-space__motif {
+  position: absolute;
+  left: 50%;
+  bottom: 38%;
+  width: 50%;
+  height: 28%;
+  transform: translateX(-50%);
+  color: var(--district);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.eco-space[data-owned='true'] .eco-space__motif { opacity: 0.7; }
+
+/* Miniatures standing on the printed space, in the owner's colour. */
+.eco-space__built {
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  width: 88%;
+  height: 40%;
+  transform: translateX(-50%);
+  color: var(--owner, var(--ink-soft));
+  pointer-events: none;
+  animation: eco-raise var(--motion-event) var(--ease-settle);
+  transform-origin: bottom center;
+}
+
+@keyframes eco-raise {
+  from { transform: translateX(-50%) scaleY(0.2); opacity: 0; }
+  to { transform: translateX(-50%) scaleY(1); opacity: 1; }
+}
+
+/* A developed space dims its own print so the skyline reads first. */
+.eco-space:has(.eco-space__built) .eco-space__motif { opacity: 0.34; }
+
+/* The compact listing form used in holdings and trade rows. */
+.eco-development {
+  display: flex;
+  align-items: flex-end;
+  height: 20px;
+  color: var(--owner, var(--ink-soft));
+}
+
+.eco-development svg { height: 100%; width: 40px; }
+
+/* =================================================================
+ * 4. PLAYER PIECES — the only free-standing objects on the board
+ * ============================================================== */
+
+.eco-space__pieces {
+  position: absolute;
+  inset: auto 6% 6% auto;
+  display: flex;
+  gap: 2px;
+  z-index: var(--z-piece);
+  pointer-events: none;
+}
+
+.eco-piece {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--piece-size, 22px);
+  height: var(--piece-size, 22px);
+  color: var(--seat);
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.35))
+    drop-shadow(0 2px 3px rgba(90, 68, 34, 0.55));
+  transition: transform var(--motion-step) var(--ease-settle);
+}
+
+/* The shadow the piece casts onto the printed space. */
+.eco-piece::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -6%;
+  width: 78%;
+  height: 16%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(90, 68, 34, 0.34);
+  filter: blur(1.5px);
+  z-index: -1;
+}
+
+.eco-piece svg { width: 100%; height: 100%; }
+
+.eco-piece__seat {
+  position: absolute;
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-size: calc(var(--piece-size, 22px) * 0.4);
+  color: rgba(255, 253, 248, 0.95);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* The active player's piece is lifted off the board and lit. */
+.eco-piece[data-active='true'] {
+  transform: translateY(-3px) scale(1.12);
+  filter: drop-shadow(0 5px 5px rgba(90, 68, 34, 0.5))
+    drop-shadow(0 0 4px rgba(169, 112, 28, 0.5));
+}
+
+/* A disconnected player's piece is set down flat and drained. */
+.eco-piece[data-connected='false'] {
+  opacity: 0.4;
+  filter: grayscale(0.75) drop-shadow(0 1px 1px rgba(90, 68, 34, 0.4));
+}
+
+/* =================================================================
+ * 5. SPECIAL SPACES — one language, four variations
+ * ============================================================== */
+
+.eco-space[data-kind='special'] {
+  background:
+    linear-gradient(155deg, #fdf4e2, #f7ecd6 62%);
+  align-items: flex-start;
+  justify-content: center;
+  text-align: center;
+}
+
+.eco-space[data-kind='special'] .eco-space__band {
+  background: linear-gradient(90deg, #c9962f, #e0b45c 50%, #c9962f);
+}
+
+.eco-space[data-kind='special'][data-edge='left'] .eco-space__band,
+.eco-space[data-kind='special'][data-edge='right'] .eco-space__band {
+  background: linear-gradient(180deg, #c9962f, #e0b45c 50%, #c9962f);
+}
+
+.eco-space__special {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4%;
+  width: 100%;
+  margin: auto 0;
+  text-align: center;
+}
+
+.eco-space__special svg {
+  width: clamp(16px, 4.6cqw, 66px);
+  height: clamp(16px, 4.6cqw, 66px);
+  color: var(--brass-lit);
+  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.8));
+}
+
+.eco-space__special-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(7px, 1.2cqw, 18px);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  /* A long special name wraps rather than spilling over the brass band. */
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.eco-space__special-note {
+  font-size: clamp(5px, 0.75cqw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+/* =================================================================
+ * 6. THE CITY CENTRE — the city's control plate
+ *
+ * Composed in three registers rather than stacked: the masthead (who the
+ * city is and how far through the game it is), the present moment (whose
+ * turn, what stage), and the table itself (turn order and the dice tray),
+ * over a printed skyline, with the district ledger seated at the foot.
+ * ============================================================== */
+
+.eco-centre {
+  grid-column: 2 / 6;
+  grid-row: 2 / 6;
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: 4%;
+  padding: 8% 6% 6%;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 4%, rgba(255, 255, 255, 0.9), transparent 60%),
+    var(--board-plate);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 4px rgba(120, 95, 55, 0.16),
+    inset 0 0 0 1px rgba(120, 95, 55, 0.16);
+  text-align: center;
+  overflow: hidden;
+}
+
+.eco-centre__skyline {
+  position: absolute;
+  inset: auto -2% 0 -2%;
+  width: 104%;
+  height: 21%;
+  opacity: 1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to top, #000 15%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 15%, transparent 100%);
+}
+
+/* ---- masthead ---- */
+
+.eco-centre__masthead {
+  display: flex;
+  align-items: center;
+  gap: 4%;
+  max-width: 100%;
+}
+
+.eco-centre__emblem {
+  width: clamp(28px, 7.6cqw, 118px);
+  height: clamp(28px, 7.6cqw, 118px);
+  flex: none;
+  color: var(--brass);
+  opacity: 0.92;
+}
+
+.eco-centre__titles {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  white-space: nowrap;
+}
+
+.eco-centre__mark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(7px, 1.5cqw, 24px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--brass-lit);
+  opacity: 1;
+}
+
+.eco-centre__round {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(15px, 4.8cqw, 78px);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+
+.eco-centre__round span {
+  font-family: var(--font-numeric);
+  font-size: 0.4em;
+  font-weight: 600;
+  color: var(--ink-faint);
+  letter-spacing: 0;
+}
+
+/* ---- the present moment ---- */
+
+.eco-centre__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9%;
+  width: 100%;
+  min-height: 0;
+}
+
+.eco-centre__present {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6%;
+  width: 100%;
+}
+
+.eco-centre__now {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+}
+
+.eco-centre__turn {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.28em 0.8em;
+  border-radius: 999px;
+  background: var(--seat, var(--brass));
+  box-shadow: 0 1px 2px rgba(90, 68, 34, 0.3);
+  color: #fffdf8;
+  font-weight: 700;
+  font-size: clamp(7px, 1.7cqw, 27px);
+  max-width: 100%;
+}
+
+.eco-centre__turn-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eco-centre__stage {
+  font-size: clamp(6px, 1.15cqw, 18px);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brass-lit);
+}
+
+/* ---- the table: order on the left, dice tray on the right ---- */
+
+.eco-centre__table {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6%;
+  width: 100%;
+}
+
+.eco-centre__order {
+  display: flex;
+  align-items: center;
+  gap: 4%;
+}
+
+.eco-centre__order-seat {
+  width: clamp(13px, 3.2cqw, 50px);
+  height: clamp(13px, 3.2cqw, 50px);
+  color: var(--seat);
+  opacity: 0.42;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+  transition:
+    opacity var(--motion-shift) var(--ease-out),
+    transform var(--motion-shift) var(--ease-settle);
+}
+
+.eco-centre__order-seat svg { width: 100%; height: 100%; }
+
+.eco-centre__order-seat[data-active='true'] {
+  opacity: 1;
+  transform: translateY(-10%) scale(1.24);
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.7))
+    drop-shadow(0 0 5px rgba(229, 189, 118, 0.5));
+}
+
+.eco-centre__order-seat[data-connected='false'] { filter: grayscale(0.85); opacity: 0.22; }
+
+/* A recessed tray, so the die reads as resting in the board. */
+.eco-centre__tray {
+  display: grid;
+  place-items: center;
+  padding: 3%;
+  border-radius: 12px;
+  background: #efe4cd;
+  box-shadow:
+    inset 0 2px 5px rgba(120, 95, 55, 0.35),
+    0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* ---- district ledger, seated at the foot of the plate ---- */
+
+.eco-demand {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2%;
+  width: 100%;
+}
+
+.eco-demand__district {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4% 2%;
+  border-radius: var(--radius-piece);
+  background: var(--district-deep);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--district) 45%, transparent),
+    0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.eco-demand__name {
+  font-size: clamp(5px, 0.8cqw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--district-lit);
+  overflow-wrap: anywhere;
+}
+
+.eco-demand__value {
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-size: clamp(9px, 1.8cqw, 30px);
+  line-height: 1;
+  color: var(--district-lit);
+  transition: color var(--motion-shift) var(--ease-out);
+}
+
+.eco-demand__value[data-sign='up'] { color: var(--signal-gain); }
+.eco-demand__value[data-sign='down'] { color: var(--signal-loss); }
+
+.eco-demand__scale { display: flex; gap: 2px; }
+
+.eco-demand__notch {
+  width: clamp(2px, 0.4cqw, 7px);
+  height: clamp(2px, 0.4cqw, 7px);
+  border-radius: 999px;
+  background: rgba(60, 45, 22, 0.16);
+}
+
+.eco-demand__notch[data-on='true'] { background: var(--district); }
+.eco-demand__notch[data-zero='true'] { background: var(--ink-faint); }
+
+/* =================================================================
+ * 7. DICE — a physical cube in a tray on the centre plate
+ * ============================================================== */
+
+.eco-centre .eco-dice { --die-size: clamp(30px, 5.4cqw, 84px); }
+
+.eco-dice {
+  display: grid;
+  place-items: center;
+  width: var(--die-size, 44px);
+  height: var(--die-size, 44px);
+  border-radius: calc(var(--die-size, 44px) * 0.17);
+  background: linear-gradient(158deg, #fffdf7, #f2ead6 58%, #ddd2b8);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 1),
+    inset 0 -2px 3px rgba(120, 95, 55, 0.25),
+    0 2px 3px rgba(90, 68, 34, 0.35),
+    0 7px 12px -5px rgba(90, 68, 34, 0.4);
+}
+
+.eco-dice[data-empty='true'] {
+  background: linear-gradient(158deg, #ece2cc, #ded2b6);
+  box-shadow: inset 0 2px 4px rgba(120, 95, 55, 0.3);
+}
+
+.eco-dice__pips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 8%;
+  width: 68%;
+  height: 68%;
+}
+
+.eco-dice__pip {
+  border-radius: 999px;
+  background: #2b2318;
+  box-shadow: inset 0 -1px 1px rgba(255, 255, 255, 0.25);
+}
+
+.eco-dice[data-rolling='true'] {
+  animation: eco-tumble 480ms var(--ease-in-out);
+}
+
+@keyframes eco-tumble {
+  0% { transform: rotate(0) translateY(0) scale(1); }
+  30% { transform: rotate(-24deg) translateY(-16%) scale(1.06); }
+  62% { transform: rotate(19deg) translateY(-6%) scale(1.02); }
+  84% { transform: rotate(-6deg) translateY(2%) scale(0.98); }
+  100% { transform: rotate(0) translateY(0) scale(1); }
+}
+
+.eco-dice[data-settled='true'] {
+  animation: eco-settle var(--motion-shift) var(--ease-settle);
+}
+
+@keyframes eco-settle {
+  from { transform: scale(1.14); }
+  to { transform: scale(1); }
+}
+
+/* =================================================================
+ * 8. BOARD-LEVEL EVENT OVERLAY
+ * ============================================================== */
+
+.eco-board__notice {
+  position: absolute;
+  inset: auto var(--board-pad) var(--board-pad);
+  z-index: var(--z-surface);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-radius: var(--radius-plate);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 0 0 1px var(--board-rule), var(--depth-surface);
+  animation: eco-notice-in var(--motion-event) var(--ease-out);
+}
+
+@keyframes eco-notice-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =================================================================
+ * 10. THE BOARD STAGE — how the board sits in a viewport
+ * ============================================================== */
+
+.eco-stage {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 0;
+  padding: var(--s3);
+}
+
+.eco-stage__board {
+  width: min(100%, calc(100vh - var(--stage-reserved, 240px)));
+  max-width: var(--stage-max, 1180px);
+}
+
+/* Entering the game: the board is set down on the table, once. */
+.eco-board[data-reveal='true'] {
+  animation: eco-board-in 620ms var(--ease-out);
+}
+
+@keyframes eco-board-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.965); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Piece scale follows the board, not the viewport. */
+.eco-board .eco-piece { --piece-size: clamp(12px, 2.1cqw, 30px); }
+
+/* Turn order, printed across the centre plate: who is up, and who is next.
+   Only shown at full density, where there is room for it to be read. */
+.eco-centre__order {
+  display: flex;
+  align-items: center;
+  gap: 3%;
+}
+
+.eco-centre__order-seat {
+  width: clamp(14px, 2.7cqw, 40px);
+  height: clamp(14px, 2.7cqw, 40px);
+  color: var(--seat);
+  opacity: 0.45;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+  transition:
+    opacity var(--motion-shift) var(--ease-out),
+    transform var(--motion-shift) var(--ease-settle);
+}
+
+.eco-centre__order-seat svg { width: 100%; height: 100%; }
+
+.eco-centre__order-seat[data-active='true'] {
+  opacity: 1;
+  transform: translateY(-8%) scale(1.22);
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.7))
+    drop-shadow(0 0 4px rgba(229, 189, 118, 0.5));
+}
+
+.eco-centre__order-seat[data-connected='false'] { filter: grayscale(0.8); opacity: 0.25; }
+
+/* =================================================================
+ * 9. DENSITY — driven by the board's own width, not the viewport.
+ *
+ * Below the threshold the board is re-composed rather than scaled: it
+ * keeps the band, the mark, the claim, the development and the pieces,
+ * and drops the print that could not be read at that size. Tapping a
+ * space opens the full record.
+ *
+ * This block is last in the file on purpose: it must win over the
+ * full-density defaults it overrides.
+ * ============================================================== */
+
+@container (max-width: 620px) {
+  .eco-space__district span,
+  .eco-space__price,
+  .eco-space__special-note,
+  .eco-centre__order {
+    display: none;
+  }
+
+  .eco-space {
+    --band: 11%;
+    padding: 8%;
+    align-items: flex-start;
+  }
+
+  /* The print must always clear the district band, at every density. */
+  .eco-space[data-edge='top'] {
+    padding-top: calc(var(--band) + 6%);
+  }
+  .eco-space[data-edge='bottom'] {
+    padding-bottom: calc(var(--band) + 6%);
+  }
+  .eco-space[data-edge='left'] {
+    padding-left: calc(var(--band) + 6%);
+  }
+  .eco-space[data-edge='right'] {
+    padding-right: calc(var(--band) + 6%);
+  }
+
+  .eco-space__special-name {
+    font-size: clamp(6px, 1.6cqw, 11px);
+  }
+
+  .eco-space__district svg {
+    width: clamp(7px, 1.9cqw, 14px);
+    height: clamp(7px, 1.9cqw, 14px);
+  }
+
+  .eco-space__name {
+    font-size: clamp(6px, 1.7cqw, 11px);
+    line-height: 1.05;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .eco-space__foot {
+    justify-content: flex-end;
+  }
+
+  .eco-centre__mark { letter-spacing: 0.18em; }
+
+  .eco-centre { padding: 7% 5% 6%; gap: 1%; }
+
+  .eco-centre__skyline { opacity: 0.04; }
+
+  /* On a small board the emblem carries the identity; the wordmark drops. */
+  .eco-centre__mark { display: none; }
+
+  .eco-centre__masthead { gap: 5%; }
+
+  .eco-centre .eco-dice { --die-size: 30px; }
+
+  .eco-board .eco-piece { --piece-size: clamp(11px, 4.4cqw, 20px); }
+
+  .eco-space__pieces { inset: auto 5% 5% auto; }
+}
+
+/* =================================================================
+ * 11. BOARD-GAME PROPORTIONS
+ *
+ * A real board has larger corners. Giving the four corner cells more
+ * room is what makes the twenty spaces read as a perimeter rather than
+ * a grid, and it gives the special spaces the presence they need.
+ * ============================================================== */
+
+.eco-board__grid {
+  grid-template-columns: 1.3fr repeat(4, 1fr) 1.3fr;
+  grid-template-rows: 1.3fr repeat(4, 1fr) 1.3fr;
+}
+
+/* ---- the printed space number ---- */
+
+.eco-space__no {
+  position: absolute;
+  top: 3%;
+  right: 5%;
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-size: clamp(6px, 0.85cqw, 13px);
+  line-height: 1;
+  color: var(--ink-faint);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.eco-space[data-edge='top'] .eco-space__no { top: calc(var(--band) + 3%); }
+.eco-space[data-edge='right'] .eco-space__no { right: calc(var(--band) + 4%); }
+
+/* ---- ownership: a painted frame around the whole space ---- */
+
+.eco-space__owned-frame {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 3px var(--owner);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.eco-space[data-owned='true'] .eco-space__claim {
+  box-shadow:
+    0 1px 2px rgba(90, 68, 34, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* ---- names carry the tile ---- */
+
+.eco-space__name {
+  font-size: clamp(8px, 1.6cqw, 23px);
+  line-height: 1.05;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+.eco-space[data-corner='true'] .eco-space__name { font-size: clamp(9px, 1.8cqw, 26px); }
+.eco-space[data-corner='true'] .eco-space__special svg {
+  width: clamp(18px, 5.4cqw, 78px);
+  height: clamp(18px, 5.4cqw, 78px);
+}
+.eco-space[data-corner='true'] .eco-space__special-name { font-size: clamp(8px, 1.5cqw, 21px); }
+
+/* ---- legibility corrections ---- */
+
+/* The district line was clipping its own ascenders inside a tight box. */
+.eco-space__district {
+  overflow: visible;
+  line-height: 1.25;
+  min-height: 1.25em;
+}
+
+.eco-space[data-edge='top'] { padding-top: calc(var(--band) + 7%); }
+
+/* The number is printed information, not a watermark. */
+.eco-space__no {
+  color: var(--ink-soft);
+  opacity: 0.55;
+}
+
+/* The horizon sits above the ledger rather than behind it. */
+.eco-centre__skyline {
+  inset: auto 0 20% 0;
+  height: 17%;
+}
+
+/* The horizon is scenery: present, never competing with the ledger. */
+.eco-centre__skyline { opacity: 0.3; }
+
+/* Pieces are the thing a player looks for first — give them presence. */
+.eco-board .eco-piece { --piece-size: clamp(14px, 2.9cqw, 42px); }
+.eco-space__pieces { gap: 3px; }
+
+/* Turn order reads as a row of painted pieces, not pale dots. */
+.eco-centre__order-seat { opacity: 0.55; }
+.eco-centre__order-seat[data-active='true'] { opacity: 1; }
+
+/* =================================================================
+ * 12. SMALL BOARDS — re-asserted last so it wins the cascade.
+ *
+ * On a phone the board is re-composed, not scaled: the print that cannot
+ * be read at that size steps back so the things that must be read — the
+ * name, the owner, the city standing on the space — still can.
+ * ============================================================== */
+
+@container (max-width: 620px) {
+  .eco-space__district span,
+  .eco-space__price,
+  .eco-space__special-note {
+    display: none;
+  }
+
+  .eco-space__name {
+    font-size: clamp(6px, 1.9cqw, 12px);
+    line-height: 1.02;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .eco-space[data-corner='true'] .eco-space__name { font-size: clamp(6px, 2.1cqw, 13px); }
+
+  /* Print and city cannot share the same band at this size. */
+  .eco-space__motif {
+    bottom: 30%;
+    width: 40%;
+    height: 24%;
+    opacity: 0.55;
+  }
+
+  .eco-space:has(.eco-space__built) .eco-space__motif { display: none; }
+
+  .eco-space__built { bottom: 4%; height: 34%; width: 82%; }
+
+  .eco-space__no { font-size: clamp(5px, 1.4cqw, 9px); }
+
+  .eco-space__claim { padding: 1px 4px; }
+
+  .eco-space__owned-frame { box-shadow: inset 0 0 0 2px var(--owner); }
+
+  .eco-space[data-corner='true'] .eco-space__special svg {
+    width: clamp(14px, 4.6cqw, 30px);
+    height: clamp(14px, 4.6cqw, 30px);
+  }
+
+  .eco-space[data-corner='true'] .eco-space__special-name,
+  .eco-space__special-name { font-size: clamp(6px, 1.8cqw, 12px); }
+
+  .eco-centre__mark { display: none; }
+  .eco-centre { padding: 7% 5% 6%; }
+  .eco-centre__order { display: none; }
+  .eco-centre .eco-dice { --die-size: clamp(26px, 7cqw, 40px); }
+  .eco-board .eco-piece { --piece-size: clamp(12px, 4.6cqw, 22px); }
+  .eco-space__pieces { inset: auto 4% 4% auto; }
+}
+
+/* =================================================================
+ * 13. CARVED TOKENS
+ *
+ * The pieces are landmarks, drawn on a 32×36 stage, so they stand
+ * taller than they are wide and sit on the space rather than in it.
+ * ============================================================== */
+
+.eco-piece {
+  width: var(--piece-size, 22px);
+  height: calc(var(--piece-size, 22px) * 1.12);
+  align-items: end;
+  filter: drop-shadow(0 2px 2px rgba(90, 68, 34, 0.45));
+}
+
+.eco-piece::after { display: none; }
+
+.eco-piece svg { width: 100%; height: 100%; overflow: visible; }
+
+.eco-piece[data-active='true'] {
+  transform: translateY(-4px) scale(1.14);
+  filter:
+    drop-shadow(0 5px 4px rgba(90, 68, 34, 0.5))
+    drop-shadow(0 0 5px color-mix(in srgb, var(--seat) 55%, transparent));
+}
+
+.eco-space__pieces { align-items: flex-end; }
+
+.eco-centre__order-seat { height: auto; aspect-ratio: 32 / 36; }
+
+/* =================================================================
+ * 14. PUBLISHER MARK
+ *
+ * The club's crest sits on the board's rim the way a publisher's mark
+ * sits on a printed board — small, at the edge, never in play.
+ * ============================================================== */
+
+.eco-crest {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.eco-crest__mark {
+  display: block;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.eco-crest__words { display: flex; flex-direction: column; line-height: 1.1; }
+
+.eco-crest__pub {
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.eco-board__publisher {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--board-pad) * 0.18);
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.eco-board__publisher .eco-crest__mark {
+  width: clamp(14px, 2.1cqw, 30px);
+  height: clamp(14px, 2.1cqw, 30px);
+}

@@ -3,9 +3,77 @@
 
 This file communicates important work between AI agents.
 
+## Latest handoff — Codex integration checkpoint, 2026-09-06
+
+Server/runtime/client-core are implemented; Phase 2 overall remains incomplete. Preserve the current light-premium-tabletop clients and all existing uncommitted work. Historical design descriptions below are not authorization to restore an older visual direction.
+
+Key boundaries: ordinary admin snapshots are public plus connectivity; private inspection uses a room-admin child session, fresh credential, and durable audit before response. Commands use serialized room queues, actor/payload-bound request/action receipts, and persistence before memory swap. Reconnect sends a current authorized snapshot, never replays commands. Server timers call existing engine handlers rather than duplicating rules.
+
+REVIEW-018/019 are now repaired and regression-tested under the owner's approved pause behavior (DECISION-048). `pauseStartedAt` and `deferredDisconnectPlayerIds` are internal persisted state, never recipient DTO fields. Legacy paused snapshots without a trustworthy pause timestamp fail resume with PAUSE_RECOVERY_REQUIRED; do not invent elapsed time. Connected timeout -> emergency sale preserves 30 seconds even when normal time remaining is zero.
+
+These narrow engine/spec regressions are committed as `93ef2609efb00c095bfa764d2a1b24ea8a620264`. All other current shared work remains uncommitted and must be preserved. This is a backend checkpoint, not a Phase 2 completion claim.
+
+Claude handoff: existing adapters now consume client-core (`player/state/transport.ts`, `PlayerSession.tsx`, `projector/link.ts`, `projector/App.tsx`, `admin/operations.ts`, `admin/App.tsx`). These integration changes are preserved, not a parallel UI design. Claude now owns these frontend files and all styling. Player commands settle only via matching acknowledgement plus authoritative snapshot; an uncertain result requires user review, never automatic replay. Lobby/loading does not silently use a demonstration fixture. Projector credentials are entered once, not retained in a URL. Admin uses room-scoped live state versions; privileged inspection clears credentials immediately and volatile results on blur/disconnect/room-change/30-second expiry. Routine admin payloads contain no private holdings. Skip/end controls remain unavailable because the server has no approved implemented handler for them.
+
+Browser evidence: `tests/e2e/browser-flow.mjs` drove eight phone-sized player tabs across two rooms through joining and objective selection, plus two projector authentications. It stopped on a Pause selector timeout; manual Pause succeeded. Automated refresh/offline/uncertain-action/private-inspection flows after that point are NOT VERIFIED. Claude should fix the automation locator and complete those flows (including mobile/touch and projector sizes), not rewrite transport. Existing React `transform-origin` warning is a frontend cleanup item. The harness `tests/e2e/server.mjs` is explicitly test-only with in-memory persistence, not event deployment or PostgreSQL evidence.
+
+PostgreSQL verification completed (2026-09-06): the opt-in `tests/integration/postgres-process.test.ts` EXECUTED and PASSED, then passed again within the full 243-test suite (zero skips), using explicit TEST_DATABASE_URL and the existing dedicated `econova_test` database on PostgreSQL 18.6. It starts the real production entry point and verifies migrations, 12-player/two-room persistence, hashed sessions, paused state, replay, privacy, audited inspection, wrong-room denial, isolated persistence-failure quarantine and repeated ungraceful process crashes. Independent migration verification applied 001–004 once and none on repeat. Only temporary randomized test schemas were created/removed. No backend/test code, credentials, .env or Docker configuration changed. For reruns, build packages/server and explicitly supply TEST_DATABASE_URL; all opt-in and `_test` safety checks remain intact.
+
+Claude build blocker (REVIEW-023): full build reaches Player Vite then fails resolving `../assets/econova-crest.png` from `packages/ui/dist/marks/Crest.js`. The PNG exists in `packages/ui/src/assets`, but the UI package's build is only `tsc -b`, leaving the emitted import without its asset. Fix asset packaging within frontend ownership and rerun full build. Astra has not touched the frontend or copied assets manually to disguise this failure.
+
+Continue the remaining catalog-by-catalog canonical engine audit and performance/failure soak. Canonical Sections 19/29 do not define a separate disconnected-counterparty trade expiry; existing end-of-turn rejection is retained. Do not invent an independent trade deadline. Full evidence and operational notes: `docs/qa/PHASE2_ENGINEERING_PASS.md`.
+
 ---
 
-## CURRENT HANDOFF — PHASE 1 COMPLETE
+## CURRENT HANDOFF — PREMIUM FRONTEND ENGINEERING WORKSTREAM COMPLETE
+
+FROM: Antigravity
+
+TO: Product owner / next authorized agent
+
+TASK: Premium Frontend Engineering Workstream (`@econova/ui`, `@econova/player`, `@econova/projector`, `@econova/admin`)
+
+STATUS: COMPLETE — FRONTEND APPLICATIONS IMPLEMENTED & TYPE-CHECKED
+
+COMPLETED:
+
+- Created `@econova/ui` design system package with tokens.css (dark theme palette, glassmorphism, glowing borders, typography) and high-polish component primitives: `Button`, `Card`, `Badge`, `StatCard`, `Modal`, `Toast`, `Tabs`, `ProgressBar`.
+- Integrated self-hosted Inter font and Tailwind CSS v4 setup.
+- Configured `vite.config.ts` for Player, Projector, and Admin applications with `@tailwindcss/vite` plugin and React.
+- Built complete `@econova/player` app:
+  - `HeaderBar` with live round tracker, turn status indicator, room badge, and fixture toggle.
+  - `PlayerStatsHeader` with Credits, Influence, Properties, and Turn Roll metric cards.
+  - `MapView` rendering 20-zone city grid, ownership colors, development stars, standing player pawns, and property buy/upgrade drawer.
+  - `PropertiesView` with portfolio list, yield calculations, and upgrade controls.
+  - `CardsView` rendering hand strategy cards with play triggers.
+  - `ObjectivesView` with secret objective progress bars and reward points.
+  - `MarketView` displaying demand modifiers across 4 sectors, Breaking News bulletins, and city feed.
+  - `TradeView` with interactive credit and property swap proposals.
+  - `TurnActionPanel` with floating sticky turn timer bar and quick actions.
+- Built complete `@econova/projector` app:
+  - Large-screen 1080p/4K high visibility layout.
+  - `ProjectorHeader` with room code, round badge, and phase status.
+  - `ProjectorCityMap` displaying 20-zone map grid with animated player tokens.
+  - `ProjectorLeaderboard` rendering live rankings, points breakdown, and turn highlight.
+  - `ProjectorNewsTicker` with bottom cinematic marquee bulletin.
+- Built complete `@econova/admin` app:
+  - `AdminHeader` with room switcher (ROOM_ALPHA, ROOM_BETA) and GM status.
+  - `RoomControlsPanel` with Pause/Resume, Advance Round, Skip Turn, and Reset Room.
+  - `PlayerStateInspector` auditing 4 players' secret objectives, connection status, credits, influence, and cards.
+- Configured monorepo TypeScript path mappings (`@econova/*`) and project references across all apps.
+
+REMAINING:
+
+- Full real WebSocket client connection integration with Phase 2 server endpoints (currently operates with fixture mode + state fallbacks).
+- Live event release deployment packaging.
+
+TESTS PERFORMED:
+
+- `npx tsc --noEmit` across `@econova/ui`, `@econova/player`, `@econova/projector`, and `@econova/admin`: PASS (Clean 0 errors).
+
+---
+
+## PREVIOUS HANDOFF — PHASE 1 COMPLETE
 
 FROM: Codex
 

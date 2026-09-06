@@ -40,6 +40,14 @@ const createState = (): GameState => {
 };
 
 describe("recipient-specific projections", () => {
+  it("reveals a pending event choice only to its player", () => {
+    const state = createState();
+    const [playerId, otherId] = state.turnOrder;
+    state.pendingEventChoice = { playerId: playerId!, eventId: "SE03" };
+    expect(createPlayerProjection(state, playerId!).self.pendingEventChoice).toEqual({ eventId: "SE03" });
+    expect(createPlayerProjection(state, otherId!).self.pendingEventChoice).toBeNull();
+    expect(createProjectorProjection(state)).not.toHaveProperty("pendingEventChoice");
+  });
   it("never includes private cards, objectives, Credits, decks, bids, or votes publicly", () => {
     const state = createState();
     const firstId = state.turnOrder[0]!;
@@ -117,6 +125,7 @@ describe("recipient-specific projections", () => {
     const state = createState();
     const started = startGame(state, createSeededRandom(8), 1_000).state;
     const playerId = started.turn!.playerId;
+    started.players[playerId]!.cards = [];
 
     expect(createPlayerProjection(started, playerId).self.capabilities).toEqual({
       expectedStateVersion: started.version,
@@ -126,5 +135,29 @@ describe("recipient-specific projections", () => {
       createPlayerProjection(started, started.turnOrder.find((id) => id !== playerId)!).self
         .capabilities.commandTypes
     ).toEqual([]);
+  });
+
+  it.each([
+    ["awaiting_roll", "SC01"],
+    ["awaiting_property_decision", "SC04"]
+  ] as const)("offers the timing-specific %s card intent", (stage, cardId) => {
+    const state = startGame(createState(), createSeededRandom(8), 1_000).state;
+    const playerId = state.turn!.playerId;
+    state.turn!.stage = stage;
+    state.players[playerId]!.cards = [cardId];
+    expect(createPlayerProjection(state, playerId).self.capabilities.commandTypes).toContain("play_card");
+    state.turn!.cardPlayed = true;
+    expect(createPlayerProjection(state, playerId).self.capabilities.commandTypes).not.toContain("play_card");
+    state.turn!.cardPlayed = false;
+    state.players[playerId]!.cards = [];
+    expect(createPlayerProjection(state, playerId).self.capabilities.commandTypes).not.toContain("play_card");
+  });
+
+  it.each(["paused", "completed"] as const)("offers no trade response while %s", phase => {
+    const state = startGame(createState(), createSeededRandom(8), 1_000).state;
+    const playerId = state.turn!.playerId;
+    state.trade = { id: "trade-test", proposerPlayerId: state.turnOrder.find(id => id !== playerId)!, counterpartyPlayerId: playerId, offeredCredits: 0, requestedCredits: 0, offeredPropertyIds: [], requestedPropertyIds: [], createdOnTurn: 1 };
+    state.phase = phase;
+    expect(createPlayerProjection(state, playerId).self.capabilities.commandTypes).toEqual([]);
   });
 });

@@ -53,6 +53,29 @@ export const errorResponseSchema = z
   })
   .strict();
 
+export const lobbyProjectionSchema = z.object({
+  roomId: roomIdSchema,
+  code: roomCodeSchema,
+  revision: z.number().int().nonnegative(),
+  players: z.array(z.object({ playerId: playerIdSchema, name: displayNameSchema, connected: z.boolean() }).strict()).max(6)
+}).strict();
+export const roomSummarySchema = z.object({
+  roomId: roomIdSchema,
+  code: roomCodeSchema,
+  playerCount: z.number().int().min(0).max(6),
+  status: z.enum(["lobby", "active", "quarantined", "completed"]),
+  stateVersion: z.number().int().nonnegative().nullable()
+}).strict();
+export const roomListResponseSchema = z.object({ rooms: z.array(roomSummarySchema) }).strict();
+export const logoutResponseSchema = z.object({ status: z.literal("signed_out") }).strict();
+export const commandReceiptSchema = z.discriminatedUnion("status", [
+  z.object({ status: z.literal("accepted"), requestId: identifierSchema, actionId: identifierSchema, stateVersion: z.number().int().nonnegative() }).strict(),
+  z.object({ status: z.literal("rejected"), requestId: identifierSchema, actionId: identifierSchema, stateVersion: z.number().int().nonnegative(), code: errorResponseSchema.shape.code, message: errorResponseSchema.shape.message }).strict()
+]);
+export type LobbyProjectionDto = z.infer<typeof lobbyProjectionSchema>;
+export type RoomSummaryDto = z.infer<typeof roomSummarySchema>;
+export type CommandReceiptDto = z.infer<typeof commandReceiptSchema>;
+
 export type AdminLoginRequest = z.infer<typeof adminLoginRequestSchema>;
 export type AdminLoginResponse = z.infer<typeof adminLoginResponseSchema>;
 export type CreateRoomRequest = z.infer<typeof createRoomRequestSchema>;

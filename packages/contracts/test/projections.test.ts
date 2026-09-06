@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   adminProjectionSchema,
+  privateInspectionProjectionSchema,
   playerProjectionSchema,
   projectorProjectionSchema,
   publicProjectionSchema,
@@ -72,6 +73,7 @@ describe("role projection contracts", () => {
         propertyIds: [],
         objectiveId: "SO01",
         objectiveOffer: null,
+        pendingEventChoice: null,
         pendingLandingFee: null,
         auction: null,
         councilAllocation: null,
@@ -118,7 +120,8 @@ describe("role projection contracts", () => {
       trade: null
     } as const;
 
-    expect(adminProjectionSchema.parse(projection)).toEqual(projection);
+    expect(privateInspectionProjectionSchema.parse(projection)).toEqual(projection);
+    expect(adminProjectionSchema.safeParse(projection).success).toBe(false);
   });
 
   it("discriminates state snapshots by audience", () => {

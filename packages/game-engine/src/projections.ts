@@ -10,6 +10,9 @@ const interactionCapabilities = (
   const commandTypes: ClientCommandType[] = [];
   const player = state.players[playerId];
   if (player === undefined) throw new GameRuleError("UNKNOWN_PLAYER", "Player does not exist.");
+  if (state.phase === "paused" || state.phase === "completed") {
+    return { expectedStateVersion: state.version, commandTypes };
+  }
 
   if (state.phase === "objective_selection" && state.objectiveSelection?.playerId === playerId) {
     commandTypes.push("choose_objective");
@@ -47,12 +50,14 @@ const interactionCapabilities = (
   switch (turn.stage) {
     case "awaiting_roll":
       commandTypes.push("roll");
+      if (!turn.cardPlayed && player.cards.includes("SC01")) commandTypes.push("play_card");
       break;
     case "awaiting_shortcut_choice":
       commandTypes.push("choose_shortcut");
       break;
     case "awaiting_property_decision":
       commandTypes.push("buy_property", "decline_property", "start_auction");
+      if (!turn.cardPlayed && player.cards.includes("SC04")) commandTypes.push("play_card");
       break;
     case "landing_fee_reaction":
       if (!turn.cardPlayed && player.cards.includes("SC12")) commandTypes.push("play_card");
@@ -192,6 +197,10 @@ export const createPlayerProjection = (state: GameState, playerId: string) => {
           : null,
       pendingLandingFee:
         state.pendingLandingFee?.payerId === playerId ? { ...state.pendingLandingFee } : null,
+      pendingEventChoice:
+        state.pendingEventChoice?.playerId === playerId
+          ? { eventId: state.pendingEventChoice.eventId }
+          : null,
       auction:
         state.auction === null
           ? null
@@ -207,7 +216,7 @@ export const createPlayerProjection = (state: GameState, playerId: string) => {
   };
 };
 
-export const createAdminProjection = (state: GameState) => ({
+export const createPrivateInspectionProjection = (state: GameState) => ({
   public: createPublicProjection(state),
   players: Object.values(state.players).map((player) => ({
     playerId: player.id,
@@ -238,4 +247,11 @@ export const createAdminProjection = (state: GameState) => ({
   pendingEventChoice: state.pendingEventChoice,
   pendingCardDraw: state.pendingCardDraw,
   trade: state.trade
+});
+
+export const createAdminProjection = (state: GameState) => ({
+  public: createPublicProjection(state),
+  players: Object.values(state.players).map(player => ({
+    playerId: player.id, name: player.name, connected: player.connected, disconnectedAt: player.disconnectedAt
+  }))
 });

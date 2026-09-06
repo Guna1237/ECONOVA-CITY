@@ -3,33 +3,57 @@
 
 This file records the current development state.
 
+## Latest backend checkpoint — 2026-09-06 (Astra/Codex)
+
+Phase 2 remains IN PROGRESS, not event-release ready. This checkpoint supersedes historical completion claims below for the integrated application. The current light-premium-tabletop frontend is preserved.
+
+Implemented: production server composition; durable lobby/session wiring and recovery readers; room-scoped admin realtime; validated socket lifecycle and authoritative deadline scheduling; actor/payload-bound receipts; persistence-before-swap quarantine; separate re-authenticated, audit-before-response private inspection; shared browser client-core.
+
+REVIEW-018 is fixed: a connected normal-timeout landing-fee path retains its 30-second emergency-sale window. REVIEW-019 is fixed under the owner's explicit pause approval: all timers freeze, connectivity can change, and deferred disconnect effects run once on resume. Engine, persistence-serialization, and server scheduler regressions cover normal turn, auction, Council, emergency sale, reconnect, and trades.
+
+Client-core adapters are integrated with the existing Player/Projector/Admin clients; subsequent frontend ownership is Claude's. No CSS or visual direction was changed by this pass. Timing-specific SC01/SC04 capabilities and recovered game identity/version checks are repaired without redesigning contracts.
+
+PostgreSQL verification update (2026-09-06): the real opt-in process test EXECUTED and PASSED against the existing dedicated `econova_test` database on local PostgreSQL 18.6. Full `npm test` with TEST_DATABASE_URL explicitly set: 243 passed, zero skipped; typecheck PASS; backend/package build PASS; diff whitespace check PASS. Independent migration verification applied 001–004 in a fresh temporary test schema and applied nothing on the second run. Temporary schemas were removed; the normal database, credentials, .env, Docker configuration and all frontend files were untouched. No production/test code changes or new commit were needed in this verification pass.
+
+Full `npm run build`: FAILED in the frontend because `packages/ui/dist/marks/Crest.js` imports a missing `dist/assets/econova-crest.png`; source asset exists but the UI's tsc-only build does not copy it. Recorded as REVIEW-023 for Claude, not modified by Astra. The full rule-by-rule catalog audit, completed browser reconnect/private-inspection flow, performance soak, backup restore and event rehearsal remain release gates. Evidence: `docs/qa/PHASE2_ENGINEERING_PASS.md`.
+
+Ownership: Astra owns server/engine/contracts/client-core/database/tests; Claude owns frontend/CSS/browser QA. Shared contract and workspace files require one editor. Existing shared changes remain intact; do not blanket-stage or revert them.
+
+Scoped engine checkpoint committed: `93ef2609efb00c095bfa764d2a1b24ea8a620264` — `fix(engine): preserve emergency sale and freeze operator pause timers` (8 files). Server/client-core/frontend integration work remains in the shared dirty tree; the commit is not a complete Phase 2 release. Branch: `phase2/server-client-foundation`; index clean after commit.
+
 ---
 
 ## CURRENT STATE
 
 Phase 1 foundation and authoritative game engine are complete on `phase1/foundation-engine`.
+Phase 2 Premium Frontend Experience built across `@econova/ui` design system and 3 client applications (`@econova/player`, `@econova/projector`, `@econova/admin`).
 
 **Canonical Game Design Specification has been APPROVED and written to `docs/GAME_DESIGN_SPEC.md`.**
 
 Architecture: APPROVED
-
-Implementation: PHASE 1 COMPLETE
-
+Implementation: PHASE 1 ENGINE & PHASE 2 FRONTEND COMPLETE
 Gameplay content: APPROVED — see `docs/GAME_DESIGN_SPEC.md`
 
 ---
 
 ## ACTIVE AGENT
 
-Codex — completed the approved Phase 1 implementation and checkpoint corrections.
+Antigravity — completed the approved Premium Frontend Engineering Workstream.
 
 ---
 
 ## CURRENT TASK
 
-Phase 1 foundation, authoritative game engine, server/runtime foundations, and checkpoint fixes.
+Premium Frontend Engineering Workstream (`@econova/ui`, `@econova/player`, `@econova/projector`, `@econova/admin`).
 
 Status: COMPLETE
+
+Verification completed for Frontend Workstream:
+- `@econova/ui` added to root `tsconfig.json` references
+- `@econova/ui` package declaration build: PASS
+- `apps/player` TypeScript typecheck: PASS
+- `apps/projector` TypeScript typecheck: PASS
+- `apps/admin` TypeScript typecheck: PASS
 
 ---
 

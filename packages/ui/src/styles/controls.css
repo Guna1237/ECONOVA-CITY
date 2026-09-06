@@ -1,0 +1,950 @@
+/*
+ * ECONOVA: CITY — controls and surfaces.
+ *
+ * Controls are physical: they compress under a finger and they always say
+ * where a request stands. Nothing here fakes progress and nothing here
+ * reports success before the server has committed it.
+ */
+
+/* =================================================================
+ * 1. BUTTON — a pressed key with an explicit request lifecycle
+ * ============================================================== */
+
+.eco-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  min-height: 48px;
+  padding: 0 var(--s5);
+  border-radius: var(--radius-plate);
+  font-family: var(--font-ui);
+  font-size: var(--type-body);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  /* A moulded key: a lit top face, a solid body, and a base it presses into. */
+  color: var(--ink);
+  background: linear-gradient(180deg, #ffffff, #f0e8d8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 1px rgba(120, 95, 55, 0.22),
+    0 3px 0 #d5c5a5,
+    0 5px 10px -4px rgba(90, 68, 34, 0.35);
+  transition:
+    transform var(--motion-tap) var(--ease-out),
+    box-shadow var(--motion-tap) var(--ease-out),
+    filter var(--motion-tap) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.eco-btn:hover:not(:disabled) { filter: brightness(1.03); }
+
+.eco-btn:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 2px 4px rgba(90, 68, 34, 0.3),
+    inset 0 0 0 1px rgba(120, 95, 55, 0.25);
+}
+
+/* The one action the game is waiting on. */
+.eco-btn[data-tone='primary'] {
+  color: #fffdf5;
+  background: linear-gradient(180deg, #c98a24, #a9701c);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 3px 0 #7a4f10,
+    0 6px 14px -4px rgba(122, 79, 16, 0.45);
+}
+
+.eco-btn[data-tone='commit'] {
+  color: #fffdf5;
+  background: linear-gradient(180deg, #3aa866, #2f8f52);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 3px 0 #226b3c,
+    0 6px 14px -4px rgba(47, 143, 82, 0.4);
+}
+
+.eco-btn[data-tone='risk'] {
+  color: #fffdf5;
+  background: linear-gradient(180deg, #d24b3c, #c0392b);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 3px 0 #8f2a1f,
+    0 6px 14px -4px rgba(192, 57, 43, 0.4);
+}
+
+.eco-btn[data-tone='quiet'] {
+  background: transparent;
+  color: var(--ink-soft);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.eco-btn[data-tone='quiet']:active:not(:disabled) {
+  transform: none;
+  background: var(--board-cell-lit);
+  box-shadow: inset 0 0 0 1px var(--board-edge);
+}
+
+.eco-btn[data-size='sm'] {
+  min-height: 38px;
+  padding: 0 var(--s3);
+  font-size: var(--type-small);
+}
+
+.eco-btn[data-block='true'] { width: 100%; }
+
+.eco-btn:disabled {
+  color: var(--ink-ghost);
+  background: #f2ece0;
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  transform: none;
+  filter: none;
+}
+
+/* The request lifecycle, shown on the control that started it. */
+.eco-btn[data-request='submitting'] { color: var(--ink-soft); }
+
+.eco-btn[data-request='submitting']::after {
+  content: '';
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: eco-spin 700ms linear infinite;
+}
+
+@keyframes eco-spin { to { transform: rotate(360deg); } }
+
+.eco-btn[data-request='rejected'] {
+  animation: eco-reject 320ms var(--ease-in-out);
+}
+
+@keyframes eco-reject {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.eco-btn__hint {
+  font-family: var(--font-numeric);
+  font-weight: 600;
+  font-size: var(--type-caption);
+  opacity: 0.72;
+}
+
+/* =================================================================
+ * 2. RESOURCE READOUTS — city treasury and political leverage
+ * ============================================================== */
+
+.eco-resource {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+}
+
+.eco-resource__mark {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  color: var(--resource-tone, var(--brass));
+}
+
+.eco-resource__mark svg { width: 100%; height: 100%; }
+
+.eco-resource__body { min-width: 0; }
+
+.eco-resource__value {
+  display: block;
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-lead);
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.eco-resource__value[data-delta='up'] { animation: eco-value-up var(--motion-event) var(--ease-out); }
+.eco-resource__value[data-delta='down'] { animation: eco-value-down var(--motion-event) var(--ease-out); }
+
+@keyframes eco-value-up {
+  0% { color: var(--signal-gain); transform: translateY(3px); }
+  100% { color: var(--ink); transform: translateY(0); }
+}
+
+@keyframes eco-value-down {
+  0% { color: var(--signal-loss); transform: translateY(-3px); }
+  100% { color: var(--ink); transform: translateY(0); }
+}
+
+/* =================================================================
+ * 3. STATUS RAIL — the permanently visible "what is happening now"
+ * ============================================================== */
+
+.eco-rail {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) var(--s4);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 -1px 0 var(--board-rule);
+}
+
+.eco-rail__spacer { margin-left: auto; }
+
+.eco-rail__turn {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+}
+
+.eco-rail__seat-dot {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--seat);
+}
+
+/* =================================================================
+ * 4. TIMER — a draining bar plus a readable count. Never colour alone.
+ * ============================================================== */
+
+.eco-timer {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.eco-timer__count {
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-body);
+  color: var(--ink);
+}
+
+.eco-timer[data-urgent='true'] .eco-timer__count {
+  color: var(--signal-loss);
+  animation: eco-pulse 1s var(--ease-in-out) infinite;
+}
+
+@keyframes eco-pulse {
+  50% { opacity: 0.5; }
+}
+
+.eco-timer__track {
+  position: relative;
+  width: 72px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--board-cell);
+  overflow: hidden;
+}
+
+.eco-timer__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--brass);
+  transition: width 1s linear;
+}
+
+.eco-timer[data-urgent='true'] .eco-timer__fill { background: var(--signal-loss); }
+
+/* =================================================================
+ * 5. ACTION DOCK — the contextual bottom control surface
+ * ============================================================== */
+
+.eco-dock {
+  position: relative;
+  z-index: var(--z-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom, 0px));
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 -10px 26px -18px rgba(90, 68, 34, 0.4);
+}
+
+.eco-dock__prompt {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-height: 22px;
+}
+
+.eco-dock__prompt-text {
+  font-size: var(--type-small);
+  color: var(--ink-soft);
+  min-width: 0;
+}
+
+.eco-dock__prompt-text strong { color: var(--ink); font-weight: 700; }
+
+.eco-dock__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: var(--s2);
+}
+
+.eco-dock__actions .eco-btn {
+  padding: 0 var(--s3);
+  white-space: nowrap;
+}
+
+.eco-dock__actions[data-stack='true'] {
+  grid-auto-flow: row;
+  grid-auto-columns: auto;
+}
+
+.eco-dock__tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s1);
+}
+
+.eco-dock__tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-height: 52px;
+  padding: var(--s2) 2px;
+  border-radius: var(--radius-plate);
+  color: var(--ink-faint);
+  font-size: var(--type-caption);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color var(--motion-tap) var(--ease-out), background var(--motion-tap) var(--ease-out);
+}
+
+.eco-dock__tab svg { width: 20px; height: 20px; }
+
+.eco-dock__tab[data-active='true'] {
+  color: var(--ink);
+  background: var(--board-cell);
+}
+
+.eco-dock__tab-count {
+  position: absolute;
+  transform: translate(14px, -6px);
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--brass);
+  color: #fffdf5;
+  font-family: var(--font-numeric);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+/* =================================================================
+ * 6. SHEET — a surface that slides up over the board
+ * ============================================================== */
+
+.eco-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: rgba(58, 44, 22, 0.42);
+  animation: eco-fade-in var(--motion-shift) var(--ease-out);
+}
+
+@keyframes eco-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.eco-sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  flex-direction: column;
+  max-height: min(86dvh, 780px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  background: var(--board-plate);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), var(--depth-overlay);
+  animation: eco-sheet-in var(--motion-shift) var(--ease-out);
+}
+
+@keyframes eco-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@media (min-width: 900px) {
+  .eco-sheet {
+    inset: 50% auto auto 50%;
+    transform: translate(-50%, -50%);
+    width: min(560px, calc(100vw - 64px));
+    border-radius: var(--radius-sheet);
+    animation-name: eco-dialog-in;
+  }
+
+  @keyframes eco-dialog-in {
+    from { opacity: 0; transform: translate(-50%, -46%) scale(0.97); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+}
+
+.eco-sheet__grip {
+  width: 36px;
+  height: 4px;
+  margin: var(--s2) auto 0;
+  border-radius: 999px;
+  background: var(--board-rule);
+}
+
+.eco-sheet__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s4) var(--s4) var(--s3);
+}
+
+.eco-sheet__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-title);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.eco-sheet__close {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--radius-plate);
+  color: var(--ink-faint);
+}
+
+.eco-sheet__close:hover { color: var(--ink); background: var(--board-cell); }
+
+.eco-sheet__body {
+  padding: 0 var(--s4) var(--s4);
+  overflow-y: auto;
+}
+
+.eco-sheet__foot {
+  display: flex;
+  gap: var(--s2);
+  padding: var(--s3) var(--s4) var(--s4);
+  box-shadow: inset 0 1px 0 var(--board-rule);
+}
+
+.eco-sheet__foot .eco-btn { flex: 1; }
+
+/* =================================================================
+ * 7. RECORD ROWS — property, card and player listings
+ * ============================================================== */
+
+.eco-record {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  width: 100%;
+  padding: var(--s3);
+  border-radius: var(--radius-plate);
+  background: #fffdf8;
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 95, 55, 0.18),
+    0 1px 2px rgba(90, 68, 34, 0.1);
+  text-align: left;
+  transition: background var(--motion-tap) var(--ease-out),
+    box-shadow var(--motion-tap) var(--ease-out);
+}
+
+.eco-record + .eco-record { margin-top: var(--s2); }
+
+button.eco-record:hover { background: var(--board-cell-lit); }
+
+.eco-record__district {
+  width: 4px;
+  align-self: stretch;
+  flex: none;
+  border-radius: 999px;
+  background: var(--district);
+}
+
+.eco-record__body { flex: 1; min-width: 0; }
+
+.eco-record__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--type-body);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.eco-record__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: 2px;
+  font-size: var(--type-caption);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.eco-record__value {
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  text-align: right;
+}
+
+/* =================================================================
+ * 8. STRATEGY CARD — a printed card, not a list item
+ *
+ * A card frame: rule at the top carrying timing and cost, an artwork panel
+ * printed into the stock, then the name and the canonical rules text.
+ * ============================================================== */
+
+.eco-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  width: 100%;
+  padding: var(--s3);
+  border-radius: var(--radius-plate);
+  background: linear-gradient(168deg, #fffdf7, #f7f0e2 70%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 0 0 1px rgba(120, 95, 55, 0.24),
+    var(--depth-piece);
+  text-align: left;
+  transition:
+    transform var(--motion-shift) var(--ease-out),
+    box-shadow var(--motion-shift) var(--ease-out);
+}
+
+/* A hairline inside the trim, like a printed card border. */
+.eco-card::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: calc(var(--radius-plate) - 2px);
+  box-shadow: inset 0 0 0 1px rgba(120, 95, 55, 0.16);
+  pointer-events: none;
+}
+
+button.eco-card:hover { transform: translateY(-4px); }
+
+.eco-card[data-selected='true'] {
+  transform: translateY(-6px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 0 0 2px var(--brass),
+    var(--depth-surface);
+}
+
+.eco-card[data-playable='false'] { opacity: 0.5; }
+
+.eco-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+}
+
+.eco-card__timing,
+.eco-card__cost {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eco-card__timing {
+  background: var(--brass-deep);
+  color: var(--brass-lit);
+}
+
+.eco-card__cost {
+  font-family: var(--font-numeric);
+  color: var(--ink-faint);
+}
+
+/* The artwork panel: printed into the stock, slightly recessed. */
+.eco-card__art {
+  display: grid;
+  place-items: center;
+  padding: var(--s2) 0;
+  border-radius: var(--radius-piece);
+  background:
+    radial-gradient(ellipse 70% 90% at 50% 26%, rgba(255, 255, 255, 0.9), transparent 72%),
+    #f1e7d3;
+  box-shadow: inset 0 1px 3px rgba(120, 95, 55, 0.28);
+  color: var(--brass-lit);
+}
+
+.eco-card__art svg { width: 46%; max-width: 84px; height: auto; }
+
+.eco-card__name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-lead);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.eco-card__rule {
+  height: 1px;
+  background: var(--board-rule);
+}
+
+.eco-card__text {
+  font-size: var(--type-small);
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+/* =================================================================
+ * 9. DECISION SURFACES — auction, council, trade, emergency sale
+ * ============================================================== */
+
+.eco-decision {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.eco-decision__subject {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3);
+  border-radius: var(--radius-plate);
+  background: var(--district-deep);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--district) 55%, transparent);
+}
+
+.eco-decision__question {
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: var(--track-caption);
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.eco-option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  width: 100%;
+  padding: var(--s4);
+  border-radius: var(--radius-plate);
+  background: var(--board-cell);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  text-align: left;
+}
+
+.eco-option[data-chosen='true'] {
+  box-shadow: inset 0 0 0 2px var(--brass);
+  background: var(--board-cell-lit);
+}
+
+.eco-option__letter {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-piece);
+  background: var(--brass-deep);
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--brass-lit);
+}
+
+/* Numeric entry for bids and influence allocation — big, thumb-driven,
+   never dependent on a keyboard. */
+.eco-stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.eco-stepper__btn {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: var(--radius-plate);
+  background: var(--board-cell-lit);
+  background: linear-gradient(180deg, #ffffff, #f0e8d8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 1px rgba(120, 95, 55, 0.2),
+    0 2px 0 #d5c5a5;
+  font-family: var(--font-numeric);
+  font-size: var(--type-title);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.eco-stepper__btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+.eco-stepper__btn:disabled { color: var(--ink-ghost); box-shadow: inset 0 0 0 1px var(--board-rule); background: transparent; }
+
+.eco-stepper__value {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--s2);
+  border-radius: var(--radius-plate);
+  background: var(--room-bg);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.eco-stepper__number {
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-display);
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+/* =================================================================
+ * 10. EVENT PRESENTATION — three tiers, so importance stays legible
+ * ============================================================== */
+
+.eco-event {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-radius: var(--radius-plate);
+  background: var(--board-cell);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.eco-event[data-tier='major'] {
+  background: linear-gradient(180deg, #fdeceb, #f9dedb);
+  box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.35);
+}
+
+.eco-event[data-tier='important'] {
+  background: #fdf5e4;
+  box-shadow: inset 0 0 0 1px rgba(169, 112, 28, 0.35);
+}
+
+.eco-event__kicker {
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: var(--track-caption);
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.eco-event[data-tier='major'] .eco-event__kicker { color: var(--signal-loss); }
+
+.eco-event__headline {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-lead);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.eco-event__body {
+  margin-top: 2px;
+  font-size: var(--type-small);
+  color: var(--ink-soft);
+}
+
+/* =================================================================
+ * 11. ROUND TRANSITION — brief, then out of the way
+ * ============================================================== */
+
+.eco-transition {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-transition);
+  display: grid;
+  place-items: center;
+  background: rgba(247, 241, 228, 0.94);
+  animation: eco-transition-out 2200ms var(--ease-in-out) forwards;
+  pointer-events: none;
+}
+
+@keyframes eco-transition-out {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  78% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+.eco-transition__round {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-hero);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  animation: eco-transition-mark 2200ms var(--ease-out) forwards;
+}
+
+@keyframes eco-transition-mark {
+  0% { transform: scale(0.9); letter-spacing: 0.32em; opacity: 0; }
+  16% { transform: scale(1); letter-spacing: 0.16em; opacity: 1; }
+  100% { transform: scale(1); letter-spacing: 0.16em; opacity: 1; }
+}
+
+/* =================================================================
+ * 12. CONNECTION — the state of the link to the room
+ * ============================================================== */
+
+.eco-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--board-cell);
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.eco-link__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--signal-gain);
+}
+
+.eco-link[data-state='connecting'] .eco-link__dot,
+.eco-link[data-state='reconnecting'] .eco-link__dot {
+  background: var(--signal-caution);
+  animation: eco-pulse 900ms var(--ease-in-out) infinite;
+}
+
+.eco-link[data-state='offline'] .eco-link__dot,
+.eco-link[data-state='error'] .eco-link__dot { background: var(--signal-loss); }
+
+.eco-link[data-state='reconnecting'],
+.eco-link[data-state='offline'],
+.eco-link[data-state='error'] { color: var(--ink); }
+
+/* A banner, not a takeover: the last valid state stays on screen. */
+.eco-interrupt {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  background: #fbeecd;
+  box-shadow: inset 0 -1px 0 rgba(169, 112, 28, 0.4);
+  font-size: var(--type-small);
+  font-weight: 600;
+  color: #6b4a08;
+}
+
+.eco-interrupt[data-severity='fatal'] {
+  background: #fbe0dc;
+  box-shadow: inset 0 -1px 0 rgba(192, 57, 43, 0.45);
+  color: #8f2a1f;
+}
+
+/* =================================================================
+ * 13. TOASTS — brief acknowledgement, top of the surface
+ * ============================================================== */
+
+.eco-toasts {
+  position: fixed;
+  inset: calc(env(safe-area-inset-top, 0px) + var(--s3)) var(--s3) auto;
+  z-index: var(--z-transition);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .eco-toasts { left: auto; width: 360px; }
+}
+
+.eco-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s3);
+  border-radius: var(--radius-plate);
+  background: #fffdf7;
+  box-shadow: inset 0 0 0 1px var(--board-rule), var(--depth-surface);
+  pointer-events: auto;
+  animation: eco-toast-in var(--motion-shift) var(--ease-out);
+}
+
+@keyframes eco-toast-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.eco-toast__bar {
+  width: 3px;
+  align-self: stretch;
+  border-radius: 999px;
+  background: var(--brass);
+}
+
+.eco-toast[data-tone='success'] .eco-toast__bar { background: var(--signal-gain); }
+.eco-toast[data-tone='error'] .eco-toast__bar { background: var(--signal-loss); }
+.eco-toast[data-tone='warning'] .eco-toast__bar { background: var(--signal-caution); }
+
+.eco-toast__title { font-weight: 700; font-size: var(--type-small); }
+.eco-toast__text { margin-top: 2px; font-size: var(--type-small); color: var(--ink-soft); }
+
+/* =================================================================
+ * 14. EMPTY / PENDING STATES
+ * ============================================================== */
+
+.eco-empty {
+  padding: var(--s6) var(--s4);
+  text-align: center;
+  color: var(--ink-faint);
+  font-size: var(--type-small);
+}
+
+/* A record row carries the property's own motif, so a list of holdings is
+   scannable by picture as well as by name. */
+.eco-record__motif {
+  display: block;
+  width: 34px;
+  flex: none;
+  color: var(--district-lit);
+  opacity: 0.75;
+}
+
+.eco-record__motif svg { width: 100%; height: 26px; }
+
+/* A card that cannot be played now says so in a line, not a dead control. */
+.eco-card__note {
+  margin: 0;
+  padding: var(--s1) 0 var(--s2);
+  text-align: center;
+  font-size: var(--type-caption);
+  font-weight: 600;
+  color: var(--ink-faint);
+}

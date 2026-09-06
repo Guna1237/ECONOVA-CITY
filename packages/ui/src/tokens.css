@@ -1,0 +1,9 @@
+/*
+ * ECONOVA: CITY — design system entry point.
+ * Imported once per client application.
+ */
+
+@import './styles/tokens.css';
+@import './styles/base.css';
+@import './styles/board.css';
+@import './styles/controls.css';

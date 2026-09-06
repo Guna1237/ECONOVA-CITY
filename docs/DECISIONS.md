@@ -1814,6 +1814,30 @@ Product owner — 2026-09-04
 
 ---
 
+# DECISION-047 — Privileged private operator inspection
+
+Status: APPROVED / FINAL
+
+Approved by: Product owner, Phase 2 continuation (2026-09-06).
+
+Routine admin WebSocket projections contain only public gameplay and operational player connectivity. They must not contain unrevealed strategy cards, secret objectives, sealed bids, or Council allocations.
+
+The event operator may inspect those private fields only through a separate, room-scoped privileged capability. Every inspection requires fresh re-authentication, current authorization, and successful durable audit recording BEFORE the private response is returned. Cross-room access is denied. Inspection responses are never cached, broadcast, or copied into routine projections.
+
+Implementation: `POST /api/admin/rooms/:roomId/private-inspection`, a room-bound admin session, the operator credential re-entered for each request, and a request ID/reason. Audit records identify the operator session, room/game, state version, request and reason, without storing inspected secrets. Failed audit persistence returns no private data.
+
+This authorizes private inspection only; it does not authorize game-state editing or change gameplay.
+
+---
+
+# DECISION-048 — Operator pause freezes all game time
+
+Status: APPROVED / FINAL. Product-owner clarification, 2026-09-06.
+
+Operator pause freezes all remaining timers, including reconnect grace, and defers disconnect-triggered gameplay effects until resume. See `GAME_DESIGN_SPEC.md` section 29.3a. Persist the pause timestamp and deferred disconnect identities for recovery; do not infer elapsed pause time for legacy snapshots lacking that timestamp.
+
+---
+
 # DECISION CHANGE RULE
 
 When superseding a decision:

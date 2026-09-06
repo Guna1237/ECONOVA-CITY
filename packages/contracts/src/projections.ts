@@ -220,6 +220,7 @@ export const playerProjectionSchema = z
         propertyIds: z.array(propertyIdSchema).max(16),
         objectiveId: objectiveIdSchema.nullable(),
         objectiveOffer: z.tuple([objectiveIdSchema, objectiveIdSchema]).nullable(),
+        pendingEventChoice: z.object({ eventId: z.enum(["SE03", "SE04"]) }).strict().nullable(),
         pendingLandingFee: pendingLandingFeeSchema.nullable(),
         auction: z
           .object({
@@ -260,7 +261,7 @@ const adminCouncilSchema = z
   })
   .strict();
 
-export const adminProjectionSchema = z
+export const privateInspectionProjectionSchema = z
   .object({
     public: publicProjectionSchema,
     players: z.array(
@@ -309,6 +310,11 @@ export const adminProjectionSchema = z
   .strict();
 
 export type PublicProjectionDto = z.infer<typeof publicProjectionSchema>;
+export const adminProjectionSchema = z.object({
+  public: publicProjectionSchema,
+  players: z.array(z.object({ playerId: playerIdSchema, name: z.string().min(1).max(40), connected: z.boolean(), disconnectedAt: z.number().int().nonnegative().nullable() }).strict())
+}).strict();
+export type PrivateInspectionProjectionDto = z.infer<typeof privateInspectionProjectionSchema>;
 export type ProjectorProjectionDto = z.infer<typeof projectorProjectionSchema>;
 export type PlayerProjectionDto = z.infer<typeof playerProjectionSchema>;
 export type AdminProjectionDto = z.infer<typeof adminProjectionSchema>;

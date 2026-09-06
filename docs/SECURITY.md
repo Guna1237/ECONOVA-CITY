@@ -13,6 +13,16 @@ Security must never depend on the frontend behaving correctly.
 
 The server is the final authority.
 
+## Approved private operator inspection exception — DECISION-047
+
+Routine admin, projector, and other-player projections must never contain unrevealed player secrets. The operator may inspect strategy cards, secret objectives, sealed bids, and unrevealed Council allocations only through the separate private-inspection endpoint.
+
+`POST /api/admin/rooms/:roomId/private-inspection` requires a valid room-bound admin bearer session, an exact authorized room match, and re-authentication with the operator credential on every request. A global admin login alone is not an inspection session. Authorization is checked before reading state and again after awaiting the audit write. Expired/revoked sessions, invalid credentials, cross-room requests, or unavailable auditing fail closed.
+
+The audit is persisted before returning the private projection and contains identity, room/game, request ID, state version, and access reason, not the inspected content. Responses use `Cache-Control: no-store`; no inspection payload enters WebSocket broadcasts or client projection caches. Operators must not put secrets in audit reasons. Inspection permission does not grant gameplay mutation privileges.
+
+Logout revokes the parent and its room sessions locally even if persistence fails. Such failure returns 503 rather than claiming durable logout; restart-time revocation remains unconfirmed until database recovery.
+
 ---
 
 # 1. SECURITY PRINCIPLES

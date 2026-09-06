@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { lobbyProjectionSchema } from "./http.js";
 
 import {
   actionIdSchema,
@@ -155,20 +156,8 @@ export const clientMessageSchema = z.union([
   clientCommandSchema
 ]);
 
-const rejectionCodeSchema = z.enum([
-  "AUTHENTICATION_REQUIRED",
-  "AUTHORIZATION_DENIED",
-  "ROOM_UNAVAILABLE",
-  "ROOM_QUARANTINED",
-  "INVALID_COMMAND",
-  "INVALID_PHASE",
-  "NOT_CURRENT_PLAYER",
-  "STALE_STATE",
-  "DUPLICATE_ACTION",
-  "ACTION_CONFLICT",
-  "GAME_RULE_VIOLATION",
-  "INTERNAL_ERROR"
-]);
+// Engine rule codes are extensible; payload shape and printable code format remain strict.
+const rejectionCodeSchema = z.string().min(1).max(64).regex(/^[A-Z0-9_]+$/);
 
 const stateSnapshotMessageSchema = z.discriminatedUnion("audience", [
   z
@@ -202,6 +191,13 @@ const stateSnapshotMessageSchema = z.discriminatedUnion("audience", [
 
 export const serverMessageSchema = z.union([
   stateSnapshotMessageSchema,
+  z.object({
+    type: z.literal("lobby_snapshot"),
+    audience: z.enum(["player", "projector", "admin"]),
+    roomId: roomIdSchema,
+    projection: lobbyProjectionSchema
+  }).strict(),
+  z.object({ type: z.literal("room_unavailable"), roomId: roomIdSchema, code: z.literal("ROOM_QUARANTINED"), message: z.string().min(1).max(240) }).strict(),
   z
     .object({
       type: z.literal("action_accepted"),

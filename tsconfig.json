@@ -2,8 +2,10 @@
   "files": [],
   "references": [
     { "path": "packages/contracts" },
+    { "path": "packages/client-core" },
     { "path": "packages/game-content" },
     { "path": "packages/game-engine" },
+    { "path": "packages/ui" },
     { "path": "apps/server" },
     { "path": "apps/player" },
     { "path": "apps/projector" },

@@ -1,0 +1,188 @@
+/*
+ * ECONOVA: CITY — design tokens
+ *
+ * Art direction: a beautifully printed board game open on a warm table.
+ * Ivory board stock, dark ink, vivid printed district colours, painted wooden
+ * pieces. Depth comes from soft shadows and raised objects — never from dark
+ * backgrounds.
+ *
+ * Token names are stable across the redesign so components did not have to
+ * change to follow the new direction; only what they mean did.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ---------------------------------------------------------------
+   * MATERIAL — the room, the table, the board
+   * ------------------------------------------------------------- */
+  --room-bg: #efe7d8;          /* the table the board sits on */
+  --room-bg-lift: #fbf7ee;     /* trays and panels resting on the table */
+
+  --board-field: #f7f1e4;      /* the printed board field */
+  --board-plate: #fdfaf3;      /* the raised centre plate */
+  --board-cell: #fffdf8;       /* a printed space */
+  --board-cell-lit: #f3ece0;   /* a space under the cursor */
+  --board-rule: #ddd2bd;       /* hairline between printed regions */
+  --board-edge: #c9b795;       /* the board's raised outer rim */
+
+  /* ---------------------------------------------------------------
+   * INK — type printed on the board
+   * ------------------------------------------------------------- */
+  --ink: #2b2318;              /* primary printed ink */
+  --ink-soft: #6a5f4e;         /* secondary */
+  --ink-faint: #978973;        /* captions */
+  --ink-ghost: #bcb09b;        /* disabled, empty */
+
+  /* ---------------------------------------------------------------
+   * ACCENT — structural trim, focus, the active player
+   * (Kept on the `brass` names so nothing downstream had to be renamed.)
+   * ------------------------------------------------------------- */
+  --brass: #a9701c;            /* the warm accent itself */
+  --brass-lit: #7a4f10;        /* emphasis — darker, because ink is dark now */
+  --brass-deep: #e6cfa4;       /* the pale side of the accent, for fills */
+
+  /* ---------------------------------------------------------------
+   * ECONOVA — the club's own colours, taken from the crest. Reserved for
+   * publisher identity and the game's title treatment, never for game
+   * state, so the brand can never be confused with a district or a seat.
+   * ------------------------------------------------------------- */
+  --econova-red: #d0202a;
+  --econova-red-deep: #8d1219;
+  --econova-ink: #17140f;
+  --econova-ribbon: #f6f2e9;
+
+  /* ---------------------------------------------------------------
+   * SIGNAL — outcome semantics only
+   * ------------------------------------------------------------- */
+  --signal-gain: #2f8f52;
+  --signal-loss: #c0392b;
+  --signal-caution: #c07d12;
+  --signal-note: #2c6fa8;
+
+  /* ---------------------------------------------------------------
+   * DISTRICTS — vivid printed enamel. `-lit` is the ink-strength value
+   * used for type and marks; `-deep` is the pale printed tint.
+   * ------------------------------------------------------------- */
+  --district-food: #2e9e5b;
+  --district-food-lit: #1b6b3c;
+  --district-food-deep: #dff3e6;
+
+  --district-tech: #1e7fd1;
+  --district-tech-lit: #12558f;
+  --district-tech-deep: #dcebfa;
+
+  --district-entertainment: #d6417e;
+  --district-entertainment-lit: #96285a;
+  --district-entertainment-deep: #fbe1ec;
+
+  --district-mobility: #e8952a;
+  --district-mobility-lit: #a4620f;
+  --district-mobility-deep: #fcebd5;
+
+  /* ---------------------------------------------------------------
+   * PLAYERS — painted wooden pieces. Deliberately separated in hue from
+   * the four district enamels, and each paired with its own silhouette
+   * so colour is never the only identifier.
+   * ------------------------------------------------------------- */
+  --seat-1: #c62828;           /* crimson */
+  --seat-2: #2f4fcf;           /* indigo */
+  --seat-3: #00897b;           /* teal */
+  --seat-4: #7b3fa0;           /* violet */
+  --seat-5: #ef6c00;           /* burnt orange */
+  --seat-6: #37474f;           /* slate */
+
+  /* ---------------------------------------------------------------
+   * TYPE
+   * ------------------------------------------------------------- */
+  --font-display: 'Bricolage Grotesque', 'Arial Narrow', 'Helvetica Neue',
+    Helvetica, sans-serif;
+  --font-ui: 'Public Sans', 'Segoe UI', 'Helvetica Neue', Helvetica, sans-serif;
+  --font-numeric: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo,
+    Consolas, monospace;
+
+  --type-caption: 0.6875rem;
+  --type-small: 0.8125rem;
+  --type-body: 0.9375rem;
+  --type-lead: 1.0625rem;
+  --type-title: 1.375rem;
+  --type-display: 2rem;
+  --type-hero: 3rem;
+
+  --track-caption: 0.08em;     /* restrained: hierarchy comes from size */
+  --track-display: -0.02em;
+
+  /* ---------------------------------------------------------------
+   * SPACE — 4px base
+   * ------------------------------------------------------------- */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 64px;
+
+  --radius-piece: 4px;
+  --radius-plate: 8px;
+  --radius-board: 18px;
+  --radius-sheet: 20px;
+
+  /* ---------------------------------------------------------------
+   * DEPTH — light-theme shadows are warm and soft, never black boxes.
+   *   0 table · 1 board · 2 printed space · 3 physical piece
+   *   4 focused surface · 5 decision overlay
+   * ------------------------------------------------------------- */
+  --depth-board: 0 2px 0 rgba(255, 255, 255, 0.6) inset,
+    0 18px 40px -14px rgba(88, 66, 34, 0.38),
+    0 3px 8px -2px rgba(88, 66, 34, 0.18);
+  --depth-piece: 0 1px 2px rgba(80, 60, 30, 0.32),
+    0 4px 8px -3px rgba(80, 60, 30, 0.28);
+  --depth-surface: 0 16px 36px -12px rgba(88, 66, 34, 0.32);
+  --depth-overlay: 0 28px 70px -18px rgba(60, 45, 22, 0.42);
+
+  --z-board: 1;
+  --z-piece: 3;
+  --z-surface: 40;
+  --z-overlay: 60;
+  --z-transition: 80;
+
+  /* ---------------------------------------------------------------
+   * MOTION — one language.
+   *   tap    a control acknowledges a finger
+   *   shift  a value or panel changes
+   *   step   one board space of travel
+   *   event  the city reacts to something that matters
+   * ------------------------------------------------------------- */
+  --motion-tap: 110ms;
+  --motion-shift: 240ms;
+  --motion-step: 280ms;
+  --motion-event: 560ms;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-settle: cubic-bezier(0.34, 1.42, 0.64, 1);
+
+  --board-pad: var(--s3);
+}
+
+/* Projector: everything scales up for readability across a room. */
+[data-surface='projector'] {
+  --type-caption: 0.9375rem;
+  --type-small: 1.0625rem;
+  --type-body: 1.25rem;
+  --type-lead: 1.5rem;
+  --type-title: 2rem;
+  --type-display: 3.25rem;
+  --type-hero: 5rem;
+  --board-pad: var(--s5);
+}
+
+/* Operator console: the same light system, with the decoration turned down. */
+[data-surface='admin'] {
+  --room-bg: #f1ece2;
+  --room-bg-lift: #ffffff;
+  --type-body: 0.875rem;
+  --type-small: 0.75rem;
+}

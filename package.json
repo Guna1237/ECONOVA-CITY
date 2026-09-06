@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "build": "npm run build:packages && npm run build:server && npm run build:clients",
-    "build:packages": "npm run build -w @econova/contracts && npm run build -w @econova/game-content && npm run build -w @econova/game-engine",
+    "build:packages": "npm run build -w @econova/contracts && npm run build -w @econova/client-core && npm run build -w @econova/game-content && npm run build -w @econova/game-engine && npm run build -w @econova/ui",
     "build:server": "npm run build -w @econova/server",
     "build:clients": "npm run build -w @econova/player && npm run build -w @econova/projector && npm run build -w @econova/admin",
     "typecheck": "tsc -b --pretty false",
@@ -21,6 +21,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "dev:server": "npm run dev -w @econova/server",
+    "start:server": "node --env-file=.env apps/server/dist/main.js",
     "dev:player": "npm run dev -w @econova/player",
     "dev:projector": "npm run dev -w @econova/projector",
     "dev:admin": "npm run dev -w @econova/admin",
