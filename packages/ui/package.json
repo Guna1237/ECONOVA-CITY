@@ -22,5 +22,9 @@
     "@econova/game-content": "0.1.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7"
   }
 }
