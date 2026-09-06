@@ -5,7 +5,6 @@ import {
   ConnectionStatus,
   PHASE_LABEL,
   Resource,
-  STAGE_LABEL,
   Timer,
   seatOf
 } from '@econova/ui';
@@ -13,8 +12,12 @@ import {
 import { usePlayerSession } from '../state/PlayerSession.js';
 
 /**
- * Always on screen, always answering the same two questions in the same
- * place: what do I have, and what is happening right now.
+ * The standing facts: how far through the game we are, who is up, how long
+ * they have, and what the player holds.
+ *
+ * What the player should *do* is the briefing's job, so the rail deliberately
+ * carries no stage label and no instruction — repeating them here only split
+ * the player's attention.
  */
 export const StatusRail = (): ReactElement => {
   const { projection, link, mode } = usePlayerSession();
@@ -26,11 +29,17 @@ export const StatusRail = (): ReactElement => {
       : view.players.find((player) => player.playerId === view.turn?.playerId) ?? null;
   const seat = current === null ? null : seatOf(current.playerId, view.turnOrder);
   const isMe = current?.playerId === self.playerId;
+  const deadline = view.turn?.deadlineAt ?? null;
 
   return (
     <header className="player-rail">
       <div className="player-rail__meta">
-        <div className="player-rail__turn">
+        <span className="player-rail__round">
+          Round <b>{view.round}</b>
+          <span>/{GAME_CONFIG.rounds}</span>
+        </span>
+
+        <div className="player-rail__turn" data-you={isMe}>
           {seat === null ? null : (
             <span
               className="eco-rail__seat-dot"
@@ -47,23 +56,25 @@ export const StatusRail = (): ReactElement => {
           </span>
         </div>
 
-        <span className="eco-label" style={{ whiteSpace: 'nowrap' }}>
-          Round {view.round}/{GAME_CONFIG.rounds}
-          {view.turn !== null && view.phase === 'player_turn'
-            ? ` · ${STAGE_LABEL[view.turn.stage] ?? ''}`
-            : ''}
-        </span>
-
-        {view.turn?.deadlineAt != null && isMe ? (
+        {/* The clock belongs to whoever is up, so a waiting player can see
+            how long they have to wait. */}
+        {deadline !== null && view.phase === 'player_turn' ? (
           <Timer
-            deadlineAt={view.turn.deadlineAt}
+            deadlineAt={deadline}
             windowSeconds={GAME_CONFIG.turnTimerSeconds}
+            label={isMe ? 'Your time' : 'Time left'}
           />
-        ) : mode === 'live' ? (
-          <ConnectionStatus state={link} />
-        ) : (
-          <span className="eco-link">Demo</span>
-        )}
+        ) : null}
+
+        {/* Connection stays visible during your own turn — that is exactly
+            when losing it matters most. */}
+        <span className="player-rail__link">
+          {mode === 'live' ? (
+            <ConnectionStatus state={link} />
+          ) : (
+            <span className="eco-link">Demo</span>
+          )}
+        </span>
       </div>
 
       <Resource kind="credits" value={self.credits} />

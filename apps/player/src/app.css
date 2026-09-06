@@ -731,3 +731,24 @@
 @media (min-width: 1000px) and (min-height: 640px) {
   .player-brief__headline { font-size: var(--type-display); }
 }
+
+/* ---- rail: standing facts, stated plainly ---- */
+
+.player-rail__round {
+  font-size: var(--type-small);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.player-rail__round b {
+  font-family: var(--font-display);
+  font-size: var(--type-lead);
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.player-rail__round span { color: var(--ink-faint); }
+
+.player-rail__turn[data-you='true'] { color: var(--signal-gain); }
+
+.player-rail__link { margin-left: auto; }
