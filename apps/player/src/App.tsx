@@ -124,7 +124,7 @@ const Table = (): ReactElement => {
             />
           </div>
         </div>
-        <NewsMoment eventId={view.activeBreakingNewsId} />
+        <NewsMoment eventId={view.activeBreakingNewsId} demand={view.demand} />
       </main>
 
       <ActionDock

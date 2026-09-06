@@ -752,3 +752,35 @@
 .player-rail__turn[data-you='true'] { color: var(--signal-gain); }
 
 .player-rail__link { margin-left: auto; }
+
+/* The mechanical consequence, stated as the change the city just saw. */
+.news-moment__change {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: var(--s2);
+  padding-top: var(--s2);
+  box-shadow: inset 0 1px 0 var(--board-rule);
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-size: var(--type-small);
+}
+
+.news-moment__change-label {
+  font-family: var(--font-ui);
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.news-moment__from { color: var(--ink-faint); }
+.news-moment__arrow { color: var(--ink-faint); }
+
+.news-moment__to {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--district, var(--brass));
+  color: #fffdf8;
+}
