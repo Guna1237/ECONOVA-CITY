@@ -3,6 +3,12 @@
 
 This file records the current development state.
 
+## Production frontend endpoint checkpoint — 2026-09-07 (Codex)
+
+Admin, Player, and Projector now carry an explicit production `VITE_API_BASE=https://econova-city.onrender.com`; local development remains same-origin and continues through each Vite proxy. Because `RoomClient` derives WebSocket URLs from the same normalized base, production realtime connects to `wss://econova-city.onrender.com/ws`. The safe environment example includes all three deployed frontend origins in `ALLOWED_ORIGINS`, and server configuration coverage verifies that exact production allowlist.
+
+Verification after clean `npm ci`: typecheck PASS; production build PASS for packages, server, and all three clients; 246 tests PASS with the single deliberately opt-in PostgreSQL process test skipped; generated Admin/Player/Projector bundles each contain the backend origin and none contain their own Render static-site origin; `git diff --check` PASS.
+
 ## Latest backend checkpoint — 2026-09-06 (Astra/Codex)
 
 Phase 2 remains IN PROGRESS, not event-release ready. This checkpoint supersedes historical completion claims below for the integrated application. The current light-premium-tabletop frontend is preserved.

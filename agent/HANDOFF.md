@@ -3,6 +3,12 @@
 
 This file communicates important work between AI agents.
 
+## Latest deployment handoff — frontend API origin, 2026-09-07
+
+All three production frontend builds now set `VITE_API_BASE` to `https://econova-city.onrender.com` through app-scoped `.env.production` files. Do not remove these files or restore the empty-base production fallback: an empty base makes a Render Static Site call itself. Local development still omits the variable and uses the existing `/api` and `/ws` Vite proxies. `RoomClient` converts the HTTPS API base to `wss://econova-city.onrender.com/ws` without a second endpoint setting.
+
+The checked-in `.env.example` demonstrates the required explicit CORS allowlist for the Admin, Player, and Projector Render origins plus local development. The live backend service must use the corresponding `ALLOWED_ORIGINS` value; credentials and Render service configuration were not changed. Clean install, typecheck, full build, full default tests, generated-bundle endpoint inspection, and whitespace validation passed.
+
 ## Latest handoff — Codex integration checkpoint, 2026-09-06
 
 Server/runtime/client-core are implemented; Phase 2 overall remains incomplete. Preserve the current light-premium-tabletop clients and all existing uncommitted work. Historical design descriptions below are not authorization to restore an older visual direction.

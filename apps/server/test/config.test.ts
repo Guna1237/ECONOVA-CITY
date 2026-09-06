@@ -10,7 +10,7 @@ const validEnvironment = {
   SESSION_SECRET: "s".repeat(32),
   ADMIN_BOOTSTRAP_TOKEN: "a".repeat(32),
   PROJECTOR_ACCESS_KEY: "p".repeat(32),
-  ALLOWED_ORIGINS: "http://localhost:5173,http://localhost:5174",
+  ALLOWED_ORIGINS: "https://econova-admin.onrender.com,https://econova-player.onrender.com,https://econova-projector.onrender.com",
   LOG_LEVEL: "info"
 };
 
@@ -20,7 +20,11 @@ describe("production server configuration", () => {
       nodeEnv: "production",
       host: "0.0.0.0",
       port: 3000,
-      allowedOrigins: ["http://localhost:5173", "http://localhost:5174"]
+      allowedOrigins: [
+        "https://econova-admin.onrender.com",
+        "https://econova-player.onrender.com",
+        "https://econova-projector.onrender.com"
+      ]
     });
   });
 

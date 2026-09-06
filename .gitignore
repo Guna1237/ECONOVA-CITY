@@ -4,6 +4,9 @@ coverage/
 .env
 .env.*
 !.env.example
+!apps/admin/.env.production
+!apps/player/.env.production
+!apps/projector/.env.production
 *.log
 playwright-report/
 test-results/
