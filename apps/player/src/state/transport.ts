@@ -29,6 +29,22 @@ export interface LinkHandlers {
   readonly onCommand: (record: CommandRecord) => void;
   readonly onFatal: (message: string) => void;
 }
+/*
+ * What a player is told when the link ends for good.
+ *
+ * client-core reports these states with an error carrying transport detail
+ * ("WebSocket closed 1006" and similar). That belongs in the console for an
+ * operator, never on a player's screen, so each terminal status gets copy
+ * that says what happened and what to do about it.
+ */
+const ENDED_SESSION_COPY: Readonly<Record<string, string>> = {
+  expired: 'Your seat expired. Rejoin the room to keep playing.',
+  denied: 'This room would not accept your seat. Rejoin to continue.',
+  unavailable: 'This room is not available right now. Your game is safe.',
+  replaced: 'You joined from another device, so this screen is no longer live.',
+  fatal: 'The connection to the room ended. Rejoin to keep playing.'
+};
+
 export class RoomLink {
   private readonly client: RoomClient;
   private unsubscribe: (() => void) | null = null;
@@ -46,7 +62,12 @@ export class RoomLink {
     this.previous = state;
     if (state.status !== previous?.status) {
       this.handlers.onLinkState(state.status === 'synchronized' ? 'connected' : state.status === 'offline' ? 'offline' : state.status === 'reconnecting' ? 'reconnecting' : ['idle', 'connecting', 'authenticating'].includes(state.status) ? 'connecting' : 'error');
-      if (['expired', 'denied', 'unavailable', 'replaced', 'fatal'].includes(state.status)) this.handlers.onFatal(state.error?.message ?? 'This session is no longer available.');
+      const ending = ENDED_SESSION_COPY[state.status];
+      if (ending !== undefined) {
+        // The transport's own error text is for diagnostics, not for players.
+        if (state.error !== undefined) console.warn('[econova] link ended:', state.status, state.error);
+        this.handlers.onFatal(ending);
+      }
     }
     if (state.snapshot !== previous?.snapshot) {
       const snapshot = state.snapshot;

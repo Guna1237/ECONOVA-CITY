@@ -12,6 +12,8 @@ import {
 } from '@econova/ui';
 
 import { usePlayerSession } from '../state/PlayerSession.js';
+import { HINTS, briefFor } from '../state/briefing.js';
+import { useHints } from '../state/useHints.js';
 import {
   CardsPanel,
   HoldingsPanel,
@@ -63,21 +65,18 @@ export const ActionDock = ({
       ? null
       : view.players.find((player) => player.playerId === view.turn?.playerId)?.name ?? null;
 
-  /* ---- what the dock says, and what it offers ------------------- */
+  /* The situation, stated with hierarchy, and the note that explains it. */
+  const briefing = briefFor(projection);
+  const hints = useHints();
+  const showHint = hints.shouldShow(briefing.hint);
 
-  let prompt: ReactElement;
+  /* ---- what the dock offers ------------------------------------- */
+
   let actions: ReactElement | null = null;
 
   if (!mine) {
-    prompt = (
-      <span className="eco-dock__prompt-text">
-        {currentName === null
-          ? 'Waiting for the city.'
-          : <>Waiting for <strong>{currentName}</strong>.</>}
-      </span>
-    );
+    /* Another player is up — the briefing says who, and we offer nothing. */
   } else if (stage === 'awaiting_roll') {
-    prompt = <span className="eco-dock__prompt-text">Your move. Roll to travel.</span>;
     actions = (
       <Button
         tone="primary"
@@ -91,11 +90,6 @@ export const ActionDock = ({
       </Button>
     );
   } else if (stage === 'awaiting_shortcut_choice') {
-    prompt = (
-      <span className="eco-dock__prompt-text">
-        <strong>Shortcut</strong> — move backward by your roll instead?
-      </span>
-    );
     actions = (
       <>
         <Button
@@ -119,11 +113,6 @@ export const ActionDock = ({
       </>
     );
   } else if (stage === 'awaiting_property_decision' && standingOn !== null) {
-    prompt = (
-      <span className="eco-dock__prompt-text">
-        <strong>{standingDefinition?.name}</strong> is unowned.
-      </span>
-    );
     actions = (
       <>
         <Button
@@ -163,15 +152,6 @@ export const ActionDock = ({
     );
   } else if (stage === 'action_phase') {
     const remaining = view.turn?.actionsRemaining ?? 0;
-    prompt = (
-      <span className="eco-dock__prompt-text">
-        <strong>
-          {remaining} of {GAME_CONFIG.turnActions}
-        </strong>{' '}
-        actions left
-        {standingOn === null ? '' : ` · on ${standingDefinition?.name ?? ''}`}
-      </span>
-    );
     const level = standingRecord?.developmentLevel ?? 0;
     const ownHere = standingRecord?.ownerId === self.playerId;
     const maxed = level >= GAME_CONFIG.maximumDevelopmentLevel;
@@ -224,11 +204,7 @@ export const ActionDock = ({
       </>
     );
   } else {
-    prompt = (
-      <span className="eco-dock__prompt-text">
-        Your turn — resolving <strong>{stage?.replace(/_/g, ' ') ?? 'the board'}</strong>.
-      </span>
-    );
+    /* A stage the rules resolve on their own, or one a decision sheet owns. */
   }
 
   const tabs: readonly {
@@ -245,14 +221,36 @@ export const ActionDock = ({
 
   return (
     <div className="eco-dock player-dock">
-      <div className="eco-dock__prompt">
-        <span
-          className="player-dock__you"
-          style={{ '--seat': seat.color } as CSSProperties}
-        >
-          You · #{seat.index + 1}
-        </span>
-        {prompt}
+      <div className="player-brief" data-tone={briefing.tone}>
+        <div className="player-brief__line">
+          <span
+            className="player-dock__you"
+            style={{ '--seat': seat.color } as CSSProperties}
+          >
+            You · #{seat.index + 1}
+          </span>
+          {briefing.roll === null ? null : (
+            <span className="player-brief__roll">Rolled {briefing.roll}</span>
+          )}
+        </div>
+
+        <h2 className="player-brief__headline">{briefing.headline}</h2>
+        {briefing.detail === null ? null : (
+          <p className="player-brief__detail">{briefing.detail}</p>
+        )}
+
+        {showHint && briefing.hint !== null ? (
+          <p className="player-brief__hint">
+            <span>{HINTS[briefing.hint]}</span>
+            <button
+              type="button"
+              onClick={() => hints.dismiss(briefing.hint!)}
+              aria-label="Dismiss this tip"
+            >
+              Got it
+            </button>
+          </p>
+        ) : null}
       </div>
 
       {actions === null ? null : (

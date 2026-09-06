@@ -625,3 +625,109 @@
   font-size: var(--type-title);
   color: var(--ink);
 }
+
+/* =================================================================
+ * TURN BRIEFING
+ *
+ * The dock's first job is to answer "what is happening and what do I
+ * do". That answer gets real size and a tone colour, so a first-time
+ * player reads it before anything else on the screen.
+ * ============================================================== */
+
+.player-brief {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s3) var(--s3) var(--s3) var(--s4);
+  border-radius: var(--radius-plate);
+  background: var(--room-bg-lift);
+  box-shadow:
+    inset 0 0 0 1px var(--board-rule),
+    inset 4px 0 0 var(--brief-accent, var(--ink-ghost));
+}
+
+/* Tone says whose move it is before a single word is read. */
+.player-brief[data-tone='you'] {
+  --brief-accent: var(--signal-gain);
+  background: #f2faf4;
+}
+
+.player-brief[data-tone='decision'] {
+  --brief-accent: var(--brass);
+  background: #fdf6e7;
+}
+
+.player-brief[data-tone='alert'] {
+  --brief-accent: var(--signal-loss);
+  background: #fdeeec;
+}
+
+.player-brief[data-tone='waiting'] {
+  --brief-accent: var(--ink-ghost);
+}
+
+.player-brief__line {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.player-brief__roll {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--room-bg-lift);
+  font-family: var(--font-numeric);
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.player-brief__headline {
+  margin: 2px 0 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-title);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.player-brief__detail {
+  margin: 0;
+  font-size: var(--type-small);
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+/* A single sentence, shown once, dismissed for good. */
+.player-brief__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  margin: var(--s2) 0 0;
+  padding-top: var(--s2);
+  box-shadow: inset 0 1px 0 var(--board-rule);
+  font-size: var(--type-caption);
+  line-height: 1.4;
+  color: var(--ink-faint);
+}
+
+.player-brief__hint button {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  font-size: var(--type-caption);
+  font-weight: 700;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.player-brief__hint button:hover { background: var(--board-cell-lit); }
+
+/* On a wide layout the briefing leads the standing side column. */
+@media (min-width: 1000px) and (min-height: 640px) {
+  .player-brief__headline { font-size: var(--type-display); }
+}
