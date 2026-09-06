@@ -27,6 +27,11 @@
     "dev:admin": "npm run dev -w @econova/admin",
     "db:migrate": "npm run db:migrate -w @econova/server"
   },
+  "dependencies": {
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.2.2"
+  },
   "devDependencies": {
     "@playwright/test": "1.63.0",
     "@types/node": "26.4.1",
@@ -34,11 +39,8 @@
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",
     "@types/ws": "8.18.1",
-    "@vitejs/plugin-react": "6.1.1",
     "@vitest/coverage-v8": "5.0.0",
     "tsx": "4.23.13",
-    "typescript": "7.0.2",
-    "vite": "8.2.2",
     "vitest": "5.0.0"
   }
 }
