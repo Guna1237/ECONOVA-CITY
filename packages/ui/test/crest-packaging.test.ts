@@ -23,6 +23,7 @@ it.each(['player', 'projector', 'admin'])('%s Vite serves source and built crest
     configFile: resolve(appRoot, 'vite.config.ts'),
     logLevel: 'silent',
     cacheDir: resolve(root, 'node_modules/.vite-test-cache', app),
+    optimizeDeps: { noDiscovery: true },
     server: { host: '127.0.0.1', port: 0, open: false }
   });
   try {
@@ -30,24 +31,30 @@ it.each(['player', 'projector', 'admin'])('%s Vite serves source and built crest
     const address = server.httpServer!.address();
     if (!address || typeof address === 'string') throw Error('Missing Vite test address');
     const base = `http://127.0.0.1:${address.port}`;
-    expect((await fetch(`${base}/src/main.tsx`)).status).toBe(200);
+
+    const mainRes = await fetch(`${base}/src/main.tsx`);
+    expect(mainRes.status).toBe(200);
+    await mainRes.arrayBuffer();
+
     for (const entry of ['src/marks/Crest.tsx', 'dist/marks/Crest.js']) {
-      const path = resolve(root, 'packages/ui', entry).replaceAll('\\', '/');
+      const path = resolve(root, 'packages/ui', entry).replaceAll('\\\\', '/');
       const response = await fetch(`${base}/@fs/${path}`);
       expect(response.status, `${app}: ${entry} import analysis`).toBe(200);
       const transformed = await response.text();
       const importedAsset = transformed.match(/from\s+["']([^"']*econova-crest\.png\?import[^"']*)["']/)?.[1];
       expect(importedAsset, `${entry} must resolve its actual crest import`).toBeDefined();
+
       const assetModule = await fetch(new URL(importedAsset!, base));
       expect(assetModule.status).toBe(200);
       const assetUrl = (await assetModule.text()).match(/export default\s+["']([^"']+)["']/)?.[1];
       expect(assetUrl).toBeDefined();
+
       const png = await fetch(new URL(assetUrl!, base));
       expect(png.status).toBe(200);
       expect(digest(new Uint8Array(await png.arrayBuffer()))).toBe(digest(original));
     }
   } finally {
-    server.httpServer?.closeAllConnections?.();
+    (server.httpServer as any)?.closeAllConnections?.();
     await server.close();
   }
 }, 30_000);
