@@ -1,0 +1,627 @@
+/*
+ * Player surface — a phone game first.
+ *
+ * The composition changes with the space available; it is never a desktop
+ * layout scaled down. On a phone the board is the anchor with a status rail
+ * above and a contextual dock below. On a laptop the same board grows and
+ * the holdings move alongside it instead of into a sheet.
+ */
+
+.player-shell {
+  /* The board rests on a table, lit from above — not in a black void. */
+  background:
+    radial-gradient(ellipse 130% 60% at 50% 42%, rgba(255, 255, 255, 0.05), transparent 62%),
+    var(--room-bg);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-areas: 'rail' 'notice' 'stage' 'dock';
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.player-rail { grid-area: rail; }
+.player-notice { grid-area: notice; }
+.player-stage { grid-area: stage; }
+.player-dock { grid-area: dock; }
+
+.player-stage {
+  position: relative;
+  display: grid;
+  place-items: stretch;
+  min-height: 0;
+  padding: var(--s1) var(--s2);
+}
+
+.player-stage__board {
+  width: min(100cqw, 100cqh);
+}
+
+.player-stage__wrap {
+  container-type: size;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- status rail ----
+ *
+ * On a phone this is two lines: who is up now, then what I hold. On a wider
+ * screen the two collapse into one. Neither line is ever allowed to collide
+ * with the other, so both stay readable at a glance mid-turn.
+ */
+
+.player-rail {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: var(--s2) var(--s4);
+  padding: calc(env(safe-area-inset-top, 0px) + var(--s3)) var(--s4) var(--s3);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 -1px 0 var(--board-rule);
+}
+
+.player-rail__meta {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-width: 0;
+}
+
+.player-rail__meta > :last-child { margin-left: auto; }
+
+.player-rail__turn {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--type-small);
+  font-weight: 700;
+  color: var(--ink);
+  min-width: 0;
+}
+
+.player-rail__turn span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 620px) {
+  .player-rail { grid-template-columns: auto auto minmax(0, 1fr); }
+  .player-rail__meta { grid-column: 3; }
+  .player-rail__meta > :last-child { margin-left: 0; }
+}
+
+/* ---- dock ----
+ * Every pixel here is one the board does not get, so the dock stays as
+ * short as it can while keeping thumb-sized targets.
+ */
+
+.player-dock { gap: var(--s2); padding-top: var(--s2); }
+.player-dock .eco-dock__tab { min-height: 46px; }
+.player-dock .eco-btn { min-height: 46px; }
+
+
+.player-dock__you {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--seat) 20%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--seat) 55%, transparent);
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.player-actions {
+  display: grid;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+
+/* ---- join ---- */
+
+.player-join {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: var(--s5);
+}
+
+.player-join__panel {
+  width: min(420px, 100%);
+  padding: var(--s6) var(--s5);
+  border-radius: var(--radius-sheet);
+  background: var(--board-plate);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), var(--depth-surface);
+}
+
+.player-join__mark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-display);
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.player-join__mark span { display: block; color: var(--brass); }
+
+.player-field {
+  display: block;
+  margin-top: var(--s4);
+}
+
+.player-field input {
+  width: 100%;
+  min-height: 52px;
+  margin-top: var(--s1);
+  padding: 0 var(--s3);
+  border: none;
+  border-radius: var(--radius-plate);
+  background: var(--room-bg);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  font-family: var(--font-numeric);
+  font-size: var(--type-lead);
+  letter-spacing: 0.08em;
+}
+
+.player-field input::placeholder {
+  color: var(--ink-ghost);
+  letter-spacing: normal;
+  font-family: var(--font-ui);
+}
+
+/* ---- roster ---- */
+
+.player-roster {
+  display: grid;
+  gap: var(--s2);
+}
+
+.player-roster__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3);
+  border-radius: var(--radius-plate);
+  background: var(--board-cell);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.player-roster__row[data-current='true'] {
+  box-shadow: inset 0 0 0 1px var(--brass);
+}
+
+.player-roster__piece {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  color: var(--seat);
+}
+
+/* =================================================================
+ * Laptop and up: the board grows, and the dock becomes a standing
+ * side column — holdings and actions visible at once instead of
+ * reached through sheets. A different composition, not a rescale.
+ * ============================================================== */
+
+@media (min-width: 1000px) and (min-height: 640px) {
+  .player-shell {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      'rail rail'
+      'notice notice'
+      'stage dock';
+  }
+
+  .player-stage { padding: var(--s4); }
+
+  .player-dock {
+    gap: var(--s4);
+    padding: var(--s4) var(--s4) var(--s4) 0;
+    background: transparent;
+    box-shadow: none;
+    overflow-y: auto;
+  }
+
+  .player-dock__tabs-note { display: none; }
+
+  .player-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s2);
+    padding: var(--s3);
+    border-radius: var(--radius-plate);
+    background: var(--room-bg-lift);
+    box-shadow: inset 0 0 0 1px var(--board-rule);
+  }
+}
+
+/* ---- standing panels (wide layouts only) ---- */
+
+.player-standing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  min-height: 0;
+  padding-right: var(--s1);
+}
+
+.player-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s3);
+  border-radius: var(--radius-plate);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.player-panel__title {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: var(--track-caption);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.player-panel__title svg { color: var(--brass); }
+
+.player-panel__title span {
+  margin-left: auto;
+  font-family: var(--font-numeric);
+  color: var(--ink-soft);
+}
+
+/* Panels carry their own scroll; the column never grows past the viewport. */
+@media (min-width: 1000px) and (min-height: 640px) {
+  .player-dock { display: flex; flex-direction: column; min-height: 0; }
+  .player-standing { overflow-y: auto; flex: 1; }
+}
+
+/* =================================================================
+ * Phone landscape: vertical space is the scarce resource, so the
+ * board takes the full height on the left and the dock stands beside
+ * it. Stacking here would crush the board to nothing.
+ * ============================================================== */
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .player-shell {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 38%);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      'rail rail'
+      'notice notice'
+      'stage dock';
+  }
+
+  .player-rail {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    padding-top: calc(env(safe-area-inset-top, 0px) + var(--s2));
+    padding-bottom: var(--s2);
+  }
+
+  .player-rail__meta {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .player-rail__meta > :last-child { margin-left: 0; }
+
+  .player-stage { padding: var(--s2) var(--s1) var(--s2) var(--s2); }
+
+  .player-dock {
+    padding: var(--s2) var(--s3) var(--s2) var(--s2);
+    overflow-y: auto;
+  }
+
+  .player-dock .eco-dock__tabs { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---- ledger: owed / held / short, for money decisions ---- */
+
+.player-ledger {
+  display: grid;
+  gap: 1px;
+  border-radius: var(--radius-plate);
+  background: var(--board-rule);
+  overflow: hidden;
+}
+
+.player-ledger__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s3);
+  background: var(--room-bg);
+}
+
+.player-ledger__row[data-emphasis='true'] { background: var(--board-cell); }
+
+.player-ledger__row b { font-size: var(--type-lead); color: var(--ink); }
+.player-ledger__row b[data-tone='short'] { color: var(--signal-loss); }
+.player-ledger__row b[data-tone='settled'] { color: var(--signal-gain); }
+
+/* ---- trade partner picker ---- */
+
+.trade-partners {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--s2);
+}
+
+.trade-partner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 2px var(--s2);
+  padding: var(--s3);
+  border-radius: var(--radius-plate);
+  background: var(--board-cell);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  text-align: left;
+}
+
+.trade-partner[data-chosen='true'] {
+  background: color-mix(in srgb, var(--seat) 16%, var(--board-cell));
+  box-shadow: inset 0 0 0 2px var(--seat);
+}
+
+.trade-partner__piece {
+  grid-row: 1 / 3;
+  width: 30px;
+  height: 30px;
+  color: var(--seat);
+}
+
+.trade-partner__name {
+  min-width: 0;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trade-partner .eco-label { white-space: nowrap; }
+
+/* =================================================================
+ * Lobby — taking a seat
+ * ============================================================== */
+
+.lobby {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: var(--s5);
+  background:
+    radial-gradient(ellipse 120% 60% at 50% 30%, rgba(255, 255, 255, 0.05), transparent 62%),
+    var(--room-bg);
+}
+
+.lobby__panel {
+  width: min(460px, 100%);
+  padding: var(--s6) var(--s5);
+  border-radius: var(--radius-sheet);
+  background: var(--board-plate);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), var(--depth-surface);
+}
+
+.lobby__code {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: var(--s4);
+  padding: var(--s3);
+  border-radius: var(--radius-plate);
+  background: var(--room-bg);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.lobby__code b {
+  font-size: var(--type-title);
+  letter-spacing: 0.22em;
+  color: var(--brass);
+  user-select: all;
+}
+
+.lobby__seats {
+  display: grid;
+  gap: var(--s2);
+  margin-top: var(--s4);
+}
+
+.lobby__seat {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3);
+  border-radius: var(--radius-plate);
+  background: var(--board-cell);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  animation: lobby-seat-in var(--motion-shift) var(--ease-settle);
+}
+
+@keyframes lobby-seat-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lobby__seat[data-empty='true'] {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  color: var(--ink-ghost);
+  animation: none;
+}
+
+.lobby__seat[data-connected='false'] { opacity: 0.55; }
+
+.lobby__seat-piece {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  color: var(--seat);
+}
+
+.lobby__seat[data-empty='true'] .lobby__seat-piece {
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 2px var(--board-rule);
+}
+
+.lobby__seat-name { font-weight: 700; }
+.lobby__seat .eco-label { margin-left: auto; }
+
+.lobby__note {
+  margin-top: var(--s4);
+  font-size: var(--type-small);
+  color: var(--ink-faint);
+}
+
+/* =================================================================
+ * Breaking news — a bulletin entering the board
+ * ============================================================== */
+
+.news-moment {
+  position: absolute;
+  inset: auto var(--s2) var(--s2);
+  z-index: var(--z-surface);
+  display: flex;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-radius: var(--radius-plate);
+  background: rgba(16, 20, 24, 0.97);
+  box-shadow: inset 0 0 0 1px var(--board-rule), var(--depth-overlay);
+  animation: news-in var(--motion-event) var(--ease-out);
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .news-moment { left: auto; width: 400px; }
+}
+
+@keyframes news-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.news-moment__rule {
+  width: 3px;
+  border-radius: 999px;
+  background: var(--district, var(--brass));
+}
+
+.news-moment__kicker {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: var(--track-caption);
+  text-transform: uppercase;
+  color: var(--district-lit, var(--brass));
+}
+
+.news-moment__headline {
+  margin-top: 2px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-lead);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.news-moment__text {
+  margin-top: 2px;
+  font-size: var(--type-small);
+  color: var(--ink-soft);
+}
+
+/* =================================================================
+ * Final results
+ * ============================================================== */
+
+.results {
+  height: 100dvh;
+  background:
+    radial-gradient(ellipse 120% 50% at 50% 0%, rgba(200, 151, 63, 0.1), transparent 62%),
+    var(--room-bg);
+}
+
+.results__inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--s7) var(--s4) var(--s7);
+}
+
+.results__kicker { color: var(--brass); }
+
+.results__title {
+  margin: var(--s2) 0 var(--s5);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-display);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.results__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s4) var(--s3);
+  border-radius: var(--radius-plate);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.results__row + .results__row { margin-top: var(--s2); }
+
+.results__row[data-rank='1'] {
+  background: linear-gradient(180deg, #33270f, #211a0c);
+  box-shadow: inset 0 0 0 2px var(--brass);
+}
+
+.results__row[data-you='true'] { background: var(--board-cell); }
+
+.results__rank {
+  min-width: 1.4em;
+  font-size: var(--type-title);
+  color: var(--brass);
+}
+
+.results__piece { width: 30px; height: 30px; flex: none; color: var(--seat); }
+
+.results__body { flex: 1; min-width: 0; }
+
+.results__name { font-weight: 700; }
+
+.results__breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--s3);
+  margin-top: 4px;
+  font-size: var(--type-caption);
+  color: var(--ink-faint);
+}
+
+.results__breakdown span[data-achieved='true'] { color: var(--signal-gain); }
+.results__breakdown span[data-achieved='false'] { color: var(--ink-ghost); }
+
+.results__total {
+  flex: none;
+  margin-left: var(--s3);
+  font-size: var(--type-title);
+  color: var(--ink);
+}

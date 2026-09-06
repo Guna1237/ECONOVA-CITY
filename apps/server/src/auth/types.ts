@@ -6,4 +6,5 @@ export interface AuthenticatedSession {
   readonly roomId: string | null;
   readonly playerId: string | null;
   readonly expiresAt: number;
+  readonly parentSessionId?: string;
 }

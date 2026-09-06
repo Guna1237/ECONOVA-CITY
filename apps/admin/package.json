@@ -9,11 +9,12 @@
     "dev": "vite --port 5175"
   },
   "dependencies": {
+    "@econova/client-core": "0.1.0",
     "@econova/contracts": "0.1.0",
-    "@tailwindcss/vite": "4.3.3",
+    "@econova/game-content": "0.1.0",
+    "@econova/ui": "0.1.0",
     "framer-motion": "13.2.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "tailwindcss": "4.3.3"
+    "react-dom": "19.2.8"
   }
 }

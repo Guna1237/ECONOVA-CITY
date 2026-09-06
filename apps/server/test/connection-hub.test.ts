@@ -88,13 +88,21 @@ describe("connection projection hub", () => {
     const state = game("room-a");
     const first: unknown[] = [];
     const replacement: unknown[] = [];
+    const closed: Array<{ code: number; reason: string }> = [];
     const hub = new ConnectionHub();
     const projector = session("projector", "room-a", null);
-    hub.add(projector, (message) => first.push(message));
-    hub.add(projector, (message) => replacement.push(message));
+    const firstConnectionId = hub.add(
+      projector,
+      (message) => first.push(message),
+      (code, reason) => closed.push({ code, reason })
+    );
+    const replacementConnectionId = hub.add(projector, (message) => replacement.push(message));
 
     hub.broadcastState(state);
 
+    expect(closed).toEqual([{ code: 4009, reason: "Connection replaced" }]);
+    expect(hub.isActive(projector.sessionId, firstConnectionId)).toBe(false);
+    expect(hub.isActive(projector.sessionId, replacementConnectionId)).toBe(true);
     expect(first).toHaveLength(0);
     expect(replacement).toHaveLength(1);
   });

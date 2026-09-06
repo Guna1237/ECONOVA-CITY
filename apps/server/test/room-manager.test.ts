@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createSeededRandom } from "@econova/game-engine";
+import { createInitialGame, createSeededRandom } from "@econova/game-engine";
 
 import {
   InMemoryGamePersistence,
@@ -28,11 +28,11 @@ describe("room manager", () => {
         return persistence;
       }
     });
-    manager.createRoom(admin, { roomId: "room-a", code: "ROOMA1" });
-    manager.createRoom(admin, { roomId: "room-b", code: "ROOMB1" });
+    await manager.createRoom(admin, { roomId: "room-a", code: "ROOMA1" });
+    await manager.createRoom(admin, { roomId: "room-b", code: "ROOMB1" });
     for (let index = 0; index < 4; index += 1) {
-      manager.joinRoom("ROOMA1", { playerId: `a${index}`, name: `A ${index}` });
-      manager.joinRoom("ROOMB1", { playerId: `b${index}`, name: `B ${index}` });
+      await manager.joinRoom("ROOMA1", { playerId: `a${index}`, name: `A ${index}` });
+      await manager.joinRoom("ROOMB1", { playerId: `b${index}`, name: `B ${index}` });
     }
 
     const roomA = await manager.initializeRoom(admin, "room-a");
@@ -49,17 +49,17 @@ describe("room manager", () => {
       randomFactory: () => createSeededRandom(5),
       persistenceFactory: () => new InMemoryGamePersistence()
     });
-    manager.createRoom(admin, { roomId: "room-a", code: "ROOMA1" });
+    await manager.createRoom(admin, { roomId: "room-a", code: "ROOMA1" });
     for (let index = 0; index < 6; index += 1) {
-      manager.joinRoom("ROOMA1", { playerId: `a${index}`, name: `A ${index}` });
+      await manager.joinRoom("ROOMA1", { playerId: `a${index}`, name: `A ${index}` });
     }
 
-    expect(() =>
+    await expect(
       manager.joinRoom("ROOMA1", { playerId: "a6", name: "Overflow" })
-    ).toThrow(/full/i);
-    expect(() =>
+    ).rejects.toThrow(/full/i);
+    await expect(
       manager.joinRoom("ROOMA1", { playerId: "a0", name: "Duplicate" })
-    ).toThrow(/already/i);
+    ).rejects.toThrow(/already/i);
 
     const runtime = await manager.initializeRoom(admin, "room-a");
     const session: AuthenticatedSession = {
@@ -83,9 +83,32 @@ describe("room manager", () => {
     });
     const player = { ...admin, role: "player" as const, playerId: "p", roomId: "room-a" };
 
-    expect(() => manager.createRoom(player, { roomId: "room-a", code: "ROOMA1" })).toThrow(
+    await expect(manager.createRoom(player, { roomId: "room-a", code: "ROOMA1" })).rejects.toThrow(
       /admin/i
     );
     await expect(manager.initializeRoom(player, "room-a")).rejects.toThrow(/admin/i);
+  });
+
+  it("restores an initialized room from its persisted authoritative snapshot", () => {
+    const state = createInitialGame({
+      gameId: "game-room-a",
+      roomId: "room-a",
+      players: Array.from({ length: 4 }, (_, index) => ({
+        id: `p${index}`,
+        name: `Player ${index}`
+      })),
+      random: createSeededRandom(7)
+    });
+    const manager = new RoomManager({
+      now: () => 1_000,
+      randomFactory: () => createSeededRandom(5),
+      persistenceFactory: () => new InMemoryGamePersistence()
+    });
+
+    const restored = manager.restoreRoom({ roomId: "room-a", code: "ROOMA1", state });
+
+    expect(restored.runtime?.getState()).toEqual(state);
+    expect(manager.getRoomByCode("rooma1")).toBe(restored);
+    expect(restored.players.map(({ playerId }) => playerId)).toEqual(state.turnOrder);
   });
 });

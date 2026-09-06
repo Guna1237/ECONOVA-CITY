@@ -56,6 +56,28 @@ const adminCommand = (
 };
 
 describe("privileged room operations", () => {
+  it("rechecks admin authorization when a queued command begins", async () => {
+    const state = readyState();
+    const runtime = new RoomRuntime({ state, persistence: new InMemoryGamePersistence(), random: createSeededRandom(2), now: () => 1_000 });
+    let authorized = true;
+    const pending = runtime.processAdminCommand(admin, adminCommand(state, "admin_start_game"), () => authorized);
+    authorized = false;
+    await expect(pending).resolves.toMatchObject({ status: "rejected", code: "AUTHORIZATION_DENIED" });
+    await runtime.drain();
+    expect(runtime.getState()).toEqual(state);
+  });
+
+  it("quarantines a stale-command receipt write failure without losing the queue", async () => {
+    const state = readyState();
+    const persistence = new InMemoryGamePersistence();
+    persistence.failNextReceipt = true;
+    const runtime = new RoomRuntime({ state, persistence, random: createSeededRandom(2), now: () => 1_000 });
+    await expect(runtime.processAdminCommand(admin, {
+      ...adminCommand(state, "admin_start_game"), expectedStateVersion: state.version + 1
+    })).resolves.toMatchObject({ status: "rejected", code: "ROOM_QUARANTINED" });
+    expect(runtime.getState()).toEqual(state);
+  });
+
   it("starts, pauses, and resumes through the serialized persistence boundary", async () => {
     const persistence = new InMemoryGamePersistence();
     const runtime = new RoomRuntime({

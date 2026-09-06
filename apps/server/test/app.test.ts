@@ -13,7 +13,7 @@ import {
 const ADMIN_KEY = "a".repeat(32);
 const PROJECTOR_KEY = "p".repeat(32);
 
-const createApp = () => {
+const createApp = (overrides: Record<string, unknown> = {}) => {
   const now = () => 1_000;
   const sessions = new SessionStore();
   const roomManager = new RoomManager({
@@ -29,12 +29,30 @@ const createApp = () => {
     adminAccessKey: ADMIN_KEY,
     projectorAccessKey: PROJECTOR_KEY,
     sessionTtlMilliseconds: 60_000,
+    adminRealtimeTtlMilliseconds: 30_000,
+    allowedOrigins: ["http://localhost:5173"],
+    authAttemptLimit: 10,
+    authAttemptWindowMilliseconds: 60_000,
     readinessCheck: async () => true,
-    logger: false
+    logger: false,
+    ...overrides
   });
 };
 
 describe("Fastify application boundary", () => {
+  it("revokes the parent and room sessions locally even if durable logout fails", async () => {
+    const sessions = new SessionStore();
+    const parent = sessions.issue({ role: "admin", roomId: null, playerId: null, expiresAt: 100_000 });
+    const child = sessions.issue({ role: "admin", roomId: "room-a", playerId: null, expiresAt: 100_000, parentSessionId: parent.session.sessionId });
+    const app = createApp({ sessions, revokeSession: async () => { throw new Error("Database unavailable"); } });
+    const result = await app.inject({ method: "POST", url: "/api/session/logout", headers: { authorization: `Bearer ${parent.token}` } });
+    expect(result.statusCode).toBe(503);
+    expect(sessions.resume(parent.token, 1_000)).toBeNull();
+    expect(sessions.resume(child.token, 1_000)).toBeNull();
+    expect(result.body).not.toContain("Database unavailable");
+    await app.close();
+  });
+
   it("exposes liveness and dependency-aware readiness", async () => {
     const app = createApp();
 
@@ -121,6 +139,67 @@ describe("Fastify application boundary", () => {
       message: "Request data is invalid."
     });
     expect(response.body).not.toContain("stack");
+    await app.close();
+  });
+
+  it("allows only configured browser origins", async () => {
+    const app = createApp();
+    const allowed = await app.inject({
+      method: "OPTIONS",
+      url: "/api/admin/login",
+      headers: {
+        origin: "http://localhost:5173",
+        "access-control-request-method": "POST"
+      }
+    });
+    const denied = await app.inject({
+      method: "OPTIONS",
+      url: "/api/admin/login",
+      headers: {
+        origin: "https://attacker.example",
+        "access-control-request-method": "POST"
+      }
+    });
+
+    expect(allowed.headers["access-control-allow-origin"]).toBe("http://localhost:5173");
+    expect(denied.headers["access-control-allow-origin"]).toBeUndefined();
+    await app.close();
+  });
+
+  it("bounds repeated authentication attempts by route and client", async () => {
+    const app = createApp({ authAttemptLimit: 1 });
+    await app.inject({
+      method: "POST",
+      url: "/api/admin/login",
+      payload: { accessKey: "wrong" }
+    });
+    const limited = await app.inject({
+      method: "POST",
+      url: "/api/admin/login",
+      payload: { accessKey: "wrong" }
+    });
+
+    expect(limited.statusCode).toBe(429);
+    expect(limited.json()).toEqual({
+      code: "RATE_LIMITED",
+      message: "Too many attempts. Try again shortly."
+    });
+    await app.close();
+  });
+
+  it("persists hashed sessions before returning their raw token", async () => {
+    const records: unknown[] = [];
+    const app = createApp({ persistSession: async (record: unknown) => records.push(record) });
+
+    const login = await app.inject({
+      method: "POST",
+      url: "/api/admin/login",
+      payload: { accessKey: ADMIN_KEY }
+    });
+
+    expect(login.statusCode).toBe(200);
+    expect(records).toHaveLength(1);
+    expect(JSON.stringify(records[0])).not.toContain(login.json<{ token: string }>().token);
     await app.close();
   });
 });

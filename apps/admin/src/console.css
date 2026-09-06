@@ -1,0 +1,192 @@
+/*
+ * Operator console.
+ *
+ * This is not the game. It is the tool the person running the event uses,
+ * so it is flat, dense, and literal: no board material, no celebration,
+ * every control labelled with exactly what it sends.
+ */
+
+.ops {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100dvh;
+  background: var(--room-bg);
+}
+
+.ops-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) var(--s5);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 -1px 0 var(--board-rule);
+}
+
+.ops-head__mark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-body);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.ops-head__role {
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: var(--board-cell);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  font-family: var(--font-numeric);
+  font-size: var(--type-small);
+  color: var(--brass);
+}
+
+.ops-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-content: start;
+  gap: var(--s4);
+  padding: var(--s5);
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  overflow-y: auto;
+}
+
+@media (max-width: 860px) {
+  .ops-body { grid-template-columns: minmax(0, 1fr); }
+}
+
+.ops-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s4);
+  border-radius: var(--radius-plate);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.ops-card--wide { grid-column: 1 / -1; }
+
+.ops-card__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--type-lead);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.ops-card__note {
+  font-size: var(--type-small);
+  line-height: 1.5;
+  color: var(--ink-faint);
+}
+
+.ops-field {
+  display: block;
+}
+
+.ops-field input {
+  width: 100%;
+  min-height: 44px;
+  margin-top: var(--s1);
+  padding: 0 var(--s3);
+  border: none;
+  border-radius: var(--radius-piece);
+  background: var(--room-bg);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  font-family: var(--font-numeric);
+  font-size: var(--type-body);
+}
+
+.ops-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+/* A read-only fact the operator may need to read aloud or copy. */
+.ops-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s2) var(--s3);
+  border-radius: var(--radius-piece);
+  background: var(--room-bg);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.ops-value b {
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-size: var(--type-lead);
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  user-select: all;
+}
+
+/* The command log: every request and the server's own answer. */
+.ops-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  max-height: 320px;
+  overflow-y: auto;
+  font-family: var(--font-numeric);
+  font-size: var(--type-small);
+}
+
+.ops-log__entry {
+  display: grid;
+  grid-template-columns: 74px 96px minmax(0, 1fr);
+  gap: var(--s3);
+  padding: var(--s2) var(--s3);
+  border-radius: var(--radius-piece);
+  background: var(--room-bg);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.ops-log__entry[data-status='rejected'] {
+  box-shadow: inset 0 0 0 1px rgba(196, 84, 74, 0.5);
+}
+
+.ops-log__status { font-weight: 700; }
+.ops-log__entry[data-status='accepted'] .ops-log__status { color: var(--signal-gain); }
+.ops-log__entry[data-status='rejected'] .ops-log__status { color: var(--signal-loss); }
+.ops-log__entry[data-status='sending'] .ops-log__status { color: var(--signal-caution); }
+
+.ops-log__time { color: var(--ink-ghost); }
+.ops-log__detail { color: var(--ink-soft); overflow-wrap: anywhere; }
+
+.ops-signin {
+  display: grid;
+  place-items: center;
+  height: 100dvh;
+  padding: var(--s5);
+}
+
+.ops-signin__panel {
+  width: min(400px, 100%);
+  padding: var(--s5);
+  border-radius: var(--radius-plate);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+/* A capability the backend does not expose. Stated, never faked. */
+.ops-unavailable {
+  padding: var(--s3);
+  border-radius: var(--radius-piece);
+  background: var(--room-bg);
+  box-shadow: inset 0 0 0 1px rgba(207, 154, 58, 0.35);
+  font-size: var(--type-small);
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.ops-unavailable b { color: var(--signal-caution); }

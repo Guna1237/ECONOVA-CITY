@@ -8,7 +8,9 @@ import {
 import type {
   CommandReceipt,
   GamePersistence,
-  PersistedTransition
+  PersistedTransition,
+  ReceiptBinding,
+  StoredCommandReceipt
 } from "./types.js";
 
 const gameStatus = (state: GameState): string => {
@@ -28,13 +30,14 @@ const insertReceipt = async (
   gameId: string,
   roomId: string,
   playerId: string | null,
-  receipt: CommandReceipt
+  receipt: CommandReceipt,
+  binding?: ReceiptBinding
 ): Promise<void> => {
   await client.query(
     `INSERT INTO action_receipts
-      (game_id, action_id, request_id, room_id, player_id, status, code, message, state_version, receipt)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb)
-     ON CONFLICT (game_id, action_id) DO NOTHING`,
+      (game_id, action_id, request_id, room_id, player_id, status, code, message, state_version, receipt,
+       actor_key, command_hash)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12)`,
     [
       gameId,
       receipt.actionId,
@@ -45,23 +48,38 @@ const insertReceipt = async (
       receipt.status === "rejected" ? receipt.code : null,
       receipt.status === "rejected" ? receipt.message : null,
       receipt.stateVersion,
-      JSON.stringify(receipt)
+      JSON.stringify(receipt),
+      binding?.actorKey ?? null,
+      binding?.commandHash ?? null
     ]
   );
 };
 
 export class PostgresGamePersistence implements GamePersistence {
+  async quarantineRoom(gameId: string, roomId: string): Promise<void> {
+    await this.pool.query("UPDATE games SET status='quarantined', updated_at=NOW() WHERE id=$1 AND room_id=$2", [gameId, roomId]);
+  }
   constructor(private readonly pool: Pool) {}
 
-  async persistInitialState(state: GameState): Promise<void> {
+  async persistInitialState(
+    state: GameState,
+    recovery?: { readonly roomCode: string }
+  ): Promise<void> {
     assertGameInvariants(state);
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
       await client.query(
-        `INSERT INTO games (id, room_id, status, state_version, state)
-         VALUES ($1, $2, $3, $4, $5::jsonb)`,
-        [state.gameId, state.roomId, gameStatus(state), state.version, JSON.stringify(state)]
+        `INSERT INTO games (id, room_id, room_code, status, state_version, state)
+         VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
+        [
+          state.gameId,
+          state.roomId,
+          recovery?.roomCode ?? null,
+          gameStatus(state),
+          state.version,
+          JSON.stringify(state)
+        ]
       );
       for (const [seatIndex, playerId] of state.turnOrder.entries()) {
         const player = state.players[playerId];
@@ -105,9 +123,33 @@ export class PostgresGamePersistence implements GamePersistence {
   async persistRejectedReceipt(
     gameId: string,
     roomId: string,
-    receipt: Extract<CommandReceipt, { status: "rejected" }>
+    receipt: Extract<CommandReceipt, { status: "rejected" }>,
+    binding?: ReceiptBinding
   ): Promise<void> {
-    await insertReceipt(this.pool, gameId, roomId, null, receipt);
+    await insertReceipt(this.pool, gameId, roomId, null, receipt, binding);
+  }
+
+  async getCommandReceipts(
+    gameId: string,
+    actionId: string,
+    requestId: string
+  ): Promise<readonly StoredCommandReceipt[]> {
+    const result = await this.pool.query<{
+      receipt: unknown;
+      actor_key: string | null;
+      command_hash: string | null;
+    }>(
+      `SELECT receipt, actor_key, command_hash FROM action_receipts
+        WHERE game_id = $1 AND (action_id = $2 OR request_id = $3)`,
+      [gameId, actionId, requestId]
+    );
+    return result.rows.map((row) => ({
+      receipt: parseJson<CommandReceipt>(row.receipt),
+      binding: row.actor_key === null || row.command_hash === null ? null : {
+        actorKey: row.actor_key,
+        commandHash: row.command_hash
+      }
+    }));
   }
 
   async persistTransition(transition: PersistedTransition): Promise<void> {
@@ -153,7 +195,8 @@ export class PostgresGamePersistence implements GamePersistence {
         transition.gameId,
         transition.roomId,
         transition.actorPlayerId,
-        transition.receipt
+        transition.receipt,
+        transition.receiptBinding
       );
       if (transition.adminAudit !== undefined) {
         await client.query(
@@ -212,6 +255,9 @@ export const createPostgresPool = (connectionString: string): Pool =>
     connectionString,
     max: 5,
     connectionTimeoutMillis: 3_000,
+    query_timeout: 5_000,
+    statement_timeout: 5_000,
+    idle_in_transaction_session_timeout: 10_000,
     idleTimeoutMillis: 30_000,
     allowExitOnIdle: false
   });

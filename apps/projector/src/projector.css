@@ -1,0 +1,395 @@
+/*
+ * Projector — a broadcast surface.
+ *
+ * Designed for 1920×1080 seen from across a room. Everything on screen is
+ * public information; nothing private ever reaches this client, because it
+ * only ever receives the projector projection.
+ */
+
+.cast {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% -20%, rgba(255, 255, 255, 0.045), transparent 60%),
+    var(--room-bg);
+}
+
+/* ---- masthead ---- */
+
+.cast-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s6);
+  padding: var(--s4) var(--s6) var(--s3);
+}
+
+.cast-head__mark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-title);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.cast-head__mark em {
+  font-style: normal;
+  color: var(--brass);
+}
+
+.cast-head__rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--board-rule), transparent);
+}
+
+.cast-head__stat {
+  text-align: right;
+}
+
+.cast-head__stat b {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-display);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+/* ---- body ---- */
+
+.cast-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(380px, 25vw, 520px);
+  gap: var(--s5);
+  min-height: 0;
+  padding: 0 var(--s5) var(--s4);
+}
+
+.cast-stage {
+  container-type: size;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
+.cast-stage__board {
+  width: min(100%, 100cqh);
+}
+
+.cast-rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  min-height: 0;
+  /* Standings take the room they need; what is in force settles to the foot
+     so the column reads as a broadcast panel rather than a stack that ran
+     out of content. */
+  justify-content: space-between;
+}
+
+.cast-rail__group { display: flex; flex-direction: column; gap: var(--s3); }
+
+.cast-rail__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-lead);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ---- standings ---- */
+
+.cast-standing {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-radius: var(--radius-plate);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  transition: box-shadow var(--motion-shift) var(--ease-out);
+}
+
+/* The player to watch right now. */
+.cast-standing[data-current='true'] {
+  background: color-mix(in srgb, var(--seat) 14%, var(--room-bg-lift));
+  box-shadow:
+    inset 0 0 0 2px var(--seat),
+    0 8px 22px -10px rgba(0, 0, 0, 0.8);
+}
+
+.cast-standing[data-connected='false'] { opacity: 0.55; }
+
+.cast-standing__piece {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  color: var(--seat);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.6));
+}
+
+.cast-standing__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--type-lead);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cast-standing__holdings {
+  display: flex;
+  gap: 3px;
+  margin-top: 5px;
+}
+
+/* One pip per property held — a count you can read from the back row. */
+.cast-standing__pip {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--district);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.cast-standing__count {
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-size: var(--type-title);
+  color: var(--ink);
+  margin-left: auto;
+}
+
+/* ---- in force ---- */
+
+.cast-force {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  overflow: hidden;
+}
+
+/* ---- ticker ---- */
+
+.cast-ticker {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) var(--s6);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 1px 0 var(--board-rule);
+  overflow: hidden;
+}
+
+.cast-ticker__label {
+  flex: none;
+  padding: 4px 12px;
+  border-radius: 3px;
+  background: var(--brass);
+  color: #17120a;
+  font-size: var(--type-caption);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cast-ticker__items {
+  display: flex;
+  gap: var(--s6);
+  min-width: 0;
+  font-size: var(--type-body);
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, #000 88%, transparent);
+}
+
+.cast-ticker__items b { color: var(--ink); font-weight: 700; }
+
+/* ---- lobby / not connected ---- */
+
+.cast-lobby {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.cast-lobby__mark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-hero);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.cast-lobby__mark span { display: block; color: var(--brass); }
+
+/* ---- final results ---- */
+
+.cast-result {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s4);
+  border-radius: var(--radius-plate);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+}
+
+.cast-result[data-rank='1'] {
+  background: linear-gradient(180deg, #3a2c12, #241b0d);
+  box-shadow: inset 0 0 0 2px var(--brass);
+}
+
+.cast-result__rank {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-display);
+  line-height: 1;
+  color: var(--brass);
+  min-width: 1.4em;
+}
+
+.cast-result__score {
+  margin-left: auto;
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-size: var(--type-display);
+  color: var(--ink);
+}
+
+/* =================================================================
+ * BROADCAST COMPOSITION
+ *
+ * No masthead band: the board takes the full height of the frame and the
+ * right-hand panel carries identity, the current moment, the table and
+ * what is in force — the way a sports broadcast stacks its furniture
+ * beside the play rather than above it.
+ * ============================================================== */
+
+.cast { grid-template-rows: minmax(0, 1fr) auto; }
+
+.cast-body { padding: var(--s4) var(--s5); }
+
+.cast-rail { justify-content: flex-start; gap: var(--s5); }
+
+.cast-rail__brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding-bottom: var(--s4);
+  box-shadow: inset 0 -1px 0 var(--board-rule);
+}
+
+.cast-round {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+}
+
+.cast-round b {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-display);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.cast-round b span { color: var(--ink-faint); }
+
+.cast-round__phase {
+  font-size: var(--type-small);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brass-lit);
+}
+
+/* Whose turn it is, at the size a room can read. */
+.cast-turn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s4);
+  border-radius: var(--radius-plate);
+  background: color-mix(in srgb, var(--seat) 12%, var(--room-bg-lift));
+  box-shadow:
+    inset 0 0 0 2px var(--seat),
+    0 3px 10px -4px rgba(90, 68, 34, 0.3);
+}
+
+.cast-turn__label {
+  font-size: var(--type-caption);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.cast-turn__name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--type-title);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+/* ---- connecting a projector to a room ---- */
+
+.cast-lobby > div {
+  width: min(520px, 90vw);
+  padding: var(--s7) var(--s6);
+  border-radius: var(--radius-sheet);
+  background: var(--room-bg-lift);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), var(--depth-surface);
+}
+
+.cast-connect {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  margin-top: var(--s5);
+  text-align: left;
+}
+
+.cast-connect__field { display: block; }
+
+.cast-connect__field input {
+  width: 100%;
+  min-height: 54px;
+  margin-top: var(--s1);
+  padding: 0 var(--s3);
+  border: none;
+  border-radius: var(--radius-plate);
+  background: #fffdf8;
+  box-shadow: inset 0 0 0 1px var(--board-rule);
+  font-family: var(--font-numeric);
+  font-size: var(--type-body);
+  letter-spacing: 0.1em;
+  color: var(--ink);
+}
+
+.cast-connect__field input::placeholder {
+  color: var(--ink-ghost);
+  letter-spacing: normal;
+  font-family: var(--font-ui);
+}
+
+.cast-connect__error {
+  margin: 0;
+  font-size: var(--type-small);
+  color: var(--signal-loss);
+}

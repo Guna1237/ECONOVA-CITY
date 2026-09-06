@@ -6,6 +6,9 @@ import { describe, expect, it } from "vitest";
 const migrationPath = fileURLToPath(
   new URL("../../../database/migrations/001_initial.sql", import.meta.url)
 );
+const recoveryMigrationPath = fileURLToPath(
+  new URL("../../../database/migrations/002_phase2_recovery.sql", import.meta.url)
+);
 
 describe("initial PostgreSQL migration", () => {
   it("defines every approved Phase 1 persistence table", async () => {
@@ -31,5 +34,12 @@ describe("initial PostgreSQL migration", () => {
     expect(sql).toMatch(/PRIMARY KEY \(game_id, action_id\)/i);
     expect(sql).toMatch(/UNIQUE \(game_id, state_version, event_index\)/i);
     expect(sql).toMatch(/token_hash CHAR\(64\) NOT NULL UNIQUE/i);
+  });
+
+  it("adds recoverable room codes and room-bound admin sessions", async () => {
+    const sql = await readFile(recoveryMigrationPath, "utf8");
+    expect(sql).toMatch(/ADD COLUMN IF NOT EXISTS room_code TEXT/i);
+    expect(sql).toMatch(/role = 'admin' AND player_id IS NULL/i);
+    expect(sql).not.toMatch(/role = 'admin' AND room_id IS NULL AND player_id IS NULL/i);
   });
 });

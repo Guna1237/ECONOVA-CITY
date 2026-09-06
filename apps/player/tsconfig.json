@@ -10,5 +10,10 @@
     "types": ["vite/client"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"],
-  "references": [{ "path": "../../packages/contracts" }]
+  "references": [
+    { "path": "../../packages/client-core" },
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/game-content" },
+    { "path": "../../packages/ui" }
+  ]
 }
