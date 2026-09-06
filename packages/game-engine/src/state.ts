@@ -126,6 +126,8 @@ export interface GameState {
   version: number;
   phase: GamePhase;
   phaseBeforePause: Exclude<GamePhase, "paused"> | null;
+  pauseStartedAt?: number | null;
+  deferredDisconnectPlayerIds?: string[];
   round: number;
   turnOrder: string[];
   currentTurnOrder: string[];

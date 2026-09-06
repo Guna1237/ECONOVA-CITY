@@ -1047,6 +1047,18 @@ export const disconnectPlayer = (
   player.disconnectedAt = now;
   const events: GameEvent[] = [publicEvent("player_disconnected", { playerId })];
 
+  if (next.phase === "paused") {
+    next.deferredDisconnectPlayerIds = [...new Set([...(next.deferredDisconnectPlayerIds ?? []), playerId])];
+  } else {
+    applyDisconnectEffects(next, playerId, now, events);
+  }
+  next.version += 1;
+  assertGameInvariants(next);
+  return { state: next, events };
+};
+
+export const applyDisconnectEffects = (next: GameState, playerId: string, now: number, events: GameEvent[]): void => {
+
   const auction = next.auction;
   if (
     auction !== null &&
@@ -1071,14 +1083,11 @@ export const disconnectPlayer = (
     if (next.turn.stage === "emergency_sale") {
       const result = automaticLiquidation(next, now);
       events.push(publicEvent("emergency_sale_auto_completed", result));
-    } else if (next.turn.stage !== "auction") {
+    } else if (next.turn.stage !== "auction" && !requirePlayer(next, playerId).connected) {
       pauseNormalTurnTimer(next.turn, now);
     }
   }
 
-  next.version += 1;
-  assertGameInvariants(next);
-  return { state: next, events };
 };
 
 export const reconnectPlayer = (
@@ -1091,6 +1100,7 @@ export const reconnectPlayer = (
   player.connected = true;
   player.disconnectedAt = null;
   if (
+    next.phase !== "paused" &&
     next.turn?.playerId === playerId &&
     next.turn.turnDeadlineAt === null &&
     next.turn.remainingTurnMilliseconds !== null &&
@@ -1138,6 +1148,7 @@ const autoCompleteTurn = (
   if (turn.stage === "landing_fee_reaction") {
     events.push(...payPendingLandingFee(state, now));
     if (requireTurn(state).stage === "emergency_sale") {
+      if (requirePlayer(state, playerId).connected) return;
       const result = automaticLiquidation(state, now);
       events.push(publicEvent("emergency_sale_auto_completed", result));
     }

@@ -950,6 +950,12 @@ If a non-active player disconnects:
 - When their turn comes, the 60-second reconnection window applies.
 - If still disconnected when their turn arrives, the turn auto-completes.
 
+### 29.3a Operator Pause (product-owner approval, 2026-09-06)
+
+An operator pause freezes all remaining game timers, including the normal turn, Auction, Emergency Sale, City Council, and reconnect grace. Pause duration does not consume their remaining time. Outstanding trades remain pending under their existing rules; any reconnect clock affecting a trade is frozen as well.
+
+Connection status may update while paused, but disconnect-triggered gameplay effects (including liquidation, auction passing, and Council abstention/resolution) are deferred until resume. Resume applies those deferred effects once and resumes the remaining timers. Reconnecting during a pause does not restart a gameplay timer or cancel an already deferred disconnect effect.
+
 ### 29.4 Reconnection State
 When a player reconnects:
 - They receive the full current public game state.

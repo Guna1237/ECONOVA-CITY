@@ -26,6 +26,12 @@ const validState = () => {
 };
 
 describe("game-state invariants", () => {
+  it("rejects corrupt pause timestamps and deferred foreign identities", () => {
+    const state = validState();
+    state.pauseStartedAt = -1;
+    state.deferredDisconnectPlayerIds = ["foreign-player"];
+    expect(() => assertGameInvariants(state)).toThrow(/invariant/i);
+  });
   it("accepts a canonical setup state", () => {
     expect(validateGameState(validState())).toEqual([]);
     expect(() => assertGameInvariants(validState())).not.toThrow();

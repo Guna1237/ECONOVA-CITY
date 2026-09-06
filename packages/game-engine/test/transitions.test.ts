@@ -200,6 +200,44 @@ describe("authoritative turn transitions", () => {
 });
 
 describe("auctions and mandatory liquidation", () => {
+  it.each(["awaiting_roll", "landing_fee_reaction"] as const)("preserves the emergency-sale window when a connected %s turn times out", stage => {
+    const state = startGame(readyGame(), sequenceRandom(0), 1_000).state;
+    const payerId = state.turn!.playerId;
+    const ownerId = state.currentTurnOrder[1]!;
+    state.players[payerId]!.credits = 0;
+    state.players[payerId]!.position = 0;
+    state.players[payerId]!.propertyIds = ["P05"];
+    state.players[ownerId]!.propertyIds = ["P01"];
+    state.properties.P05!.ownerId = payerId;
+    state.properties.P01!.ownerId = ownerId;
+    state.turn!.stage = stage;
+    if (stage === "landing_fee_reaction") state.pendingLandingFee = { payerId, ownerId, propertyId: "P01", amount: 10 };
+
+    const timedOut = handleTurnTimeout(state, 61_000, sequenceRandom(0)).state;
+    expect(timedOut.turn).toMatchObject({ playerId: payerId, stage: "emergency_sale", turnDeadlineAt: null, remainingTurnMilliseconds: 0 });
+    expect(timedOut.emergencySale?.deadlineAt).toBe(91_000);
+    expect(timedOut.properties.P05!.ownerId).toBe(payerId);
+    expect(() => handleEmergencySaleTimeout(timedOut, 90_999)).toThrow(GameRuleError);
+
+    const manual = runAt(timedOut, payerId, command(timedOut, "emergency_sell", { propertyIds: ["P05"] }), 70_000);
+    expect(manual.turn!.turnDeadlineAt).toBe(70_000);
+    expect(handleTurnTimeout(manual, 70_000, sequenceRandom(0)).state.turn!.playerId).not.toBe(payerId);
+    const disconnected = disconnectPlayer(timedOut, payerId, 70_000).state;
+    expect(disconnected.emergencySale).toBeNull();
+    expect(disconnected.properties.P05!.ownerId).toBeNull();
+
+    const offline = disconnectPlayer(state, payerId, 11_000).state;
+    const abandoned = handleReconnectTimeout(offline, 71_000, sequenceRandom(0)).state;
+    expect(abandoned.emergencySale).toBeNull();
+    expect(abandoned.turn!.playerId).not.toBe(payerId);
+
+    const sold = handleEmergencySaleTimeout(timedOut, 91_000).state;
+    expect(sold.properties.P05!.ownerId).toBeNull();
+    expect(sold.turn!.turnDeadlineAt).toBe(91_000);
+    const ended = handleTurnTimeout(sold, 91_000, sequenceRandom(0)).state;
+    expect(ended.turn!.playerId).not.toBe(payerId);
+  });
+
   it("pauses the normal timer for an auction and resumes it after manual completion", () => {
     let state = startGame(readyGame(), sequenceRandom(0), 1_000).state;
     const triggererId = state.turn?.playerId ?? "";

@@ -12,6 +12,8 @@ export const validateGameState = (state: GameState): string[] => {
   const issues: string[] = [];
   const playerIds = new Set(Object.keys(state.players));
   const canonicalPropertyIds = new Set(PROPERTIES.map(({ id }) => id));
+  if (state.pauseStartedAt != null && (!Number.isSafeInteger(state.pauseStartedAt) || state.pauseStartedAt < 0)) issues.push("Invalid operator pause timestamp");
+  if (state.deferredDisconnectPlayerIds !== undefined && (!Array.isArray(state.deferredDisconnectPlayerIds) || state.deferredDisconnectPlayerIds.some(id => !playerIds.has(id)) || new Set(state.deferredDisconnectPlayerIds).size !== state.deferredDisconnectPlayerIds.length)) issues.push("Invalid deferred disconnect identities");
 
   if (!Number.isInteger(state.version) || state.version < 0) {
     issues.push("State version must be a non-negative integer");
