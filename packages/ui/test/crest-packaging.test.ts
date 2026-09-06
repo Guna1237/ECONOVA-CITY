@@ -22,6 +22,7 @@ it.each(['player', 'projector', 'admin'])('%s Vite serves source and built crest
     root: appRoot,
     configFile: resolve(appRoot, 'vite.config.ts'),
     logLevel: 'silent',
+    cacheDir: resolve(root, 'node_modules/.vite-test-cache', app),
     server: { host: '127.0.0.1', port: 0, open: false }
   });
   try {
@@ -46,6 +47,7 @@ it.each(['player', 'projector', 'admin'])('%s Vite serves source and built crest
       expect(digest(new Uint8Array(await png.arrayBuffer()))).toBe(digest(original));
     }
   } finally {
+    server.httpServer?.closeAllConnections?.();
     await server.close();
   }
 }, 30_000);
