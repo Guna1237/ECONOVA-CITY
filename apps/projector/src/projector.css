@@ -393,3 +393,10 @@
   font-size: var(--type-small);
   color: var(--signal-loss);
 }
+
+/* What the current player is actually doing, for the room to read. */
+.cast-turn__doing {
+  font-size: var(--type-body);
+  font-weight: 600;
+  color: var(--ink-soft);
+}

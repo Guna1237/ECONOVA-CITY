@@ -14,13 +14,13 @@ import {
   Button,
   PHASE_LABEL,
   RoundTransition,
-  STAGE_LABEL,
   Timer,
   formatCredits,
   seatOf
 } from '@econova/ui';
 
 import { Standings } from './components/Standings.js';
+import { narrate } from './narration.js';
 import { demonstrationPublicState } from './demonstrationState.js';
 import { authorizeProjector, openProjectorLink, type ProjectorLinkState } from './link.js';
 
@@ -224,11 +224,11 @@ export const App = (): ReactElement => {
                   Round {view.round}
                   <span>/{GAME_CONFIG.rounds}</span>
                 </b>
-                <span className="cast-round__phase">
-                  {view.turn !== null && view.phase === 'player_turn'
-                    ? STAGE_LABEL[view.turn.stage] ?? ''
-                    : PHASE_LABEL[view.phase] ?? view.phase}
-                </span>
+                {view.phase === 'player_turn' ? null : (
+                  <span className="cast-round__phase">
+                    {PHASE_LABEL[view.phase] ?? view.phase}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -239,6 +239,9 @@ export const App = (): ReactElement => {
               >
                 <span className="cast-turn__label">Now playing</span>
                 <span className="cast-turn__name">{current.name}</span>
+                {narrate(view) === null ? null : (
+                  <span className="cast-turn__doing">{narrate(view)}</span>
+                )}
                 {view.turn?.deadlineAt != null && view.phase === 'player_turn' ? (
                   <Timer
                     deadlineAt={view.turn.deadlineAt}
