@@ -27,6 +27,9 @@ const interactionCapabilities = (
   }
 
   if (state.trade?.counterpartyPlayerId === playerId) commandTypes.push("respond_trade");
+  if (state.phase === "strategy_draw" && state.pendingCardDraw?.playerId === playerId) {
+    commandTypes.push("discard_card");
+  }
 
   const turn = state.turn;
   if (state.phase !== "player_turn" || turn === null) {

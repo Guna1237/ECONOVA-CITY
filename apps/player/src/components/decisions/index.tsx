@@ -34,7 +34,6 @@ export const selectDecision = (
   projection: PlayerProjectionDto
 ): DecisionKind | null => {
   const { public: view, self } = projection;
-  const mine = view.turn?.playerId === self.playerId;
   const allowed = new Set<string>(self.capabilities.commandTypes);
 
   if (self.objectiveOffer !== null && allowed.has('choose_objective')) return 'objective';
@@ -50,7 +49,7 @@ export const selectDecision = (
     return 'trade';
   }
   if (self.pendingEventChoice !== null) return 'district';
-  if (mine && view.turn?.stage === 'awaiting_card_discard' && allowed.has('discard_card')) {
+  if (allowed.has('discard_card')) {
     return 'discard';
   }
   return null;

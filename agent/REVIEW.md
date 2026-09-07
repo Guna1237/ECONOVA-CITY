@@ -3,6 +3,66 @@
 
 This file records bugs, security issues, architectural concerns, performance problems, gameplay inconsistencies, and QA findings.
 
+## REVIEW-024 — RESOLVED, engineering integration hardening (2026-09-07)
+
+SEVERITY: HIGH
+
+AREA: Two-room joining, phase opening, state integrity, Round 4 integration
+
+FILE: Server app/socket route; engine invariants/transitions/projections; Player discard guards
+
+PROBLEM: Shared-IP join budget rejected player 11; already-disconnected players were not passed/abstained on phase opening; corrupt numeric/state values passed invariants; Round 4 discard capability/dialog was missing; rejected commands rebroadcast unchanged state to all room observers.
+
+REPRODUCTION: Added regressions failed on the original implementations; corrected source passes targeted coverage. See `docs/qa/HARDENING_2026-09-07.md`.
+
+IMPACT: Event setup failure, unnecessary voting waits, recovery/state integrity gaps, blocked mandatory choice and avoidable realtime traffic.
+
+RECOMMENDED FIX: Implemented within existing architecture; canonical values unchanged.
+
+TEST REQUIRED: New invariant, twelve-join, phase-opening, capability/UI routing and observer-traffic regressions; full two-room/eight-round socket journey.
+
+STATUS: RESOLVED in this engineering pass.
+
+## REVIEW-025 — Round 4 offline discard has no canonical timeout
+
+SEVERITY: HIGH
+
+AREA: Gameplay liveness/specification
+
+FILE: docs/GAME_DESIGN_SPEC.md Sections 20.3/29; packages/game-engine/src/transitions.ts; apps/server/src/rooms/room-runtime.ts
+
+PROBLEM: At Round 4 start, a full hand requires a discard in `strategy_draw`, outside a normal turn. The specification supplies no timeout for this choice; the runtime has no deadline in that phase.
+
+REPRODUCTION: Give the pending Round 4 drawer a full hand, disconnect them, and observe `nextDeadlineAt()` remains null. Connected-choice integration is repaired separately under REVIEW-024.
+
+IMPACT: Offline player can block round progression indefinitely.
+
+RECOMMENDED FIX: Owner question submitted: apply a 60-second reconnect window, then discard the lowest card ID automatically. This is a proposal, not an approved rule.
+
+TEST REQUIRED: Disconnected phase entry, disconnect/reconnect during the phase, expiry, operator pause, successive pending discards and successful round continuation.
+
+STATUS: BLOCKED PENDING PRODUCT DECISION.
+
+## REVIEW-026 — Live WebSocket close/authentication requires deployment investigation
+
+SEVERITY: HIGH
+
+AREA: Live deployment integration
+
+FILE: Deployed `/ws` endpoint; apps/server/src/realtime/socket-route.ts
+
+PROBLEM: Remote diagnostics upgraded sockets but did not receive expected authentication close frames within 12–15 seconds. Local real-socket rejection/reconnect tests pass. This observation does not establish a source-code vulnerability.
+
+REPRODUCTION: Native Node ws client opens the production endpoint with the Admin frontend Origin and sends `{}`; upgrade observed after 922 ms, no close before a 12-second diagnostic timeout. Other role-origin probes were also inconclusive.
+
+IMPACT: Production reconnect/authentication behavior remains unverified despite correct HTTP/CORS configuration.
+
+RECOMMENDED FIX: Inspect deployed server/proxy logs and run an authenticated production browser/socket session before selecting a fix. No speculative transport or security changes made.
+
+TEST REQUIRED: Successful Admin login/operation; player/projector resume; expired/invalid credentials; reconnect through the deployed proxy.
+
+STATUS: OPEN — live verification required.
+
 ---
 
 ## RESOLVED GAME-DESIGN FINDINGS

@@ -40,6 +40,41 @@ const createApp = (overrides: Record<string, unknown> = {}) => {
 };
 
 describe("Fastify application boundary", () => {
+  it("allows twelve event players behind one IP to join two rooms without sharing a room's attempt budget", async () => {
+    const app = createApp();
+    try {
+      const login = await app.inject({ method: "POST", url: "/api/admin/login", payload: { accessKey: ADMIN_KEY } });
+      const headers = { authorization: `Bearer ${login.json<{ token: string }>().token}` };
+      for (const code of ["ROOMA1", "ROOMB1"]) {
+        expect((await app.inject({ method: "POST", url: "/api/admin/rooms", headers, payload: { code } })).statusCode).toBe(201);
+        for (let seat = 0; seat < 6; seat++) {
+          expect((await app.inject({ method: "POST", url: `/api/rooms/${code}/join`, payload: { name: `Player ${seat}` } })).statusCode).toBe(201);
+        }
+      }
+      for (let attempt = 0; attempt < 4; attempt++) await app.inject({ method: "POST", url: "/api/rooms/ROOMA1/join", payload: { name: "Extra player" } });
+      expect((await app.inject({ method: "POST", url: "/api/rooms/ROOMA1/join", payload: { name: "Extra player" } })).statusCode).toBe(429);
+      expect((await app.inject({ method: "POST", url: "/api/rooms/ROOMB1/join", payload: { name: "Extra player" } })).statusCode).toBe(409);
+    } finally { await app.close(); }
+  });
+
+  it.each(["admin", "player", "projector"])("supports HTTPS CORS and bearer admin sessions from the deployed %s origin", async role => {
+    const origin = `https://econova-${role}.onrender.com`;
+    const app = createApp({ allowedOrigins: [origin] });
+    try {
+      const preflight = await app.inject({ method: "OPTIONS", url: "/api/admin/login", headers: { origin, "access-control-request-method": "POST", "access-control-request-headers": "content-type,authorization" } });
+      expect(preflight.statusCode).toBe(204);
+      expect(preflight.headers["access-control-allow-origin"]).toBe(origin);
+      const login = await app.inject({ method: "POST", url: "/api/admin/login", headers: { origin }, payload: { accessKey: ADMIN_KEY } });
+      expect(login.statusCode).toBe(200);
+      expect(login.headers["set-cookie"]).toBeUndefined();
+      expect(login.headers["cache-control"]).toBe("no-store");
+      const authorization = `Bearer ${login.json<{ token: string }>().token}`;
+      expect((await app.inject({ url: "/api/admin/rooms", headers: { origin, authorization } })).statusCode).toBe(200);
+      await app.inject({ method: "POST", url: "/api/session/logout", headers: { origin, authorization } });
+      expect((await app.inject({ url: "/api/admin/rooms", headers: { origin, authorization } })).statusCode).toBe(403);
+      expect((await app.inject({ method: "POST", url: "/api/admin/login", headers: { origin: "https://foreign.example" }, payload: { accessKey: ADMIN_KEY } })).statusCode).toBe(403);
+    } finally { await app.close(); }
+  });
   it("revokes the parent and room sessions locally even if durable logout fails", async () => {
     const sessions = new SessionStore();
     const parent = sessions.issue({ role: "admin", roomId: null, playerId: null, expiresAt: 100_000 });

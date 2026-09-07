@@ -3,6 +3,14 @@
 
 This file records the current development state.
 
+## Engineering hardening — 2026-09-07 (Codex)
+
+Implemented shared-IP two-room join reliability, pre-existing disconnect handling when auctions/Council open, requester-only rejection snapshots, Round 4 discard capability/display integration, and stronger authoritative invariants. Canonical content regression coverage and a full two-room/six-player/eight-round real-socket test were added. No gameplay values changed; Claude's concurrent Projector work is preserved and excluded from this commit. Detail/evidence: `docs/qa/HARDENING_2026-09-07.md`.
+
+Live CORS and frontend backend-origin configuration verified. Local full-game measurement: 542 commands, p95 acknowledgement 14.50 ms, ping RTT 40.21 ms. Release remains blocked on the offline Round 4 discard decision, live authenticated socket verification (remote probes timed out), available PostgreSQL recovery rerun and event/browser rehearsal. A clean dependency verification copy is used because the shared tree's native bundler file is locked by concurrent tooling.
+
+Final checks: clean-copy `npm ci` PASS; shared-tree and clean-copy typecheck/build PASS; both full test runs 323 passed / 1 opt-in PostgreSQL skip; `git diff --check` PASS. The test total includes concurrent Projector tests not included in this commit. Root dependency recovery completed without changing manifests/lockfile or stopping other agents' processes.
+
 ## Production frontend endpoint checkpoint — 2026-09-07 (Codex)
 
 Admin, Player, and Projector now carry an explicit production `VITE_API_BASE=https://econova-city.onrender.com`; local development remains same-origin and continues through each Vite proxy. Because `RoomClient` derives WebSocket URLs from the same normalized base, production realtime connects to `wss://econova-city.onrender.com/ws`. The safe environment example includes all three deployed frontend origins in `ALLOWED_ORIGINS`, and server configuration coverage verifies that exact production allowlist.

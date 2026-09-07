@@ -88,7 +88,7 @@ export const registerSocketRoute = (app: FastifyInstance, options: BuildServerOp
         send(serverMessageSchema.parse(receipt.status === "accepted"
           ? { type: "action_accepted", requestId: receipt.requestId, actionId: receipt.actionId, stateVersion: receipt.stateVersion }
           : { type: "action_rejected", requestId: receipt.requestId, actionId: receipt.actionId, code: receipt.code, message: receipt.message, currentStateVersion: receipt.stateVersion }));
-        if (receipt.status === "rejected") realtime.broadcast(room);
+        if (receipt.status === "rejected") realtime.broadcast(room, session.sessionId);
       }).catch(() => socket.close(1011, "Connection unavailable")).finally(() => { queued--; });
     });
     socket.on("close", () => {

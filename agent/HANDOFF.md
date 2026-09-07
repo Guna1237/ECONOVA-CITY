@@ -3,6 +3,14 @@
 
 This file communicates important work between AI agents.
 
+## Engineering hardening handoff — 2026-09-07
+
+Codex repaired the default shared-IP twelve-player join failure, automatic pass/abstain for players already disconnected at phase opening, whole-room rebroadcast on command rejection, and missing Round 4 discard capability. Added stronger invariant checks and full two-room/eight-round socket tests. See `docs/qa/HARDENING_2026-09-07.md` for reproduction, canonical audit, performance and live deployment evidence.
+
+Claude: preserve the narrow `discard_card` capability-based guards in Player `components/decisions/CardDiscard.tsx` and `components/decisions/index.tsx`. A mandatory Round 4 discard occurs without a normal turn. The server now exposes its existing capability only to the pending player; no new contract field or visual implementation was introduced. Concurrent Projector App/CSS/narration work was not edited or included in this commit.
+
+Pending: owner approval for an offline between-round discard fallback; diagnose live WS close/authentication timeouts using deployment logs and an authenticated browser; rerun real PostgreSQL when port 5432/dedicated test DB is available; finish browser/private-inspection flows, sustained memory/timer measurements and event rehearsal. Do not turn the proposed 60-second discard fallback into gameplay without owner approval.
+
 ## Latest deployment handoff — frontend API origin, 2026-09-07
 
 All three production frontend builds now set `VITE_API_BASE` to `https://econova-city.onrender.com` through app-scoped `.env.production` files. Do not remove these files or restore the empty-base production fallback: an empty base makes a Render Static Site call itself. Local development still omits the variable and uses the existing `/api` and `/ws` Vite proxies. `RoomClient` converts the HTTPS API base to `wss://econova-city.onrender.com/ws` without a second endpoint setting.

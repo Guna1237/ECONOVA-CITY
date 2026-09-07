@@ -51,6 +51,18 @@ const rollCommand = (state: GameState, actionId = "action-roll"): ClientCommand 
 });
 
 describe("serialized authoritative room runtime", () => {
+  it("quarantines an invalid engine result before persistence or memory replacement and leaves the other room running", async () => {
+    const state = createGame("invalid-roll");
+    const persistence = new InMemoryGamePersistence();
+    const runtime = new RoomRuntime({ state, persistence, random: { nextInt: () => 7 }, now: () => 1000 });
+    expect(await runtime.processCommand(playerSession(state), rollCommand(state))).toMatchObject({ status: "rejected", code: "ROOM_QUARANTINED" });
+    expect(runtime.getState()).toEqual(state);
+    expect(persistence.transitions).toHaveLength(0);
+    const otherState = createGame("healthy-room");
+    const other = new RoomRuntime({ state: otherState, persistence: new InMemoryGamePersistence(), random: createSeededRandom(8), now: () => 1000 });
+    expect(await other.processCommand(playerSession(otherState), rollCommand(otherState))).toMatchObject({ status: "accepted" });
+    expect(other.isQuarantined()).toBe(false);
+  });
   it("persists disconnect and reconnect through the same queue, without duplicate presence transitions", async () => {
     const state = createGame("room-presence");
     const persistence = new InMemoryGamePersistence();

@@ -234,6 +234,10 @@ const beginRound = (
         optionBId: state.council.optionBId
       })
     );
+    // Presence may have changed before this phase existed; no new disconnect event will arrive.
+    for (const player of Object.values(state.players)) {
+      if (!player.connected) applyDisconnectEffects(state, player.id, now, events);
+    }
     return;
   }
 
@@ -1355,6 +1359,9 @@ const executeOnClone = (
       pauseNormalTurnTimer(turn, context.now);
       turn.stage = "auction";
       events.push(publicEvent("auction_started", { auctionId, propertyId: property.id }));
+      for (const player of Object.values(next.players)) {
+        if (!player.connected) applyDisconnectEffects(next, player.id, context.now, events);
+      }
       return;
     }
     case "submit_bid":

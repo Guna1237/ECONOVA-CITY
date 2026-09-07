@@ -8,10 +8,9 @@ import { usePlayerSession } from '../../state/PlayerSession.js';
 /** Over the hand limit. One card goes, and the player chooses which. */
 export const CardDiscard = (): ReactElement | null => {
   const { projection, dispatch, requestState, can } = usePlayerSession();
-  const { public: view, self } = projection;
+  const { self } = projection;
 
-  const mine = view.turn?.playerId === self.playerId;
-  if (!mine || view.turn?.stage !== 'awaiting_card_discard' || !can('discard_card')) {
+  if (!can('discard_card')) {
     return null;
   }
 

@@ -40,6 +40,18 @@ const createState = (): GameState => {
 };
 
 describe("recipient-specific projections", () => {
+  it("offers the Round 4 discard only to the pending player outside a normal turn", () => {
+    const state = createState();
+    const [playerId, otherId] = state.turnOrder;
+    state.round = 4;
+    state.phase = "strategy_draw";
+    state.pendingCardDraw = { playerId: playerId!, count: 1, resumePhase: "player_turn" };
+    expect(createPlayerProjection(state, playerId!).self.capabilities.commandTypes).toEqual(["discard_card"]);
+    expect(createPlayerProjection(state, otherId!).self.capabilities.commandTypes).toEqual([]);
+    expect(createPublicProjection(state)).not.toHaveProperty("pendingCardDraw");
+    state.phase = "paused";
+    expect(createPlayerProjection(state, playerId!).self.capabilities.commandTypes).toEqual([]);
+  });
   it("reveals a pending event choice only to its player", () => {
     const state = createState();
     const [playerId, otherId] = state.turnOrder;

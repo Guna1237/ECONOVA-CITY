@@ -39,6 +39,11 @@ const allow = (
  * still owe a landing fee.
  */
 describe("decision priority", () => {
+  it("shows an authorized Round 4 discard when no normal turn exists", () => {
+    const draw = withPublic({ phase: "strategy_draw", round: 4, turn: null });
+    expect(selectDecision(allow(draw, "discard_card"))).toBe("discard");
+    expect(selectDecision(allow(draw))).toBeNull();
+  });
   it("asks nothing during an ordinary action phase", () => {
     expect(selectDecision(base)).toBeNull();
   });

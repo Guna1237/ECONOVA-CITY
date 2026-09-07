@@ -8,16 +8,30 @@ import {
 import { GameInvariantError } from "./errors.js";
 import type { GameState } from "./state.js";
 
+const phases = new Set(["objective_selection", "ready", "breaking_news", "strategy_draw", "council", "player_turn", "round_resolution", "paused", "completed"]);
+const resumablePhases = new Set([...phases].filter(phase => phase !== "paused"));
+const stages = new Set(["awaiting_roll", "awaiting_shortcut_choice", "awaiting_property_decision", "auction", "landing_fee_reaction", "emergency_sale", "awaiting_event_choice", "awaiting_card_discard", "action_phase"]);
+const districts = ["food", "tech", "entertainment", "mobility"] as const;
+const nonNegativeInteger = (value: number): boolean => Number.isSafeInteger(value) && value >= 0;
+
 export const validateGameState = (state: GameState): string[] => {
   const issues: string[] = [];
   const playerIds = new Set(Object.keys(state.players));
   const canonicalPropertyIds = new Set(PROPERTIES.map(({ id }) => id));
+  if (state.schemaVersion !== 1) issues.push("Unsupported state schema version");
   if (state.pauseStartedAt != null && (!Number.isSafeInteger(state.pauseStartedAt) || state.pauseStartedAt < 0)) issues.push("Invalid operator pause timestamp");
   if (state.deferredDisconnectPlayerIds !== undefined && (!Array.isArray(state.deferredDisconnectPlayerIds) || state.deferredDisconnectPlayerIds.some(id => !playerIds.has(id)) || new Set(state.deferredDisconnectPlayerIds).size !== state.deferredDisconnectPlayerIds.length)) issues.push("Invalid deferred disconnect identities");
 
-  if (!Number.isInteger(state.version) || state.version < 0) {
+  if (!nonNegativeInteger(state.version)) {
     issues.push("State version must be a non-negative integer");
   }
+  if (playerIds.size < GAME_CONFIG.minPlayers || playerIds.size > GAME_CONFIG.maxPlayers) issues.push("Invalid player count");
+  if (!phases.has(state.phase)) issues.push("Invalid game phase");
+  const effectivePhase = state.phase === "paused" ? state.phaseBeforePause : state.phase;
+  if (effectivePhase === null || !resumablePhases.has(effectivePhase)) issues.push("Invalid resumable game phase");
+  if (!nonNegativeInteger(state.round) || state.round > GAME_CONFIG.rounds) issues.push("Invalid round");
+  if (effectivePhase !== "objective_selection" && effectivePhase !== "ready" && state.round === 0) issues.push("An active game requires a positive round");
+  if (!nonNegativeInteger(state.currentTurnIndex) || state.currentTurnIndex >= playerIds.size) issues.push("Invalid current turn index");
   if (new Set(state.turnOrder).size !== state.turnOrder.length) {
     issues.push("Base turn order contains duplicate players");
   }
@@ -35,10 +49,13 @@ export const validateGameState = (state: GameState): string[] => {
     issues.push("Current turn order must contain every player exactly once");
   }
 
-  for (const player of Object.values(state.players)) {
+  for (const [id, player] of Object.entries(state.players)) {
+    if (player.id !== id) issues.push(`Player ${id} has a mismatched identity`);
     if (player.credits < 0) issues.push(`Player ${player.id} has negative Credits`);
     if (player.influence < 0) issues.push(`Player ${player.id} has negative Influence`);
-    if (player.position < 0 || player.position >= GAME_CONFIG.boardSpaces) {
+    if (!nonNegativeInteger(player.credits)) issues.push(`Player ${player.id} has invalid Credits`);
+    if (!nonNegativeInteger(player.influence)) issues.push(`Player ${player.id} has invalid Influence`);
+    if (!nonNegativeInteger(player.position) || player.position >= GAME_CONFIG.boardSpaces) {
       issues.push(`Player ${player.id} has invalid board position`);
     }
     if (player.cards.length > GAME_CONFIG.strategyCardHandLimit) {
@@ -65,6 +82,7 @@ export const validateGameState = (state: GameState): string[] => {
       issues.push(`Missing property state ${definition.id}`);
       continue;
     }
+    if (property.id !== definition.id) issues.push(`Property ${definition.id} has a mismatched identity`);
     if (
       !Number.isInteger(property.developmentLevel) ||
       property.developmentLevel < 0 ||
@@ -85,7 +103,9 @@ export const validateGameState = (state: GameState): string[] => {
     }
   }
 
-  for (const [district, demand] of Object.entries(state.demand)) {
+  if (Object.keys(state.demand).length !== districts.length) issues.push("Invalid district collection");
+  for (const district of districts) {
+    const demand = state.demand[district];
     if (
       !Number.isInteger(demand) ||
       demand < GAME_CONFIG.demandMinimum ||
@@ -100,6 +120,16 @@ export const validateGameState = (state: GameState): string[] => {
   }
   if (state.turn !== null && !playerIds.has(state.turn.playerId)) {
     issues.push("Active turn references an unknown player");
+  }
+  if (state.turn !== null) {
+    const turn = state.turn;
+    if (!stages.has(turn.stage)) issues.push("Invalid turn stage");
+    if (!nonNegativeInteger(turn.actionsRemaining) || turn.actionsRemaining > GAME_CONFIG.turnActions || !nonNegativeInteger(turn.actionsUsed) || turn.actionsUsed > GAME_CONFIG.turnActions) issues.push("Invalid turn Action count");
+    if (turn.roll !== null && (!Number.isInteger(turn.roll) || turn.roll < 1 || turn.roll > 6)) issues.push("Invalid die result");
+    if (turn.turnDeadlineAt !== null && !nonNegativeInteger(turn.turnDeadlineAt)) issues.push("Invalid turn deadline");
+    if (turn.remainingTurnMilliseconds !== null && (!nonNegativeInteger(turn.remainingTurnMilliseconds) || turn.remainingTurnMilliseconds > GAME_CONFIG.turnTimerSeconds * 1000)) issues.push("Invalid remaining turn time");
+    if (turn.stage === "auction" && state.auction === null) issues.push("Auction stage requires auction state");
+    if (turn.stage === "emergency_sale" && state.emergencySale === null) issues.push("Emergency-sale stage requires emergency-sale state");
   }
   if (state.auction !== null && state.turn?.stage !== "auction") {
     issues.push("Auction state requires the auction turn stage");
@@ -135,6 +165,10 @@ export const validateGameState = (state: GameState): string[] => {
   }
   for (const objectiveId of selectedObjectives) {
     if (!validObjectiveIds.has(objectiveId)) issues.push(`Unknown Secret Objective ${objectiveId}`);
+  }
+  const allObjectives = [...selectedObjectives, ...state.objectiveDeck, ...(state.objectiveSelection?.offeredObjectiveIds ?? [])];
+  if (allObjectives.length !== SECRET_OBJECTIVES.length || new Set(allObjectives).size !== allObjectives.length || allObjectives.some(id => !validObjectiveIds.has(id))) {
+    issues.push("Secret Objective state must account for each objective exactly once");
   }
 
   return issues;

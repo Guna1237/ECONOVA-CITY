@@ -106,7 +106,121 @@ const setHand = (state: GameState, playerId: string, cardIds: string[]): void =>
   }
 };
 
+describe("canonical content integration", () => {
+  it.each([
+    [0, { food: 0, tech: 1, entertainment: 0, mobility: 0 }, 1000, []],
+    [1, { food: 1, tech: 0, entertainment: 0, mobility: 0 }, 1000, []],
+    [2, { food: 0, tech: 0, entertainment: 0, mobility: -1 }, 1000, []],
+    [3, { food: 0, tech: 0, entertainment: 1, mobility: 0 }, 1000, []],
+    [4, { food: 0, tech: 0, entertainment: 0, mobility: 0 }, 1060, []],
+    [5, { food: -1, tech: -1, entertainment: 0, mobility: 0 }, 1000, []],
+    [6, { food: 0, tech: 0, entertainment: 0, mobility: 0 }, 1000, ["BN07"]],
+    [7, { food: 0, tech: 0, entertainment: 0, mobility: 0 }, 1000, ["BN08"]],
+    [8, { food: 0, tech: 0, entertainment: 0, mobility: 0 }, 1100, []],
+    [9, { food: 0, tech: 0, entertainment: 0, mobility: 0 }, 1000, ["BN10"]]
+  ] as const)("applies Breaking News catalog entry %i before the first roll", (index, demand, credits, effects) => {
+    const result = startGame(readyGame(), sequenceRandom(index), 1000);
+    expect(result.state.demand).toEqual(demand);
+    expect(Object.values(result.state.players).map(p => p.credits)).toEqual([credits, credits, credits, credits]);
+    expect(result.state.activeRoundEffects).toEqual(effects);
+    expect(result.events[0]!.type).toBe("breaking_news_revealed");
+    expect(result.state.turn!.stage).toBe("awaiting_roll");
+  });
+
+  it.each([
+    [0, 1080, 5, "action_phase"], [1, 1000, 7, "action_phase"],
+    [2, 1000, 5, "awaiting_event_choice"], [3, 1000, 5, "awaiting_event_choice"],
+    [4, 1000, 5, "action_phase"], [5, 1000, 5, "action_phase"],
+    [6, 1040, 6, "action_phase"], [7, 1000, 5, "action_phase"]
+  ] as const)("resolves Special Event catalog entry %i on a real landing", (index, credits, influence, stage) => {
+    let state = startGame(readyGame(), sequenceRandom(0), 1000).state;
+    const active = state.turn!.playerId;
+    state = run(state, active, command(state, "roll"), sequenceRandom(4));
+    state = run(state, active, command(state, "choose_shortcut", { useShortcut: false }), sequenceRandom(index));
+    expect(state.players[active]).toMatchObject({ position: 5, credits, influence });
+    expect(state.turn).toMatchObject({ stage, actionsRemaining: 2 });
+    if (index === 4) expect(state.players[active]!.cards).toHaveLength(3);
+    if (index === 5) expect(state.turn!.effects).toContain("SE06");
+    if (index === 7) expect(state.activeRoundEffects).toContain("SE08");
+  });
+
+  it.each([
+    [3, 0, "A", "POL01A"], [3, 0, "B", "POL01B"],
+    [3, 1, "A", "POL02A"], [3, 1, "B", "POL02B"],
+    [6, 0, "A", "POL03A"], [6, 0, "B", "POL03B"],
+    [6, 1, "A", "POL04A"], [6, 1, "B", "POL04B"]
+  ] as const)("selects and applies the approved round %i pair %i option %s", (round, pair, option, policyId) => {
+    let state = startGame(readyGame(), sequenceRandom(0), 1000).state;
+    state.round = round - 1;
+    state.currentTurnIndex = state.currentTurnOrder.length - 1;
+    state.turn = { ...state.turn!, playerId: state.currentTurnOrder[state.currentTurnIndex]!, stage: "action_phase" };
+    state = run(state, state.turn.playerId, command(state, "end_turn"), sequenceRandom(0, pair));
+    expect(state.council![option === "A" ? "optionAId" : "optionBId"]).toBe(policyId);
+    for (const id of state.turnOrder) {
+      state = run(state, id, command(state, "council_vote", { councilId: state.council!.id, optionAInfluence: option === "A" ? 1 : 0, optionBInfluence: option === "B" ? 1 : 0 }));
+    }
+    expect(state.activePolicyIds).toContain(policyId);
+    expect(state.phase).toBe("player_turn");
+    const expected = {
+      POL01A: { food: 1, tech: 2, entertainment: -1, mobility: 1 },
+      POL01B: { food: -1, tech: 2, entertainment: 0, mobility: 0 },
+      POL02A: { food: 0, tech: 2, entertainment: 1, mobility: 0 },
+      POL02B: { food: 0, tech: 2, entertainment: 0, mobility: 1 },
+      POL04A: { food: 0, tech: 0, entertainment: 0, mobility: 0 }
+    };
+    if (policyId in expected) expect(state.demand).toEqual(expected[policyId as keyof typeof expected]);
+    for (const player of Object.values(state.players)) {
+      expect(player.influence).toBe(4);
+      expect(player.credits).toBe(policyId === "POL03A" ? 1080 : 1000);
+    }
+  });
+
+  it.each([
+    ["SC02", 1000, 5, 2], ["SC03", 1000, 5, -2],
+    ["SC06", 1120, 5, 1], ["SC07", 1060, 6, 1], ["SC09", 1000, 8, 1]
+  ] as const)("applies %s once with the exact approved resources and Action cost", (cardId, credits, influence, demand) => {
+    let state = startGame(readyGame(), sequenceRandom(0), 1000).state;
+    const active = state.turn!.playerId;
+    state.turn!.stage = "action_phase";
+    setHand(state, active, [cardId]);
+    state = run(state, active, command(state, "play_card", { cardId, targetDistrictId: "tech" }));
+    expect(state.players[active]).toMatchObject({ credits, influence, cards: [] });
+    expect(state.demand.tech).toBe(demand);
+    expect(state.turn).toMatchObject({ actionsRemaining: 1, cardPlayed: true });
+    expect(state.strategyDeck).toContain(cardId);
+  });
+});
+
 describe("authoritative turn transitions", () => {
+  it("automatically passes players who were disconnected before an auction opens", () => {
+    let state = startGame(readyGame(), sequenceRandom(0), 1000).state;
+    const active = state.turn!.playerId;
+    for (const id of state.turnOrder.filter(id => id !== active)) state = disconnectPlayer(state, id, 1000).state;
+    state = run(state, active, command(state, "roll"));
+    state = run(state, active, command(state, "choose_shortcut", { useShortcut: false }));
+    state = run(state, active, command(state, "start_auction", { propertyId: "P01" }));
+    expect(state.auction!.submittedPlayerIds).toHaveLength(3);
+    const auctionId = state.auction!.id;
+    state = run(state, active, command(state, "submit_bid", { auctionId, amount: 1 }));
+    expect(state.auction).toBeNull();
+    expect(state.properties.P01!.ownerId).toBe(active);
+    expect(state.turn!.stage).toBe("action_phase");
+  });
+
+  it("automatically abstains players who were disconnected before Council opens", () => {
+    let state = startGame(readyGame(), sequenceRandom(0), 1000).state;
+    state.round = 2;
+    state.currentTurnIndex = state.currentTurnOrder.length - 1;
+    const active = state.currentTurnOrder[state.currentTurnIndex]!;
+    state.turn = { ...state.turn!, playerId: active, stage: "action_phase" };
+    for (const id of state.turnOrder.filter(id => id !== active)) state = disconnectPlayer(state, id, 1000).state;
+    state = run(state, active, command(state, "end_turn"));
+    expect(state.phase).toBe("council");
+    expect(Object.keys(state.council!.allocations)).toHaveLength(3);
+    state = run(state, active, command(state, "council_vote", { councilId: state.council!.id, optionAInfluence: 0, optionBInfluence: 0 }));
+    expect(state.council).toBeNull();
+    expect(state.phase).toBe("player_turn");
+  });
   it("starts Round 1 and applies the first Breaking News before the first turn", () => {
     const result = startGame(readyGame(), sequenceRandom(4), 1_000);
 

@@ -224,11 +224,13 @@ export const buildServer = (options: BuildServerOptions): FastifyInstance => {
   });
 
   app.post("/api/rooms/:code/join", async (request, reply) => {
-    if (limited("player-join", request, reply)) return reply;
     const params = codeParamsSchema.safeParse(request.params);
     const body = joinRoomRequestSchema.safeParse(request.body);
+    const room = params.success ? options.roomManager.getRoomByCode(params.data.code) : undefined;
+    // Event phones (and reverse proxies) can share an IP. Keep valid rooms' join budgets independent.
+    // Unknown codes share one bucket so arbitrary input cannot allocate unlimited limiter keys.
+    if (limited(`player-join:${room?.roomId ?? "unknown"}`, request, reply)) return reply;
     if (!params.success || !body.success) return invalid(reply);
-    const room = options.roomManager.getRoomByCode(params.data.code);
     if (room === undefined) return reply.code(404).send({ code: "ROOM_NOT_FOUND", message: "Room was not found." });
     const playerId = randomUUID();
     const issued = options.sessions.issue({ role: "player", roomId: room.roomId, playerId, expiresAt: options.now() + options.sessionTtlMilliseconds });

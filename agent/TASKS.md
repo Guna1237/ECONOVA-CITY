@@ -5,6 +5,12 @@ This file tracks authorized work and its ownership.
 
 No agent should invent major tasks without authorization.
 
+## Engineering hardening checkpoint — 2026-09-07
+
+Owner: Codex. Source fixes and regression coverage completed for shared-IP two-room joining, offline phase-opening effects, invariant validation, rejection traffic and Round 4 discard integration. Full two-room six-player games finish all eight rounds in real-socket regression coverage. See `docs/qa/HARDENING_2026-09-07.md`.
+
+Remaining: REVIEW-025 needs the owner's offline Round 4 timer decision; REVIEW-026 needs live authenticated transport verification/logs. PostgreSQL recovery rerun needs an available dedicated test database. Claude retains frontend/browser ownership; the existing discard dialog received only two capability-routing guard changes. Event rehearsal, sustained soak and browser release gates remain open.
+
 ## Current Phase 2 integration checkpoint — 2026-09-06
 
 Owner: Codex. Runtime/server/client-core changes are implemented in the shared working tree; verification is recorded in `docs/qa/PHASE2_ENGINEERING_PASS.md`. Preserve all concurrent light-premium-tabletop frontend work.
