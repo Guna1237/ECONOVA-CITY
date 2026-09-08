@@ -74,6 +74,9 @@
   container-type: size;
   display: grid;
   place-items: center;
+  /* The board sits next to the broadcast panel as one group, rather than
+     floating centered with a band of dead table before the panel begins. */
+  justify-items: end;
   min-height: 0;
 }
 

@@ -88,6 +88,13 @@
   white-space: nowrap;
 }
 
+/* Below 620px the rail is at its tightest: the timer's own numeral and
+   draining track already say "time", so the label is the first thing to
+   go rather than truncating whose turn it is. */
+@media (max-width: 619.98px) {
+  .player-rail__meta .eco-timer .eco-label { display: none; }
+}
+
 @media (min-width: 620px) {
   .player-rail { grid-template-columns: auto auto minmax(0, 1fr); }
   .player-rail__meta { grid-column: 3; }
@@ -224,6 +231,11 @@
 
   .player-stage { padding: var(--s4); }
 
+  /* The board sits next to the tray as one confident group, rather than
+     floating centered in its own column with a gap of dead table before
+     the tray begins. */
+  .player-stage__wrap { justify-items: end; }
+
   .player-dock {
     gap: var(--s4);
     padding: var(--s4) var(--s4) var(--s4) 0;
@@ -322,6 +334,7 @@
   .player-rail__meta > :last-child { margin-left: 0; }
 
   .player-stage { padding: var(--s2) var(--s1) var(--s2) var(--s2); }
+  .player-stage__wrap { justify-items: end; }
 
   .player-dock {
     padding: var(--s2) var(--s3) var(--s2) var(--s2);
