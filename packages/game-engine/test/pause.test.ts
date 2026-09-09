@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chooseSecretObjective, createInitialGame, createSeededRandom, disconnectPlayer, reconnectPlayer, pauseGame, resumeGame, startGame, type GameState } from "../src/index.js";
+import { chooseSecretObjective, createInitialGame, createSeededRandom, disconnectPlayer, reconnectPlayer, pauseGame, resumeGame, startGame, executeGameCommand, type GameState } from "../src/index.js";
 
 function active(): GameState {
   let state = createInitialGame({ roomId: "room-a", gameId: "game-a", players: ["a", "b", "c", "d"].map(id => ({ id, name: id })), random: createSeededRandom(8) });
@@ -88,5 +88,27 @@ describe("operator pause freezes game time", () => {
     expect(resumed.trade).toEqual(state.trade);
     expect(resumed.players[other]!.disconnectedAt).toBe(106_000);
     expect(resumed.turn!.turnDeadlineAt).toBe(161_000);
+  });
+
+  it.each(["accept", "reject"] as const)("rejects a trade %s command while paused and allows it after resume", response => {
+    const state = active();
+    const proposer = state.turn!.playerId;
+    const counterparty = state.currentTurnOrder[1]!;
+    state.turn!.stage = "action_phase";
+    const proposed = executeGameCommand(state, proposer, {
+      type: "propose_trade", requestId: "proposal-request", actionId: "proposal-action", expectedStateVersion: state.version,
+      counterpartyPlayerId: counterparty, offeredCredits: 30, offeredPropertyIds: [], requestedCredits: 0, requestedPropertyIds: []
+    }, { now: 2_000, random: createSeededRandom(0) }).state;
+    const paused = pauseGame(proposed, 11_000, "operator").state;
+    const reply = { type: "respond_trade" as const, requestId: "reply-request", actionId: "reply-action", expectedStateVersion: paused.version, tradeId: paused.trade!.id, response };
+    expect(() => executeGameCommand(paused, counterparty, reply, { now: 21_000, random: createSeededRandom(0) }))
+      .toThrowError(expect.objectContaining({ code: "INVALID_PHASE" }));
+    expect(paused.players).toEqual(proposed.players);
+    expect(paused.trade).toEqual(proposed.trade);
+    const resumed = resumeGame(paused, 111_000).state;
+    const completed = executeGameCommand(resumed, counterparty, { ...reply, expectedStateVersion: resumed.version }, { now: 112_000, random: createSeededRandom(0) }).state;
+    expect(completed.trade).toBeNull();
+    expect(completed.players[proposer]!.credits).toBe(state.players[proposer]!.credits - (response === "accept" ? 30 : 0));
+    expect(completed.players[counterparty]!.credits).toBe(state.players[counterparty]!.credits + (response === "accept" ? 30 : 0));
   });
 });

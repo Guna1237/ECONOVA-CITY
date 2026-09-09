@@ -468,7 +468,9 @@ const finalizeAuction = (state: GameState, events: GameEvent[], now: number): vo
   }
   state.auction = null;
   beginActionPhase(state);
-  resumeNormalTurnTimer(requireTurn(state), now);
+  const turn = requireTurn(state);
+  // Auction time and reconnect grace are separate; normal time stays frozen until the player returns.
+  if (requirePlayer(state, turn.playerId).connected) resumeNormalTurnTimer(turn, now);
 };
 
 const consumeCard = (state: GameState, player: PlayerState, cardId: string): void => {
@@ -1482,6 +1484,10 @@ const executeOnClone = (
       return;
     }
     case "respond_trade": {
+      const turn = requireTurn(next);
+      if (turn.stage !== "action_phase") {
+        throw new GameRuleError("INVALID_PHASE", "Trades can only be resolved in the Action phase.");
+      }
       const trade = next.trade;
       if (trade === null || trade.id !== command.tradeId) {
         throw new GameRuleError("TRADE_NOT_FOUND", "Trade is no longer available.");

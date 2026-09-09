@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import WebSocket from "ws";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { serverMessageSchema, joinRoomResponseSchema, projectorSessionResponseSchema, adminLoginResponseSchema, type ServerMessage } from "@econova/contracts";
 import { assertGameInvariants, createSeededRandom } from "@econova/game-engine";
 import { BOARD_SPACES } from "@econova/game-content";
@@ -55,6 +55,60 @@ async function networkFixture() {
 }
 
 describe("real HTTP and WebSocket multiplayer", () => {
+  it("does not execute in-flight or queued commands once the socket starts closing", async () => {
+    const ctx = await networkFixture();
+    let releaseRead: () => void = () => undefined;
+    try {
+      const roomId = "CLOSE1";
+      await ctx.post("/api/admin/rooms", { roomId, code: roomId }, ctx.admin.token);
+      const tokens = new Map<string, string>();
+      for (let seat = 0; seat < 4; seat++) {
+        const joined = joinRoomResponseSchema.parse((await ctx.post(`/api/rooms/${roomId}/join`, { name: `Player ${seat}` })).body);
+        tokens.set(joined.playerId, joined.token);
+      }
+      expect((await ctx.post(`/api/admin/rooms/${roomId}/initialize`, {}, ctx.admin.token)).status).toBe(200);
+      const runtime = ctx.manager.getRoom(roomId)!.runtime!;
+      const choice = runtime.getState().objectiveSelection!;
+      const peer = ctx.connect(tokens.get(choice.playerId)!);
+      await peer.wait(message => message.type === "state_snapshot");
+      const before = runtime.getState();
+      const persistence = ctx.persistence.get(roomId)!;
+      const receiptCount = persistence.receipts.size;
+      const read = persistence.getCommandReceipts.bind(persistence);
+      let signalRead: () => void = () => undefined;
+      const readStarted = new Promise<void>(resolve => { signalRead = resolve; });
+      const pendingRead = new Promise<void>(resolve => { releaseRead = resolve; });
+      persistence.getCommandReceipts = async (...args) => {
+        signalRead();
+        await pendingRead;
+        return read(...args);
+      };
+      const processCommand = vi.spyOn(runtime, "processCommand");
+      peer.send(ctx.envelope(roomId, { type: "choose_objective", objectiveId: choice.offeredObjectiveIds[0] }));
+      await readStarted;
+      const serverSocket = [...ctx.app.websocketServer.clients][0]!;
+      const nextMessage = new Promise<void>(resolve => { serverSocket.once("message", () => resolve()); });
+      peer.send(ctx.envelope(roomId, { type: "choose_objective", objectiveId: choice.offeredObjectiveIds[0] }));
+      await nextMessage;
+      // Hold the peer's close response, keeping the server in CLOSING rather
+      // than reaching its close-event cleanup before storage completes.
+      peer.socket.pause();
+      serverSocket.close(1008, "Connection closing");
+      expect(serverSocket.readyState).toBe(WebSocket.CLOSING);
+      releaseRead();
+      await runtime.drain();
+      await new Promise<void>(resolve => setImmediate(resolve));
+      expect(serverSocket.readyState).toBe(WebSocket.CLOSING);
+      expect(runtime.getState()).toEqual(before);
+      expect(persistence.receipts.size).toBe(receiptCount);
+      expect(processCommand).toHaveBeenCalledOnce();
+      expect(runtime.isQuarantined()).toBe(false);
+    } finally {
+      releaseRead();
+      await ctx.close();
+    }
+  }, 15000);
+
   it("finishes two six-player eight-round games over real sockets with bounded traffic and RTT", async () => {
     const ctx = await networkFixture();
     const latencies: number[] = [];

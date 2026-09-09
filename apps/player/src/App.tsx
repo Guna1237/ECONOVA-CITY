@@ -15,7 +15,6 @@ import { ActionDock, type PanelId } from './components/ActionDock.js';
 import { DecisionSurface, TradeProposal } from './components/decisions/index.js';
 import { FinalResults } from './components/FinalResults.js';
 import { JoinRoom } from './components/JoinRoom.js';
-import { Lobby } from './components/Lobby.js';
 import { NewsMoment } from './components/NewsMoment.js';
 import {
   CardsPanel,
@@ -44,9 +43,9 @@ const PANEL_TITLE: Record<Exclude<PanelId, null>, string> = {
 };
 
 const Table = (): ReactElement => {
-  const { projection, lobby, mode, link, fatal, toasts, dismissToast, signOut } =
+  const { projection, mode, link, fatal, toasts, dismissToast, signOut, hasUncertainCommand, reviewCurrentState } =
     usePlayerSession();
-  const { public: view, self } = projection;
+  const { public: view } = projection;
 
   const [panel, setPanel] = useState<PanelId>(null);
   const [inspecting, setInspecting] = useState<string | null>(null);
@@ -76,10 +75,6 @@ const Table = (): ReactElement => {
     setInspecting(propertyId);
   };
 
-  if (lobby !== null) {
-    return <Lobby lobby={lobby} selfPlayerId={self.playerId} />;
-  }
-
   if (view.phase === 'completed' && view.results.length > 0) {
     return <FinalResults />;
   }
@@ -102,10 +97,14 @@ const Table = (): ReactElement => {
           </Interrupt>
         ) : mode === 'demonstration' ? (
           <Interrupt>Demonstration board — not a live room.</Interrupt>
-        ) : link === 'reconnecting' || link === 'offline' ? (
+        ) : link !== 'connected' ? (
           <Interrupt>
             {link === 'offline' ? 'Offline' : 'Reconnecting'} — showing the last
             state the city confirmed. Actions are paused.
+          </Interrupt>
+        ) : hasUncertainCommand ? (
+          <Interrupt action={<Button tone="quiet" size="sm" onClick={reviewCurrentState}>I reviewed the current state</Button>}>
+            The last action has no confirmed receipt. Review the current board and your resources before taking another action. Nothing was resent.
           </Interrupt>
         ) : view.phase === 'paused' ? (
           <Interrupt>The game is paused by the operator.</Interrupt>
@@ -181,9 +180,9 @@ const Table = (): ReactElement => {
         </Sheet>
       )}
 
-      {proposing ? <TradeProposal onClose={() => setProposing(false)} /> : null}
+      {proposing && !hasUncertainCommand ? <TradeProposal onClose={() => setProposing(false)} /> : null}
 
-      <DecisionSurface />
+      {hasUncertainCommand ? null : <DecisionSurface />}
 
       {announcedRound === null ? null : (
         <RoundTransition round={announcedRound} onDone={() => setAnnouncedRound(null)} />

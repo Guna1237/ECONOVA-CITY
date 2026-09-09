@@ -791,6 +791,33 @@ describe("timer and connection transitions", () => {
     });
   });
 
+  it.each(["responses", "timeout"] as const)("keeps normal time frozen for the disconnected triggerer after auction %s", completion => {
+    let state = startGame(readyGame(), sequenceRandom(0), 1_000).state;
+    const triggererId = state.turn!.playerId;
+    state.players[triggererId]!.position = 1;
+    state.turn!.stage = "awaiting_property_decision";
+    state = runAt(state, triggererId, command(state, "start_auction", { propertyId: "P01" }), 11_000);
+    state = disconnectPlayer(state, triggererId, 15_000).state;
+
+    if (completion === "timeout") {
+      state = handleAuctionTimeout(state, 41_000).state;
+    } else {
+      for (const playerId of state.currentTurnOrder.filter(id => id !== triggererId)) {
+        state = runAt(state, playerId, command(state, "pass_auction", { auctionId: state.auction!.id }), 20_000);
+      }
+    }
+
+    expect(state.auction).toBeNull();
+    expect(state.turn).toMatchObject({ stage: "action_phase", turnDeadlineAt: null, remainingTurnMilliseconds: 50_000 });
+    expect(() => handleReconnectTimeout(state, 74_999, sequenceRandom(0)))
+      .toThrowError(expect.objectContaining({ code: "RECONNECT_WINDOW_ACTIVE" }));
+    const reconnected = reconnectPlayer(state, triggererId, 50_000).state;
+    expect(reconnected.turn).toMatchObject({ turnDeadlineAt: 100_000, remainingTurnMilliseconds: null });
+    expect(() => handleTurnTimeout(reconnected, 99_999, sequenceRandom(0)))
+      .toThrowError(expect.objectContaining({ code: "TIMER_ACTIVE" }));
+    expect(handleTurnTimeout(reconnected, 100_000, sequenceRandom(0)).state.turn!.playerId).not.toBe(triggererId);
+  });
+
   it("deterministically resolves an event district choice after reconnect timeout", () => {
     let state = startGame(readyGame(), sequenceRandom(0), 1_000).state;
     const playerId = state.turn?.playerId ?? "";

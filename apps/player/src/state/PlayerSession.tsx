@@ -22,7 +22,6 @@ import { demonstrationPlayerState } from '../fixtures/demonstrationState.js';
 import {
   RoomLink,
   clearStoredSession,
-  logout,
   readStoredSession,
   type JoinedSession,
   type LinkState
@@ -43,6 +42,8 @@ export interface PlayerSessionValue {
   readonly lobby: LobbyProjectionDto | null;
   readonly link: LinkState;
   readonly fatal: string | null;
+  readonly hasUncertainCommand: boolean;
+  readonly reviewCurrentState: () => void;
   readonly toasts: readonly ToastItem[];
   readonly dismissToast: (id: string) => void;
   /** The lifecycle of the most recent request under this key. */
@@ -167,7 +168,14 @@ export const PlayerSessionProvider = ({
     linkRef.current?.close();
     clearStoredSession();
     onSignOut();
-  }, [onSignOut, session]);
+  }, [onSignOut]);
+
+  const reviewCurrentState = useCallback(() => {
+    if (link !== 'connected') return;
+    const reviewed = uncertain.filter(requestId => linkRef.current?.dismiss(requestId));
+    for (const requestId of reviewed) pending.current.delete(requestId);
+    setUncertain(current => current.filter(requestId => !reviewed.includes(requestId)));
+  }, [link, uncertain]);
 
   const value = useMemo<PlayerSessionValue>(() => {
     const allowed = new Set<string>(activeProjection.self.capabilities.commandTypes);
@@ -177,6 +185,8 @@ export const PlayerSessionProvider = ({
       lobby,
       link: session === null ? 'offline' : link,
       fatal,
+      hasUncertainCommand: uncertain.length > 0,
+      reviewCurrentState,
       toasts,
       dismissToast: (id) => setToasts((current) => current.filter((t) => t.id !== id)),
       requestState: (key) => requests[key] ?? 'idle',
@@ -184,7 +194,29 @@ export const PlayerSessionProvider = ({
       dispatch,
       signOut
     };
-  }, [live, activeProjection, lobby, session, link, fatal, toasts, requests, dispatch, signOut, uncertain]);
+  }, [live, activeProjection, lobby, session, link, fatal, toasts, requests, dispatch, signOut, uncertain, reviewCurrentState]);
+
+  // A live identity must never see the demonstration fixture while loading,
+  // and terminal link errors must remain reachable from the lobby/results.
+  if (session !== null && fatal !== null) {
+    return <div className="player-join"><div className="player-join__panel">
+      <Interrupt severity="fatal" action={<Button onClick={signOut}>Rejoin</Button>}>{fatal}</Interrupt>
+    </div></div>;
+  }
+  if (session !== null && lobby !== null) {
+    return <>
+      {link === 'connected' ? null : <div className="player-notice"><Interrupt>
+        {link === 'offline' ? 'Offline' : 'Reconnecting'} — your seat is saved. Waiting for the room to reconnect.
+      </Interrupt></div>}
+      <Lobby lobby={lobby} selfPlayerId={session.playerId} />
+    </>;
+  }
+  if (session !== null && projection === null) {
+    return <div className="player-join"><div className="player-join__panel">
+      <Interrupt>{link === 'offline' ? 'You are offline. Your seat is saved; reconnect to continue.' : 'Connecting to your room…'}</Interrupt>
+      <Button tone="quiet" onClick={signOut}>Return to room entry</Button>
+    </div></div>;
+  }
 
   return (
     <PlayerSessionContext.Provider value={value}>{children}</PlayerSessionContext.Provider>

@@ -84,7 +84,7 @@ export class RoomRuntime {
     const actor = clone(session);
     const input = clone(command);
     return this.enqueue(() => stillAuthorized()
-      ? this.processSerialized(actor, input, "player", () => executeGameCommand(this.state, actor.playerId!, input, { now: this.now(), random: this.random }))
+      ? this.processSerialized(actor, input, "player", () => executeGameCommand(this.state, actor.playerId!, input, { now: this.now(), random: this.random }), stillAuthorized)
       : Promise.resolve(this.rejection(input, "AUTHORIZATION_DENIED", "This connection is no longer authorized.")));
   }
 
@@ -102,7 +102,7 @@ export class RoomRuntime {
         case "admin_end_game":
           throw new GameRuleError("ADMIN_ACTION_UNAVAILABLE", "This admin operation is not enabled.");
       }
-      });
+      }, stillAuthorized);
     });
   }
 
@@ -223,10 +223,12 @@ export class RoomRuntime {
     session: AuthenticatedSession,
     command: ClientCommand | AdminCommand,
     role: "player" | "admin",
-    execute: () => TransitionResult
+    execute: () => TransitionResult,
+    stillAuthorized: () => boolean
   ): Promise<CommandReceipt> {
     if (this.isQuarantined()) return this.quarantinedReceipt(command);
-    if (session.role !== role || session.expiresAt <= this.now() ||
+    const remainsAuthorized = () => session.expiresAt > this.now() && stillAuthorized();
+    if (session.role !== role || !remainsAuthorized() ||
       (session.roomId !== this.state.roomId && !(role === "admin" && session.roomId === null)) ||
       (role === "player" && (session.playerId === null || this.state.players[session.playerId] === undefined))) {
       return this.rejection(command, "AUTHORIZATION_DENIED", "This session cannot act in this room.");
@@ -235,9 +237,13 @@ export class RoomRuntime {
     try {
       assertGameInvariants(this.state);
       const replay = await this.replay(command, binding);
+      // Storage awaits can outlive expiry, logout, or connection replacement.
+      // Revalidate before returning a receipt or performing any new gameplay.
+      if (!remainsAuthorized()) return this.rejection(command, "AUTHORIZATION_DENIED", "This session is no longer authorized.");
       if (replay !== null) return replay;
       await this.processDeadlineSerialized();
       if (this.isQuarantined()) return this.quarantinedReceipt(command);
+      if (!remainsAuthorized()) return this.rejection(command, "AUTHORIZATION_DENIED", "This session is no longer authorized.");
       let transition: TransitionResult;
       try {
         if (command.expectedStateVersion !== this.state.version) {

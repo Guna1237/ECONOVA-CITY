@@ -38,12 +38,12 @@ export const registerSocketRoute = (app: FastifyInstance, options: BuildServerOp
     const reject = (code: string, message: string): void => send(serverMessageSchema.parse({ type: "action_rejected", code, message }));
 
     socket.on("message", (raw, binary) => {
-      if (closed) return;
+      if (closed || socket.readyState !== 1) return;
       if (options.now() - windowAt >= 1000) { messages = 0; windowAt = options.now(); }
       if (++messages > 60 || queued >= 16) { socket.close(1008, "Message limit exceeded"); return; }
       queued++;
       queue = queue.then(async () => {
-        if (closed) return;
+        if (closed || socket.readyState !== 1) return;
         if (binary) { reject("INVALID_COMMAND", "Text messages required."); return; }
         const buffer = Array.isArray(raw) ? Buffer.concat(raw) : Buffer.isBuffer(raw) ? raw : Buffer.from(raw);
         if (buffer.byteLength > 64 * 1024) { socket.close(1009, "Message too large"); return; }
@@ -66,7 +66,7 @@ export const registerSocketRoute = (app: FastifyInstance, options: BuildServerOp
           expiryTimer.unref();
           realtime.attach(room);
           if (resolved.role === "player" && resolved.playerId !== null) await realtime.presence(room.roomId, resolved.playerId);
-          if (!closed) realtime.broadcast(room, resolved.sessionId);
+          if (!closed && socket.readyState === 1) realtime.broadcast(room, resolved.sessionId);
           app.log.info({ roomId: room.roomId, role: resolved.role }, "Room connection authenticated");
           return;
         }
@@ -83,12 +83,12 @@ export const registerSocketRoute = (app: FastifyInstance, options: BuildServerOp
         if (room.runtime === null) { reject("ROOM_UNAVAILABLE", "Wait for the game to initialize."); return; }
         const activeSession = session;
         const activeConnection = connectionId;
-        const receipt = await room.runtime.processCommand(session, command.data, () => options.connections.isActive(activeSession.sessionId, activeConnection) && options.sessions.isActive(activeSession.sessionId, options.now()));
+        const receipt = await room.runtime.processCommand(session, command.data, () => !closed && socket.readyState === 1 && options.connections.isActive(activeSession.sessionId, activeConnection) && options.sessions.isActive(activeSession.sessionId, options.now()));
         app.log.info({ roomId: room.roomId, actionId: receipt.actionId, status: receipt.status, stateVersion: receipt.stateVersion }, "Game command processed");
         send(serverMessageSchema.parse(receipt.status === "accepted"
           ? { type: "action_accepted", requestId: receipt.requestId, actionId: receipt.actionId, stateVersion: receipt.stateVersion }
           : { type: "action_rejected", requestId: receipt.requestId, actionId: receipt.actionId, code: receipt.code, message: receipt.message, currentStateVersion: receipt.stateVersion }));
-        if (receipt.status === "rejected") realtime.broadcast(room, session.sessionId);
+        if (receipt.status === "rejected" && !closed && socket.readyState === 1) realtime.broadcast(room, session.sessionId);
       }).catch(() => socket.close(1011, "Connection unavailable")).finally(() => { queued--; });
     });
     socket.on("close", () => {

@@ -250,8 +250,8 @@ export class PostgresGamePersistence implements GamePersistence {
   }
 }
 
-export const createPostgresPool = (connectionString: string): Pool =>
-  new Pool({
+export const createPostgresPool = (connectionString: string): Pool => {
+  const pool = new Pool({
     connectionString,
     max: 5,
     connectionTimeoutMillis: 3_000,
@@ -261,3 +261,18 @@ export const createPostgresPool = (connectionString: string): Pool =>
     idleTimeoutMillis: 30_000,
     allowExitOnIdle: false
   });
+  pool.on("connect", client => {
+    // pg rejects pending queries on connection loss, but also emits an error
+    // event while checked out. Preserve the transaction's rejection/quarantine
+    // path instead of allowing that event to crash every room in the process.
+    client.on("error", () => undefined);
+  });
+  pool.on("error", () => {
+    // pg already removed the failed idle client. Never log its error payload:
+    // it may contain connection details, and no game state needs changing here.
+    process.emitWarning("An idle PostgreSQL connection failed and was removed from the pool.", {
+      code: "POSTGRES_IDLE_CONNECTION_ERROR"
+    });
+  });
+  return pool;
+};

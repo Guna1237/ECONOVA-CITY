@@ -279,7 +279,12 @@ export class RoomClient {
     this.update({ commands: { ...Object.fromEntries(history.map((item) => [item.requestId, item])), [record.requestId]: record }, error: null });
     this.commandTimers.set(record.requestId, setTimeout(() => {
       const current = this.state.commands[record.requestId];
-      if (current && unresolved(current)) this.replaceCommand({ ...current, status: "uncertain", code: "OUTCOME_UNCERTAIN", message: "No confirmed result. Review current state before taking another action." });
+      if (current && unresolved(current)) {
+        this.replaceCommand({ ...current, status: "uncertain", code: "OUTCOME_UNCERTAIN", message: "No confirmed result. Review current state before taking another action." });
+        // A healthy-looking socket can still have lost the command receipt or
+        // snapshot. Refresh authorization/state without replaying the intent.
+        this.reconnect();
+      }
     }, this.commandTimeout));
     try { this.socket.send(JSON.stringify(command)); } catch { this.lostConnection(); }
     return this.state.commands[record.requestId] ?? null;
@@ -288,7 +293,7 @@ export class RoomClient {
   /** UI must ask the player to review current authoritative state before dismissing uncertainty. */
   dismissCommand(requestId: string): void {
     const record = this.state.commands[requestId];
-    if (!record || record.status === "submitting" || record.status === "accepted") return;
+    if (!record || record.status === "submitting" || record.status === "accepted" || (record.status === "uncertain" && this.state.status !== "synchronized")) return;
     const commands = { ...this.state.commands };
     delete commands[requestId];
     this.clearCommandTimer(requestId);

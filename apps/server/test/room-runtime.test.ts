@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ClientCommand } from "@econova/contracts";
+import type { AdminCommand, ClientCommand } from "@econova/contracts";
 import {
   chooseSecretObjective,
   createInitialGame,
@@ -51,6 +51,84 @@ const rollCommand = (state: GameState, actionId = "action-roll"): ClientCommand 
 });
 
 describe("serialized authoritative room runtime", () => {
+  it.each(["player", "admin"] as const)("rechecks %s authority after a pending receipt read", async (role) => {
+    for (const loss of ["revoked", "expired"] as const) {
+      const state = createGame(`room-auth-${role}-${loss}`);
+      const persistence = new InMemoryGamePersistence();
+      let now = 2_000;
+      let authorized = true;
+      const session: AuthenticatedSession = role === "player" ? playerSession(state) : {
+        ...playerSession(state), role: "admin", playerId: null
+      };
+      const read = persistence.getCommandReceipts.bind(persistence);
+      persistence.getCommandReceipts = async (...args) => {
+        const receipts = await read(...args);
+        if (loss === "revoked") authorized = false;
+        else now = session.expiresAt;
+        return receipts;
+      };
+      const runtime = new RoomRuntime({ state, persistence, random: createSeededRandom(8), now: () => now });
+      const command = rollCommand(state);
+      const receipt = role === "player"
+        ? await runtime.processCommand(session, command, () => authorized)
+        : await runtime.processAdminCommand(session, { ...command, type: "admin_pause_game", reason: "Operator check" }, () => authorized);
+      expect(receipt).toMatchObject({ status: "rejected", code: "AUTHORIZATION_DENIED" });
+      expect(runtime.getState()).toEqual(state);
+      expect(persistence.transitions).toHaveLength(0);
+      expect(persistence.receipts.size).toBe(0);
+      expect(runtime.isQuarantined()).toBe(false);
+    }
+  });
+
+  it.each(["revoked", "expired"] as const)("rejects a durable receipt replay when authority is %s during its read", async (loss) => {
+    const state = createGame(`room-replay-auth-${loss}`);
+    const persistence = new InMemoryGamePersistence();
+    let now = 2_000;
+    let authorized = true;
+    const session = playerSession(state);
+    const first = new RoomRuntime({ state, persistence, random: createSeededRandom(8), now: () => now });
+    const command = rollCommand(state);
+    expect((await first.processCommand(session, command)).status).toBe("accepted");
+    const read = persistence.getCommandReceipts.bind(persistence);
+    persistence.getCommandReceipts = async (...args) => {
+      const receipts = await read(...args);
+      if (loss === "revoked") authorized = false;
+      else now = session.expiresAt;
+      return receipts;
+    };
+    const restarted = new RoomRuntime({ state: first.getState(), persistence, random: createSeededRandom(8), now: () => now });
+    expect(await restarted.processCommand(session, command, () => authorized))
+      .toMatchObject({ status: "rejected", code: "AUTHORIZATION_DENIED" });
+    expect(restarted.getState()).toEqual(first.getState());
+    expect(persistence.transitions).toHaveLength(1);
+    expect(restarted.isQuarantined()).toBe(false);
+  });
+
+  it.each(["revoked", "expired"] as const)("rechecks admin authority after a pending deadline commit when %s", async (loss) => {
+    const state = createGame(`room-deadline-auth-${loss}`);
+    const persistence = new InMemoryGamePersistence();
+    let now = 61_000;
+    let authorized = true;
+    const session: AuthenticatedSession = { ...playerSession(state), role: "admin", playerId: null };
+    const persist = persistence.persistTransition.bind(persistence);
+    persistence.persistTransition = async (transition) => {
+      await persist(transition);
+      if (loss === "revoked") authorized = false;
+      else now = session.expiresAt;
+    };
+    const runtime = new RoomRuntime({ state, persistence, random: createSeededRandom(8), now: () => now });
+    const command: AdminCommand = {
+      ...rollCommand(state), type: "admin_pause_game", reason: "Operator check", expectedStateVersion: state.version + 1
+    };
+    expect(await runtime.processAdminCommand(session, command, () => authorized))
+      .toMatchObject({ status: "rejected", code: "AUTHORIZATION_DENIED" });
+    expect(persistence.transitions).toHaveLength(1);
+    expect(persistence.transitions[0]?.adminAudit).toBeUndefined();
+    expect(runtime.getState().phase).toBe("player_turn");
+    expect(runtime.getState().turn?.number).toBe(2);
+    expect(runtime.isQuarantined()).toBe(false);
+  });
+
   it("quarantines an invalid engine result before persistence or memory replacement and leaves the other room running", async () => {
     const state = createGame("invalid-roll");
     const persistence = new InMemoryGamePersistence();

@@ -77,6 +77,9 @@ export class RoomLink {
     for (const record of Object.values(state.commands)) if (record !== previous?.commands[record.requestId]) this.handlers.onCommand(record);
   }
   send(command: CommandInput): string | null { return this.client.dispatch(command)?.requestId ?? null; }
-  dismiss(requestId: string): void { this.client.dismissCommand(requestId); }
+  dismiss(requestId: string): boolean {
+    this.client.dismissCommand(requestId);
+    return this.client.getState().commands[requestId] === undefined;
+  }
   close(): void { this.unsubscribe?.(); this.unsubscribe = null; this.client.close(); }
 }

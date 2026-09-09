@@ -134,12 +134,33 @@ describe("RoomClient command lifecycle", () => {
   });
 
   it("bounds accepted-without-snapshot and missing-receipt waits as uncertain", () => {
-    const { client, socket } = harness(); socket.open(); socket.receive(snapshot());
+    const { client, socket, sockets } = harness(); socket.open(); socket.receive(snapshot());
     const command = client.dispatch({ type: "roll" })!;
     socket.receive(accepted(command, 2));
     vi.advanceTimersByTime(100);
     expect(lastCommand(client).status).toBe("uncertain");
+    expect(client.getState().status).toBe("connecting");
     expect(client.dispatch({ type: "roll" })).toBeNull();
+    client.dismissCommand(command.requestId);
+    expect(lastCommand(client).status).toBe("uncertain");
+    sockets[1]!.open();
+    expect(sockets[1]!.sent).toEqual([{ type: "resume", sessionToken: session.token, lastSeenStateVersion: 1 }]);
+    sockets[1]!.receive(snapshot(2));
+    expect(lastCommand(client).status).toBe("committed");
+    client.dismissCommand(command.requestId);
+    expect(client.dispatch({ type: "roll" })).not.toBeNull();
+  });
+
+  it("only permits review of an unacknowledged command after reconnect supplies a fresh snapshot", () => {
+    const { client, socket, sockets } = harness(); socket.open(); socket.receive(snapshot());
+    const command = client.dispatch({ type: "roll" })!;
+    socket.drop();
+    client.dismissCommand(command.requestId);
+    expect(lastCommand(client).status).toBe("uncertain");
+    vi.advanceTimersByTime(50);
+    sockets[1]!.open(); sockets[1]!.receive(snapshot(4));
+    expect(lastCommand(client).status).toBe("uncertain");
+    expect(sockets[1]!.sent).toHaveLength(1);
     client.dismissCommand(command.requestId);
     expect(client.dispatch({ type: "roll" })).not.toBeNull();
   });
