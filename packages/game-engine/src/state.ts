@@ -49,6 +49,8 @@ export interface PropertyState {
 export interface ObjectiveSelectionState {
   readonly playerId: string;
   readonly offeredObjectiveIds: readonly [string, string];
+  /** Absent only on states recovered from before pending decisions were timed. */
+  readonly deadlineAt?: number;
 }
 
 export interface TurnState {
@@ -117,6 +119,8 @@ export interface PendingCardDraw {
   readonly playerId: string;
   readonly count: number;
   readonly resumePhase: "player_turn" | "council";
+  /** Absent only on states recovered from before pending decisions were timed. */
+  readonly deadlineAt?: number;
 }
 
 export interface GameState {

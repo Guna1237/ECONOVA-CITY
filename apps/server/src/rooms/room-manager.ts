@@ -175,7 +175,8 @@ export class RoomManager {
       gameId: `game-${roomId}-${this.now()}`,
       roomId,
       players: room.players.map(({ playerId, name }) => ({ id: playerId, name })),
-      random
+      random,
+      now: this.now()
     });
     const persistence = this.persistenceFactory(roomId);
     await persistence.persistInitialState(state, { roomCode: room.code });

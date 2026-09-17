@@ -4,8 +4,9 @@ import type { AdminCommand, ClientCommand } from "@econova/contracts";
 import { GAME_CONFIG } from "@econova/game-content";
 import {
   GameInvariantError, GameRuleError, assertGameInvariants, disconnectPlayer,
-  executeGameCommand, handleAuctionTimeout, handleCouncilTimeout,
-  handleEmergencySaleTimeout, handleReconnectTimeout, handleTurnTimeout,
+  executeGameCommand, forcePendingDecision, handleAuctionTimeout, handleCouncilTimeout,
+  handleEmergencySaleTimeout, handleObjectiveSelectionTimeout, handleReconnectTimeout,
+  handleStrategyDrawTimeout, handleTurnTimeout,
   pauseGame, reconnectPlayer, resumeGame, startGame,
   type GameEvent, type GameState, type RandomSource, type TransitionResult
 } from "@econova/game-engine";
@@ -98,7 +99,10 @@ export class RoomRuntime {
         case "admin_start_game": return startGame(this.state, this.random, this.now());
         case "admin_pause_game": return pauseGame(this.state, this.now(), input.reason);
         case "admin_resume_game": return resumeGame(this.state, this.now());
+        // Operator recovery for a stalled room: resolve whatever decision is
+        // pending now, with the same effect its own timer would have had.
         case "admin_skip_turn":
+          return forcePendingDecision(this.state, this.now(), this.random, input.reason);
         case "admin_end_game":
           throw new GameRuleError("ADMIN_ACTION_UNAVAILABLE", "This admin operation is not enabled.");
       }
@@ -138,6 +142,12 @@ export class RoomRuntime {
   nextDeadlineAt(): number | null {
     if (this.isQuarantined() || this.state.phase === "paused" || this.state.phase === "completed") return null;
     if (this.state.phase === "council") return this.state.council?.deadlineAt ?? null;
+    // Decisions owed outside a turn: without these the room waits forever on
+    // one unresponsive player, at game start or at the Round 4 discard.
+    if (this.state.phase === "objective_selection") {
+      return this.state.objectiveSelection?.deadlineAt ?? null;
+    }
+    if (this.state.phase === "strategy_draw") return this.state.pendingCardDraw?.deadlineAt ?? null;
     if (this.state.phase !== "player_turn" || this.state.turn === null) return null;
     if (this.state.auction !== null) return this.state.auction.deadlineAt;
     if (this.state.emergencySale !== null) return this.state.emergencySale.deadlineAt;
@@ -157,7 +167,14 @@ export class RoomRuntime {
       const now = this.now();
       if (deadlineAt === null || now < deadlineAt) return null;
       let transition: TransitionResult;
-      if (this.state.phase === "council") transition = handleCouncilTimeout(this.state, now);
+      if (this.state.phase === "objective_selection") {
+        transition = {
+          state: handleObjectiveSelectionTimeout(this.state, now),
+          events: [{ type: "objective_auto_selected", visibility: "public", payload: {} }]
+        };
+      }
+      else if (this.state.phase === "strategy_draw") transition = handleStrategyDrawTimeout(this.state, now);
+      else if (this.state.phase === "council") transition = handleCouncilTimeout(this.state, now);
       else if (this.state.auction !== null) transition = handleAuctionTimeout(this.state, now);
       else if (this.state.emergencySale !== null) transition = handleEmergencySaleTimeout(this.state, now);
       else if (this.state.turn !== null && this.state.players[this.state.turn.playerId]?.connected === false) {

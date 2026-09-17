@@ -1838,6 +1838,30 @@ Operator pause freezes all remaining timers, including reconnect grace, and defe
 
 ---
 
+# DECISION-049 — Decisions owed outside a turn are timed, and an operator can force them
+
+Status: APPROVED. Product-owner decision, 2026-09-18. Resolves REVIEW-025.
+
+Two decisions the rules require happen outside any normal turn: the opening secret objective pick, and the Round 4 discard when a player is at the hand limit. Neither had a deadline, so a single unresponsive player stalled the entire room indefinitely, and the operator had no recovery short of resetting the game and losing it.
+
+Approved rules:
+
+1. Each such decision carries its own 45-second deadline (`GAME_CONFIG.pendingDecisionTimerSeconds`), matching the Council timer players already meet.
+2. On expiry the server resolves it deterministically and announces it publicly:
+   - Objective pick: the player keeps the **first** objective they were offered. The choice stays private and nothing is forfeited, which matters because this fires before anyone has acted.
+   - Round 4 discard: the **lowest card ID** in hand is discarded, identical to what an expired turn already does for the same decision.
+3. Each following player receives their own fresh 45-second window, so a slow pick cannot eat the next player's thinking time.
+4. Operator pause freezes these deadlines like every other clock, consistent with DECISION-048.
+5. The existing `admin_skip_turn` admin command is now implemented as an operator force: it resolves whatever decision the room is waiting on immediately, producing exactly the state that decision's own expiry would have produced, and logs `operator_forced_decision` with the operator's stated reason.
+
+Rationale: the event requirement is that no single player can freeze a room, and that an operator always has a way forward. Auto-resolution keeps the game moving without penalty; the force command covers any stall not predicted here.
+
+Affected: `packages/game-content/src/config.ts`, `packages/game-engine` (`setup.ts`, `transitions.ts`, `admin.ts`, `projections.ts`), `apps/server/src/rooms/room-runtime.ts`, `docs/PLAYER_QUICK_START.md`, `agent/REVIEW.md`. Covered by `packages/game-engine/test/pending-decision-timeouts.test.ts`.
+
+Not changed: property economics, movement, demand, influence, Council, card effects, scoring, auction and emergency-sale rules, and every existing timer value.
+
+---
+
 # DECISION CHANGE RULE
 
 When superseding a decision:

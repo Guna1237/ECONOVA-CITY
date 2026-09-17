@@ -232,7 +232,18 @@ export const createPrivateInspectionProjection = (state: GameState) => ({
     connected: player.connected,
     disconnectedAt: player.disconnectedAt
   })),
-  objectiveSelection: state.objectiveSelection,
+  /*
+   * Projected field by field rather than passed through: the contract for this
+   * payload is strict, and the pending-decision deadline is server-side timing
+   * that no inspection consumer is promised.
+   */
+  objectiveSelection:
+    state.objectiveSelection === null
+      ? null
+      : {
+          playerId: state.objectiveSelection.playerId,
+          offeredObjectiveIds: [...state.objectiveSelection.offeredObjectiveIds] as [string, string]
+        },
   auction:
     state.auction === null
       ? null
@@ -248,7 +259,14 @@ export const createPrivateInspectionProjection = (state: GameState) => ({
   pendingLandingFee: state.pendingLandingFee,
   emergencySale: state.emergencySale,
   pendingEventChoice: state.pendingEventChoice,
-  pendingCardDraw: state.pendingCardDraw,
+  pendingCardDraw:
+    state.pendingCardDraw === null
+      ? null
+      : {
+          playerId: state.pendingCardDraw.playerId,
+          count: state.pendingCardDraw.count,
+          resumePhase: state.pendingCardDraw.resumePhase
+        },
   trade: state.trade
 });
 

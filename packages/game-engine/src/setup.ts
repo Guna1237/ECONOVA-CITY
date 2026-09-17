@@ -19,6 +19,8 @@ export const createInitialGame = (input: {
   readonly roomId: string;
   readonly players: readonly SetupPlayer[];
   readonly random: RandomSource;
+  /** Caller's clock, so the opening objective deadline is deterministic in tests. */
+  readonly now?: number;
 }): GameState => {
   if (
     input.players.length < GAME_CONFIG.minPlayers ||
@@ -62,6 +64,8 @@ export const createInitialGame = (input: {
     };
   }
 
+  const objectiveDeadlineAt =
+    (input.now ?? Date.now()) + GAME_CONFIG.pendingDecisionTimerSeconds * 1_000;
   const objectiveOffer = objectiveDeck.splice(0, 2);
   const firstPlayerId = turnOrder[0];
   if (firstPlayerId === undefined || objectiveOffer[0] === undefined || objectiveOffer[1] === undefined) {
@@ -97,7 +101,8 @@ export const createInitialGame = (input: {
     objectiveDeck,
     objectiveSelection: {
       playerId: firstPlayerId,
-      offeredObjectiveIds: [objectiveOffer[0], objectiveOffer[1]]
+      offeredObjectiveIds: [objectiveOffer[0], objectiveOffer[1]],
+      deadlineAt: objectiveDeadlineAt
     },
     turn: null,
     auction: null,
@@ -119,7 +124,8 @@ export const createInitialGame = (input: {
 export const chooseSecretObjective = (
   state: GameState,
   playerId: string,
-  objectiveId: string
+  objectiveId: string,
+  now?: number
 ): GameState => {
   if (state.phase !== "objective_selection" || state.objectiveSelection === null) {
     throw new GameRuleError("INVALID_PHASE", "Secret objectives are not being selected.");
@@ -162,7 +168,30 @@ export const chooseSecretObjective = (
   }
   next.objectiveSelection = {
     playerId: nextPlayerId,
-    offeredObjectiveIds: [nextOffer[0], nextOffer[1]]
+    offeredObjectiveIds: [nextOffer[0], nextOffer[1]],
+    // Each player gets their own fresh window, so one slow pick cannot eat
+    // the next player's thinking time.
+    deadlineAt: (now ?? Date.now()) + GAME_CONFIG.pendingDecisionTimerSeconds * 1_000
   };
   return next;
+};
+
+/**
+ * The opening objective pick ran out of time. Keeping the first offered
+ * objective is deterministic, leaves the choice private, and costs the player
+ * nothing they had earned, which matters because this fires before anyone has
+ * taken a single action.
+ */
+export const handleObjectiveSelectionTimeout = (
+  state: GameState,
+  now: number
+): GameState => {
+  const selection = state.objectiveSelection;
+  if (state.phase !== "objective_selection" || selection === null) {
+    throw new GameRuleError("INVALID_PHASE", "Secret objectives are not being selected.");
+  }
+  if (selection.deadlineAt === undefined || now < selection.deadlineAt) {
+    throw new GameRuleError("TIMER_ACTIVE", "Objective selection timer has not expired.");
+  }
+  return chooseSecretObjective(state, selection.playerId, selection.offeredObjectiveIds[0], now);
 };

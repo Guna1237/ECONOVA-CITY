@@ -209,7 +209,12 @@ const beginRound = (
       const playerId = state.pendingCardDrawPlayerIds.shift();
       if (playerId === undefined) throw new GameInvariantError("Missing pending card-draw player.");
       state.phase = "strategy_draw";
-      state.pendingCardDraw = { playerId, count: 1, resumePhase: "player_turn" };
+      state.pendingCardDraw = {
+        playerId,
+        count: 1,
+        resumePhase: "player_turn",
+        deadlineAt: now + GAME_CONFIG.pendingDecisionTimerSeconds * 1_000
+      };
       return;
     }
   }
@@ -557,7 +562,12 @@ const resolvePendingCardDiscard = (
   if (state.phase === "strategy_draw") {
     const nextPlayerId = state.pendingCardDrawPlayerIds.shift();
     if (nextPlayerId !== undefined) {
-      state.pendingCardDraw = { playerId: nextPlayerId, count: 1, resumePhase: "player_turn" };
+      state.pendingCardDraw = {
+        playerId: nextPlayerId,
+        count: 1,
+        resumePhase: "player_turn",
+        deadlineAt: now + GAME_CONFIG.pendingDecisionTimerSeconds * 1_000
+      };
     } else {
       startFirstTurn(state, now);
     }
@@ -1036,6 +1046,33 @@ export const handleCouncilTimeout = (state: GameState, now: number): TransitionR
   }
   const events: GameEvent[] = [];
   resolveCouncil(next, now, events);
+  next.version += 1;
+  assertGameInvariants(next);
+  return { state: next, events };
+};
+
+/*
+ * The Round 4 discard happens outside any turn, so the turn timer cannot
+ * cover it. Discarding the lowest card ID matches what an expired turn
+ * already does for the same decision, so a player who drops out mid-round
+ * is treated identically either way.
+ */
+export const handleStrategyDrawTimeout = (state: GameState, now: number): TransitionResult => {
+  const pending = state.pendingCardDraw;
+  if (state.phase !== "strategy_draw" || pending === null) {
+    throw new GameRuleError("INVALID_PHASE", "No strategy draw is pending.");
+  }
+  if (pending.deadlineAt === undefined || now < pending.deadlineAt) {
+    throw new GameRuleError("TIMER_ACTIVE", "Strategy draw timer has not expired.");
+  }
+  const next = cloneState(state);
+  const cardId = [...requirePlayer(next, pending.playerId).cards].sort()[0];
+  if (cardId === undefined) {
+    throw new GameInvariantError("A pending card discard requires at least one card.");
+  }
+  const events: GameEvent[] = [];
+  resolvePendingCardDiscard(next, pending.playerId, cardId, now);
+  events.push(publicEvent("card_discard_auto_completed", { playerId: pending.playerId }));
   next.version += 1;
   assertGameInvariants(next);
   return { state: next, events };
@@ -1585,7 +1622,7 @@ export const executeGameCommand = (
     throw new GameRuleError("STALE_STATE", "Command was based on an outdated game state.");
   }
   if (command.type === "choose_objective") {
-    const next = chooseSecretObjective(state, actorPlayerId, command.objectiveId);
+    const next = chooseSecretObjective(state, actorPlayerId, command.objectiveId, context.now);
     assertGameInvariants(next);
     return {
       state: next,

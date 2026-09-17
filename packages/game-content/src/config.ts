@@ -19,6 +19,13 @@ export const GAME_CONFIG = Object.freeze({
   auctionTimerSeconds: 30,
   emergencySaleTimerSeconds: 30,
   councilTimerSeconds: 45,
+  /*
+   * Decisions the rules require outside a normal turn: the opening secret
+   * objective pick and the Round 4 discard. Without a deadline either one
+   * parks the whole room on a single unresponsive player, and an operator
+   * has no way back short of resetting the game.
+   */
+  pendingDecisionTimerSeconds: 45,
   reconnectGraceSeconds: 60,
   influenceFinalScoreMultiplier: 10,
   fullDistrictFinalScoreBonus: 100,
