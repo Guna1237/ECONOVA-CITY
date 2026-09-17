@@ -33,12 +33,14 @@ export const ActionDock = ({
   onPanel,
   onInspectSpace,
   onTrade,
+  onInfluence,
   wide
 }: {
   readonly panel: PanelId;
   readonly onPanel: (panel: PanelId) => void;
   readonly onInspectSpace: (propertyId: string) => void;
   readonly onTrade: () => void;
+  readonly onInfluence: () => void;
   /** Wide layouts stand the panels up beside the board instead of hiding
       them behind tabs — there is room, so nothing needs to be reached for. */
   readonly wide: boolean;
@@ -152,21 +154,27 @@ export const ActionDock = ({
     );
   } else if (stage === 'action_phase') {
     const remaining = view.turn?.actionsRemaining ?? 0;
-    const level = standingRecord?.developmentLevel ?? 0;
-    const ownHere = standingRecord?.ownerId === self.playerId;
-    const maxed = level >= GAME_CONFIG.maximumDevelopmentLevel;
+    /*
+     * Developing has never required standing on the property. The button used
+     * to read the current space, which hid the action behind a rule that does
+     * not exist; it now opens the holdings list so any eligible property can
+     * be chosen. The server remains the authority on each one.
+     */
+    const developable = view.properties.filter(
+      (entry) =>
+        entry.ownerId === self.playerId &&
+        entry.developmentLevel < GAME_CONFIG.maximumDevelopmentLevel
+    );
     const developReason =
-      standingOn === null
-        ? 'Stand on one of your properties to develop it'
-        : !ownHere
-          ? 'You can only develop a property you own'
-          : maxed
-            ? 'This property is already at level 3'
-            : !can('develop_property')
-              ? remaining === 0
-                ? 'No actions left this turn'
-                : 'Developing is not available right now'
-              : null;
+      self.propertyIds.length === 0
+        ? 'You do not own a property yet'
+        : developable.length === 0
+          ? 'Every property you own is already at level 3'
+          : !can('develop_property')
+            ? remaining === 0
+              ? 'No actions left this turn'
+              : 'Developing is not available right now'
+            : null;
 
     const tradeReason = !can('propose_trade')
       ? remaining === 0
@@ -180,7 +188,13 @@ export const ActionDock = ({
           tone="primary"
           disabled={developReason !== null}
           title={developReason ?? undefined}
-          onClick={() => (standingOn === null ? undefined : onInspectSpace(standingOn))}
+          hint={developable.length === 1 ? undefined : `${developable.length} eligible`}
+          onClick={() =>
+            /* One obvious choice goes straight there; otherwise pick from holdings. */
+            developable.length === 1 && developable[0] !== undefined
+              ? onInspectSpace(developable[0].propertyId)
+              : onPanel('holdings')
+          }
         >
           Develop
         </Button>
@@ -191,6 +205,23 @@ export const ActionDock = ({
           onClick={onTrade}
         >
           Trade
+        </Button>
+        <Button
+          tone="default"
+          disabled={!can('change_demand')}
+          hint={self.influence > 0 ? `${self.influence} held` : undefined}
+          title={
+            can('change_demand')
+              ? undefined
+              : self.influence < 1
+                ? 'You hold no influence to spend'
+                : remaining === 0
+                  ? 'No actions left this turn'
+                  : 'Influence is not available right now'
+          }
+          onClick={onInfluence}
+        >
+          Influence
         </Button>
         <Button
           tone="commit"

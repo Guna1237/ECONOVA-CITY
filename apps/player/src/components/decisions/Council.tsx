@@ -14,21 +14,44 @@ import { usePlayerSession } from '../../state/PlayerSession.js';
 export const Council = (): ReactElement | null => {
   const { projection, dispatch, requestState } = usePlayerSession();
   const { public: view, self } = projection;
+  /*
+   * Two independent allocations, not one split. The rules let a player back
+   * only one policy, spend part of their Influence, or abstain outright, and
+   * Influence kept is worth points at scoring, so deriving B from A would
+   * quietly spend everything they hold on every vote.
+   */
   const [toA, setToA] = useState(0);
+  const [toB, setToB] = useState(0);
 
   const council = view.council;
   if (council === null || self.councilAllocation !== null) return null;
 
+  const spent = toA + toB;
+  const kept = self.influence - spent;
+
   const options = [
-    { letter: 'A' as const, policy: POLICY_BY_ID.get(council.optionAId), influence: toA },
+    {
+      letter: 'A' as const,
+      policy: POLICY_BY_ID.get(council.optionAId),
+      influence: toA,
+      set: setToA
+    },
     {
       letter: 'B' as const,
       policy: POLICY_BY_ID.get(council.optionBId),
-      influence: self.influence - toA
+      influence: toB,
+      set: setToB
     }
   ];
 
   const noInfluence = self.influence === 0;
+  const submit = (optionAInfluence: number, optionBInfluence: number) =>
+    dispatch('council', {
+      type: 'council_vote',
+      councilId: council.councilId,
+      optionAInfluence,
+      optionBInfluence
+    });
 
   return (
     <Sheet
@@ -36,21 +59,23 @@ export const Council = (): ReactElement | null => {
       kicker={`Round ${view.round} policy vote`}
       onClose={() => undefined}
       footer={
-        <Button
-          tone="primary"
-          block
-          request={requestState('council')}
-          onClick={() =>
-            dispatch('council', {
-              type: 'council_vote',
-              councilId: council.councilId,
-              optionAInfluence: toA,
-              optionBInfluence: self.influence - toA
-            })
-          }
-        >
-          {noInfluence ? 'Abstain' : 'Commit influence'}
-        </Button>
+        <div style={{ display: 'grid', gap: 'var(--s2)' }}>
+          <Button
+            tone="primary"
+            block
+            request={requestState('council')}
+            onClick={() => submit(toA, toB)}
+          >
+            {spent === 0
+              ? 'Abstain, keep all influence'
+              : `Submit vote, spend ${spent} of ${self.influence}`}
+          </Button>
+          {noInfluence || spent === 0 ? null : (
+            <Button tone="quiet" block onClick={() => submit(0, 0)}>
+              Abstain instead
+            </Button>
+          )}
+        </div>
       }
     >
       <div className="eco-decision">
@@ -65,7 +90,7 @@ export const Council = (): ReactElement | null => {
           </span>
         </div>
 
-        {options.map(({ letter, policy, influence }) => (
+        {options.map(({ letter, policy, influence, set }) => (
           <div key={letter} className="eco-option" data-chosen={influence > 0}>
             <div style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
               <span className="eco-option__letter">{letter}</span>
@@ -77,6 +102,16 @@ export const Council = (): ReactElement | null => {
               </div>
             </div>
             <div className="eco-card__text">{policy?.description ?? ''}</div>
+            {noInfluence ? null : (
+              <Stepper
+                value={influence}
+                min={0}
+                /* Each side can only reach what is still unspent. */
+                max={influence + kept}
+                step={1}
+                onChange={set}
+              />
+            )}
           </div>
         ))}
 
@@ -85,23 +120,15 @@ export const Council = (): ReactElement | null => {
             You hold no influence this round, so you can only abstain.
           </p>
         ) : (
-          <div>
-            <div className="eco-decision__question">
-              Split your {self.influence} influence
-            </div>
-            <Stepper
-              value={toA}
-              min={0}
-              max={self.influence}
-              step={1}
-              caption="To option A — the remainder goes to B"
-              onChange={setToA}
-            />
+          <div className="eco-decision__question">
+            Keeping {kept} of {self.influence} influence
+            {kept > 0 ? `, worth ${kept * GAME_CONFIG.influenceFinalScoreMultiplier} points at scoring` : ''}
           </div>
         )}
 
         <p className="eco-empty" style={{ padding: 0 }}>
-          Allocations stay hidden until the vote closes.
+          Only the winning policy and the vote totals are public. What you
+          personally put behind each option is never shown to other players.
         </p>
       </div>
     </Sheet>

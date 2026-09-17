@@ -304,6 +304,15 @@
   grid-auto-columns: auto;
 }
 
+/* On a phone the action phase offers four choices, and auto-fit packs three
+   across and strands the fourth alone. Two even columns pair them up and buy
+   every target more width for a thumb. */
+@media (max-width: 460px) {
+  .eco-dock__actions:not([data-stack='true']) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .eco-dock__tabs {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

@@ -12,7 +12,7 @@ import {
 } from '@econova/ui';
 
 import { ActionDock, type PanelId } from './components/ActionDock.js';
-import { DecisionSurface, TradeProposal } from './components/decisions/index.js';
+import { DecisionSurface, InfluenceAction, TradeProposal } from './components/decisions/index.js';
 import { FinalResults } from './components/FinalResults.js';
 import { JoinRoom } from './components/JoinRoom.js';
 import { NewsMoment } from './components/NewsMoment.js';
@@ -50,6 +50,7 @@ const Table = (): ReactElement => {
   const [panel, setPanel] = useState<PanelId>(null);
   const [inspecting, setInspecting] = useState<string | null>(null);
   const [proposing, setProposing] = useState(false);
+  const [influencing, setInfluencing] = useState(false);
   const wide = useWideLayout();
 
   /* A round change is announced once, briefly. */
@@ -131,6 +132,7 @@ const Table = (): ReactElement => {
         onPanel={setPanel}
         onInspectSpace={inspect}
         onTrade={() => setProposing(true)}
+        onInfluence={() => setInfluencing(true)}
         wide={wide}
       />
 
@@ -181,6 +183,10 @@ const Table = (): ReactElement => {
       )}
 
       {proposing && !hasUncertainCommand ? <TradeProposal onClose={() => setProposing(false)} /> : null}
+
+      {influencing && !hasUncertainCommand ? (
+        <InfluenceAction onClose={() => setInfluencing(false)} />
+      ) : null}
 
       {hasUncertainCommand ? null : <DecisionSurface />}
 

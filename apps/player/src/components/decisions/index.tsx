@@ -13,6 +13,7 @@ import { ObjectiveChoice } from './ObjectiveChoice.js';
 import { TradeResponse } from './TradeResponse.js';
 
 export { TradeProposal } from './TradeProposal.js';
+export { InfluenceAction } from './InfluenceAction.js';
 
 export type DecisionKind =
   | 'objective'
