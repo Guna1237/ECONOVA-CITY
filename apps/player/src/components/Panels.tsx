@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactElement } from 'react';
 
 import {
+  BOARD_SPACES,
   GAME_CONFIG,
   OBJECTIVE_BY_ID,
   PROPERTY_BY_ID,
@@ -18,6 +19,7 @@ import {
 } from '@econova/ui';
 
 import { usePlayerSession } from '../state/PlayerSession.js';
+import { developmentPrice, priceLabel, purchasePrice } from '../state/prices.js';
 
 /* -----------------------------------------------------------------
  * Holdings — what I own, and what I can do with it.

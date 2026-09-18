@@ -15,6 +15,8 @@ import { BOARD_SPACES, GAME_CONFIG, PROPERTY_BY_ID } from '@econova/game-content
 import type { PlayerProjectionDto } from '@econova/contracts';
 import { DISTRICTS, STAGE_LABEL, formatCredits } from '@econova/ui';
 
+import { priceLabel, purchasePrice } from './prices.js';
+
 export type BriefingTone = 'you' | 'waiting' | 'decision' | 'alert';
 
 /** Coaching notes are keyed so each is shown at most once per player. */
@@ -192,10 +194,14 @@ export const briefFor = (projection: PlayerProjectionDto): Briefing => {
     case 'awaiting_property_decision': {
       if (space === null) break;
       const district = DISTRICTS[space.district];
+      const price = purchasePrice(projection, space.id);
       return {
         ...base,
         headline: `${space.name} is unowned`,
-        detail: `${district.label} district · ${formatCredits(space.basePrice)} to buy.`,
+        detail:
+          price === null
+            ? `${district.label} district.`
+            : `${district.label} district · ${priceLabel(price, formatCredits)} to buy.`,
         tone: 'decision',
         hint: 'buy'
       };

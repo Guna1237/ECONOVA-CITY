@@ -45,7 +45,7 @@ RECOMMENDED FIX: Independent bounded allocations, spent/kept summary, explicit A
 
 TEST REQUIRED: Zero/partial/split/all allocation, duplicate/over-budget rejection, private projection and copy checks.
 
-STATUS: OPEN. Awaiting the requested design-audit approval gate. Details: docs/qa/UX_AUDIT_2026-09-17.md.
+STATUS: RESOLVED 2026-09-18 in 84526dc. Independent bounded allocations for each option, a kept/spent readout with the points kept Influence is worth, an explicit Abstain, and privacy copy that says allocations are never shown to other players. No engine change: the server already accepted any total up to the balance.
 
 ## REVIEW-028: Player action reachability and misleading costs
 
@@ -65,7 +65,11 @@ RECOMMENDED FIX: Property selection for Develop, capability-gated Influence cont
 
 TEST REQUIRED: Develop off-position and bought-this-turn rejection, Influence restrictions, modified-cost display/affordability, stale quote rejection and no optimistic mutations.
 
-STATUS: OPEN. Awaiting audit-plan approval; no rules changed.
+STATUS: RESOLVED 2026-09-18.
+
+- Develop and Influence reachability fixed in 84526dc: Develop opens eligible holdings with no location requirement, and `change_demand` has a capability-gated control.
+- Misleading costs fixed by adding server quotes. `quotePrices` in the engine prices through the same `purchasePriceFor` and `developmentCostFor` that charge the player, so a quote is exactly what is taken; `price-quotes.test.ts` proves quote equals charge for both. It is projected privately on `self.quotes` (optional in the contract, so fixtures still validate) and only during the player's own turn, since several modifiers are effects of the current turn. The client shows a quote plainly and any base figure labelled "base"; it never recomputes a modifier.
+- Two latent bugs found alongside: the Buy button's affordability reason was unreachable because `buy_property` is granted regardless of credits, so unaffordable purchases only surfaced as a rejection; it now blocks on a quoted price, and deliberately never on a base one, which a discount could undercut. And the property panel offered Buy and Develop for whatever property was tapped, since capabilities describe the turn and not the property, so it offered purchases the server always refuses. The quotes now decide which property is buyable and which are developable.
 
 ## REVIEW-029: Shared dialog focus and required-decision affordances
 
@@ -702,7 +706,7 @@ REPRODUCTION: Run `npm run build`; Player Vite fails resolving `../assets/econov
 IMPACT: Full production client build fails although backend build, typecheck and all 243 tests pass.
 RECOMMENDED FIX: Claude should make shared UI asset packaging reproducible from source as part of the build. Do not remove the crest or manually copy an asset only into a local build output to mask the issue.
 TEST REQUIRED: Full clean-output UI/client build, then full `npm run build` and browser asset loading.
-STATUS: OPEN — frontend ownership; intentionally not modified during PostgreSQL verification.
+STATUS: RESOLVED. `packages/ui` builds with `tsc -b --force && node scripts/copy-assets.mjs`. Verified 2026-09-18 from a genuinely clean tree (ui, player, projector and admin `dist` all deleted first): the full build succeeds and all nine images, the crest plus eight Nova artworks, are bundled into the player app.
 
 ## REVIEW ITEM TEMPLATE
 
