@@ -8,6 +8,7 @@ import type { RandomSource } from "./random.js";
 import { chooseSecretObjective } from "./setup.js";
 import {
   applyDisconnectEffects,
+  finalizeGame,
   handleAuctionTimeout,
   handleCouncilTimeout,
   handleEmergencySaleTimeout,
@@ -41,6 +42,37 @@ export const pauseGame = (state: GameState, now: number, reason: string): Transi
   next.version += 1;
   assertGameInvariants(next);
   return { state: next, events: [event("game_paused", { reason })] };
+};
+
+/**
+ * End the session now and score it.
+ *
+ * Reaching Round 8 is the only way a game finishes on its own, so without
+ * this an event that runs out of time has no winner at all, and a room that
+ * quarantined mid-game cannot produce a result from the state it did reach.
+ * This is the administrative override the rules already allow for exceptional
+ * situations, which is why it is authenticated and carries a logged reason.
+ *
+ * Scoring runs through the same `finalizeGame` the eighth round uses, so an
+ * early result cannot drift from a full one. No income is granted for the
+ * unfinished round; the game is scored exactly as it stands.
+ */
+export const endGameNow = (state: GameState, reason: string): TransitionResult => {
+  if (state.phase === "completed") {
+    throw new GameRuleError("INVALID_PHASE", "This game has already finished.");
+  }
+  if (state.objectiveSelection !== null) {
+    throw new GameRuleError(
+      "GAME_NOT_STARTED",
+      "This game has not finished setup, so there is nothing to score."
+    );
+  }
+  const next = cloneState(state);
+  const events: GameEvent[] = [event("game_ended_by_operator", { reason })];
+  finalizeGame(next, events);
+  next.version += 1;
+  assertGameInvariants(next);
+  return { state: next, events };
 };
 
 /*

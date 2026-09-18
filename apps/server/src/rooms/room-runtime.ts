@@ -4,7 +4,7 @@ import type { AdminCommand, ClientCommand } from "@econova/contracts";
 import { GAME_CONFIG } from "@econova/game-content";
 import {
   GameInvariantError, GameRuleError, assertGameInvariants, disconnectPlayer,
-  executeGameCommand, forcePendingDecision, handleAuctionTimeout, handleCouncilTimeout,
+  endGameNow, executeGameCommand, forcePendingDecision, handleAuctionTimeout, handleCouncilTimeout,
   handleEmergencySaleTimeout, handleObjectiveSelectionTimeout, handleReconnectTimeout,
   handleStrategyDrawTimeout, handleTurnTimeout,
   pauseGame, reconnectPlayer, resumeGame, startGame,
@@ -94,6 +94,14 @@ export class RoomRuntime {
     const input = clone(command);
     return this.enqueue(() => {
       if (!stillAuthorized()) return Promise.resolve(this.rejection(input, "AUTHORIZATION_DENIED", "This session is no longer authorized."));
+      /*
+       * A quarantined room refuses every other command on purpose, so a
+       * suspect state cannot keep playing. Scoring it is the one safe thing
+       * left: the failed transition was discarded before it could be applied,
+       * so the state here is the last one that passed its invariants and was
+       * persisted. Without this exception the session is simply lost.
+       */
+      const rescuing = input.type === "admin_end_game";
       return this.processSerialized(actor, input, "admin", () => {
       switch (input.type) {
         case "admin_start_game": return startGame(this.state, this.random, this.now());
@@ -103,10 +111,20 @@ export class RoomRuntime {
         // pending now, with the same effect its own timer would have had.
         case "admin_skip_turn":
           return forcePendingDecision(this.state, this.now(), this.random, input.reason);
+        // Ending early is how a session that ran out of time, or a room that
+        // quarantined mid-game, still produces a result for the players.
         case "admin_end_game":
-          throw new GameRuleError("ADMIN_ACTION_UNAVAILABLE", "This admin operation is not enabled.");
+          return endGameNow(this.state, input.reason);
       }
-      }, stillAuthorized);
+      }, stillAuthorized, rescuing).then((receipt) => {
+        /* A rescued room holds a finished, invariant-checked game now, so it
+           should read as completed rather than stay flagged for review. */
+        if (rescuing && receipt.status === "accepted" && this.isQuarantined()) {
+          this.status = "active";
+          this.quarantineReason = null;
+        }
+        return receipt;
+      });
     });
   }
 
@@ -241,9 +259,10 @@ export class RoomRuntime {
     command: ClientCommand | AdminCommand,
     role: "player" | "admin",
     execute: () => TransitionResult,
-    stillAuthorized: () => boolean
+    stillAuthorized: () => boolean,
+    allowQuarantined = false
   ): Promise<CommandReceipt> {
-    if (this.isQuarantined()) return this.quarantinedReceipt(command);
+    if (this.isQuarantined() && !allowQuarantined) return this.quarantinedReceipt(command);
     const remainsAuthorized = () => session.expiresAt > this.now() && stillAuthorized();
     if (session.role !== role || !remainsAuthorized() ||
       (session.roomId !== this.state.roomId && !(role === "admin" && session.roomId === null)) ||
@@ -259,7 +278,9 @@ export class RoomRuntime {
       if (!remainsAuthorized()) return this.rejection(command, "AUTHORIZATION_DENIED", "This session is no longer authorized.");
       if (replay !== null) return replay;
       await this.processDeadlineSerialized();
-      if (this.isQuarantined()) return this.quarantinedReceipt(command);
+      // Resolving a due deadline can itself quarantine the room; a rescue is
+      // still allowed through, for the same reason as the guard above.
+      if (this.isQuarantined() && !allowQuarantined) return this.quarantinedReceipt(command);
       if (!remainsAuthorized()) return this.rejection(command, "AUTHORIZATION_DENIED", "This session is no longer authorized.");
       let transition: TransitionResult;
       try {

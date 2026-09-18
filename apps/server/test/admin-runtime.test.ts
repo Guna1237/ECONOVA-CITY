@@ -130,11 +130,17 @@ describe("privileged room operations", () => {
     await expect(
       runtime.processAdminCommand(player, adminCommand(state, "admin_start_game"))
     ).resolves.toMatchObject({ status: "rejected", code: "AUTHORIZATION_DENIED" });
+    /*
+     * Ending a session is now an authorized operator capability (DECISION-050)
+     * rather than an unavailable one, so what has to hold is that it is still
+     * gated on a real admin session for this room. A player session forging it
+     * must get nowhere.
+     */
     await expect(
       runtime.processAdminCommand(
-        admin,
+        player,
         adminCommand(state, "admin_end_game", { reason: "forged end" })
       )
-    ).resolves.toMatchObject({ status: "rejected", code: "ADMIN_ACTION_UNAVAILABLE" });
+    ).resolves.toMatchObject({ status: "rejected", code: "AUTHORIZATION_DENIED" });
   });
 });

@@ -856,7 +856,23 @@ const resolveRound = (
   state.activeRoundEffects = [];
   state.activeBreakingNewsId = null;
   if (state.round >= GAME_CONFIG.rounds) {
-    const unranked = Object.values(state.players).map((player) => {
+    finalizeGame(state, events);
+    return;
+  }
+
+  beginRound(state, state.round + 1, random, now, events);
+};
+
+/**
+ * Score the game as it currently stands and close it.
+ *
+ * Round 8 reaches this the ordinary way. An operator ending a session early
+ * reaches the identical code, so an early result is calculated by exactly the
+ * same rules as a full one and can never drift from it. Nothing here grants
+ * income for a round that was not finished; it scores the state as it is.
+ */
+export const finalizeGame = (state: GameState, events: GameEvent[]): void => {
+  const unranked = Object.values(state.players).map((player) => {
       const properties = player.propertyIds.map((propertyId) => {
         const property = state.properties[propertyId];
         if (property === undefined) throw new GameInvariantError("Owned property is missing.");
@@ -898,13 +914,9 @@ const resolveRound = (
         breakdown
       })
     );
-    state.phase = "completed";
-    state.turn = null;
-    events.push(publicEvent("game_completed", { results: state.results }));
-    return;
-  }
-
-  beginRound(state, state.round + 1, random, now, events);
+  state.phase = "completed";
+  state.turn = null;
+  events.push(publicEvent("game_completed", { results: state.results }));
 };
 
 const endCurrentTurn = (

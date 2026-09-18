@@ -81,6 +81,20 @@ describe("pending decisions cannot stall a room", () => {
       expect(state.objectiveSelection?.deadlineAt).toBe(START + 45_000);
     });
 
+    it("stays deterministic, taking the clock from the caller and never the wall", () => {
+      const build = () =>
+        createInitialGame({
+          gameId: "game-a",
+          roomId: "room-a",
+          players: setupPlayers,
+          random: createSeededRandom(99)
+        });
+      /* Two identical setups must be identical states. Reading Date.now() here
+         made them differ whenever the calls straddled a millisecond. */
+      expect(build()).toEqual(build());
+      expect(build().objectiveSelection?.deadlineAt).toBeUndefined();
+    });
+
     it("keeps the first offered objective when the timer expires", () => {
       const state = freshGame();
       const selection = state.objectiveSelection!;

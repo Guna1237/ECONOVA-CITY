@@ -64,8 +64,17 @@ export const createInitialGame = (input: {
     };
   }
 
+  /*
+   * Anchored to the caller's clock, never to `Date.now()`: setup must produce
+   * the same state twice from the same inputs, and reading a wall clock here
+   * silently broke that whenever two calls straddled a millisecond. A caller
+   * that supplies no clock gets no deadline rather than a nondeterministic
+   * one; the server always supplies one.
+   */
   const objectiveDeadlineAt =
-    (input.now ?? Date.now()) + GAME_CONFIG.pendingDecisionTimerSeconds * 1_000;
+    input.now === undefined
+      ? undefined
+      : input.now + GAME_CONFIG.pendingDecisionTimerSeconds * 1_000;
   const objectiveOffer = objectiveDeck.splice(0, 2);
   const firstPlayerId = turnOrder[0];
   if (firstPlayerId === undefined || objectiveOffer[0] === undefined || objectiveOffer[1] === undefined) {
@@ -102,7 +111,7 @@ export const createInitialGame = (input: {
     objectiveSelection: {
       playerId: firstPlayerId,
       offeredObjectiveIds: [objectiveOffer[0], objectiveOffer[1]],
-      deadlineAt: objectiveDeadlineAt
+      ...(objectiveDeadlineAt === undefined ? {} : { deadlineAt: objectiveDeadlineAt })
     },
     turn: null,
     auction: null,
@@ -171,7 +180,9 @@ export const chooseSecretObjective = (
     offeredObjectiveIds: [nextOffer[0], nextOffer[1]],
     // Each player gets their own fresh window, so one slow pick cannot eat
     // the next player's thinking time.
-    deadlineAt: (now ?? Date.now()) + GAME_CONFIG.pendingDecisionTimerSeconds * 1_000
+    ...(now === undefined
+      ? {}
+      : { deadlineAt: now + GAME_CONFIG.pendingDecisionTimerSeconds * 1_000 })
   };
   return next;
 };

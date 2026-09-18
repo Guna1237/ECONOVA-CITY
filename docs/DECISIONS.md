@@ -1862,6 +1862,32 @@ Not changed: property economics, movement, demand, influence, Council, card effe
 
 ---
 
+# DECISION-050 — An operator can end a session early and score it
+
+Status: APPROVED. Product-owner decision, 2026-09-18.
+
+Reaching Round 8 was the only route to a final score. That left two situations with no result at all:
+
+1. An event that runs past its slot had no way to produce a winner. The game simply stopped being played, with no scoring, no ranking and no closure for the table.
+2. A room that quarantined mid-game was unrecoverable. Quarantine correctly refuses every command so a suspect state cannot keep playing, but it also meant the session's entire history was lost rather than scored.
+
+Approved rule: an authenticated operator may end a session at any point after setup, supplying a logged reason. The game is scored exactly as it stands through the same `finalizeGame` path Round 8 uses, so an early result can never drift from a full one. No income is granted for the unfinished round.
+
+This supersedes the previous stance that `admin_end_game` stays disabled as an unsupported destructive action. That stance is reversed deliberately, on the grounds that the rules already sanction administrative overrides for exceptional situations, and that losing a session entirely is a worse outcome than ending it early. The guarantees that remain:
+
+- It requires an admin session bound to that room, and a player session forging the command is still refused.
+- It is version-checked like any other command, so it cannot act on a stale view.
+- The operator's reason is persisted in the admin audit trail and announced as `game_ended_by_operator`.
+- It is refused on a game that has not finished setup, and on one that has already finished.
+
+The single exception to quarantine: a quarantined room accepts this command and nothing else. That is safe because a failed transition is discarded before it reaches memory or persistence, so the state being scored is the last one that passed its invariants. A rescued room then reads as completed rather than staying flagged for review.
+
+Affected: `packages/game-engine` (`transitions.ts` scoring extracted to an exported `finalizeGame`, `admin.ts`), `apps/server/src/rooms/room-runtime.ts`. Covered by `packages/game-engine/test/end-game-early.test.ts` and `apps/server/test/end-game-rescue.test.ts`. The guard in `apps/server/test/admin-runtime.test.ts` now asserts the authorization boundary instead of unavailability.
+
+Not changed: scoring formula, tie-breakers, property economics, timers, or any player-facing rule.
+
+---
+
 # DECISION CHANGE RULE
 
 When superseding a decision:
