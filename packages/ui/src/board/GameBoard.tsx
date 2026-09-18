@@ -81,6 +81,9 @@ export const GameBoard = ({
               space={space}
               ownerSeat={ownerId === null ? null : seatOf(ownerId, state.turnOrder)}
               developmentLevel={record?.developmentLevel ?? 0}
+              active={state.phase === 'player_turn' && state.players.some(
+                (player) => player.playerId === currentPlayerId && player.position === space.position
+              )}
               selected={
                 space.type === 'property' && space.propertyId === selectedPropertyId
               }

@@ -78,7 +78,7 @@
  * ============================================================== */
 
 .eco-space {
-  --band: 13%;
+  --band: 7%;
   --owner: transparent;
 
   position: relative;
@@ -109,11 +109,25 @@
 /* Owned: the printed field takes the owner's tint. Subtle — the claim
    chip and the band stripe do the loud work. */
 .eco-space[data-owned='true'] {
-  background: color-mix(in srgb, var(--owner) 9%, var(--board-cell));
+  background: var(--board-cell);
 }
 
 .eco-space[data-owned='true'][data-interactive='true']:hover {
-  background: color-mix(in srgb, var(--owner) 15%, var(--board-cell));
+  background: var(--board-cell-lit);
+}
+
+.eco-space[data-active-space='true'] { background: #f7e9c9; }
+.eco-space[data-active-space='true']::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 2px solid var(--ink);
+  pointer-events: none;
+}
+.eco-space[data-interactive='true']:focus-visible {
+  outline: 3px solid var(--game-blue);
+  outline-offset: -3px;
+  z-index: 1;
 }
 
 /* Selected for inspection: brass keyline, drawn inside so the grid stays flush. */
@@ -397,6 +411,12 @@
   height: clamp(16px, 4.6cqw, 66px);
   color: var(--brass-lit);
   filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.8));
+}
+
+.eco-space__special .eco-nova-art {
+  width: 38%;
+  height: 6cqw;
+  margin-bottom: .8cqw;
 }
 
 .eco-space__special-name {
@@ -841,7 +861,7 @@
   }
 
   .eco-space {
-    --band: 11%;
+    --band: 7%;
     padding: 8%;
     align-items: flex-start;
   }
@@ -937,8 +957,8 @@
 .eco-space__owned-frame {
   position: absolute;
   inset: 0;
-  box-shadow: inset 0 0 0 3px var(--owner);
-  opacity: 0.9;
+  box-shadow: inset 0 0 0 1px var(--owner);
+  opacity: 0.65;
   pointer-events: none;
 }
 
@@ -1014,16 +1034,16 @@
   }
 
   .eco-space__name {
-    font-size: clamp(6px, 1.9cqw, 12px);
-    line-height: 1.02;
+    font-size: clamp(9px, 2.15cqw, 14px);
+    line-height: 1.15;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
-  .eco-space[data-corner='true'] .eco-space__name { font-size: clamp(6px, 2.1cqw, 13px); }
+  .eco-space[data-corner='true'] .eco-space__name { font-size: clamp(9px, 2.15cqw, 14px); }
 
   /* Print and city cannot share the same band at this size. */
   .eco-space__motif {
@@ -1041,7 +1061,7 @@
 
   .eco-space__claim { padding: 1px 4px; }
 
-  .eco-space__owned-frame { box-shadow: inset 0 0 0 2px var(--owner); }
+  .eco-space__owned-frame { box-shadow: inset 0 0 0 1px var(--owner); }
 
   .eco-space[data-corner='true'] .eco-space__special svg {
     width: clamp(14px, 4.6cqw, 30px);
@@ -1049,7 +1069,7 @@
   }
 
   .eco-space[data-corner='true'] .eco-space__special-name,
-  .eco-space__special-name { font-size: clamp(6px, 1.8cqw, 12px); }
+  .eco-space__special-name { font-size: clamp(9px, 2.1cqw, 13px); }
 
   .eco-centre__mark { display: none; }
   .eco-centre { padding: 7% 5% 6%; }
@@ -1057,6 +1077,14 @@
   .eco-centre .eco-dice { --die-size: clamp(26px, 7cqw, 40px); }
   .eco-board .eco-piece { --piece-size: clamp(12px, 4.6cqw, 22px); }
   .eco-space__pieces { inset: auto 4% 4% auto; }
+}
+
+@container (max-width: 450px) {
+  .eco-space__district, .eco-space__motif, .eco-space__no { display: none; }
+  .eco-space__special .eco-nova-art { height: 6.5cqw; margin-bottom: 1cqw; }
+  .eco-space__built { height: 22%; width: 50%; left: 28%; }
+  .eco-space__pieces { max-width: 90%; flex-wrap: wrap; justify-content: flex-end; gap: 0; }
+  .eco-space__claim { font-size: 8px; }
 }
 
 /* =================================================================

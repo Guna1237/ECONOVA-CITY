@@ -1,8 +1,9 @@
 import { useLayoutEffect, useRef, type RefObject } from 'react';
 
 const SPACES = 20;
-/** A die is 1–6, so no legal move is longer than six spaces in either direction. */
-const MAX_TRAVEL = 6;
+/** Canonical Section 10.4: forward includes up to +2 Entertainment movement. */
+const MAX_FORWARD_TRAVEL = 8;
+const MAX_BACKWARD_TRAVEL = 6;
 
 interface Traveller {
   readonly playerId: string;
@@ -90,14 +91,14 @@ const centreOf = (root: HTMLElement, position: number): Point | null => {
 
 /**
  * The spaces crossed, inclusive of both ends. Forward is the normal direction;
- * backward only happens through the Shortcut card, and a legal move in either
- * direction is at most six spaces, which makes the direction unambiguous.
+ * backward only happens through Shortcut (at most six). Forward can be eight
+ * with Entertainment control. These ranges do not overlap on a 20-space board.
  */
 export const travelPath = (from: number, to: number): readonly number[] | null => {
   const forward = (to - from + SPACES) % SPACES;
   const backward = (from - to + SPACES) % SPACES;
 
-  const step = forward <= MAX_TRAVEL ? 1 : backward <= MAX_TRAVEL ? -1 : 0;
+  const step = forward <= MAX_FORWARD_TRAVEL ? 1 : backward <= MAX_BACKWARD_TRAVEL ? -1 : 0;
   if (step === 0) return null;
 
   const length = step === 1 ? forward : backward;

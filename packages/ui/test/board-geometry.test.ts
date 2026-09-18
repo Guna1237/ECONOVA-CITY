@@ -75,6 +75,12 @@ describe("board geometry", () => {
     expect(travelPath(0, 9)).toBeNull();
   });
 
+  it("animates confirmed seven/eight-space Entertainment movement without changing the die", () => {
+    expect(travelPath(0, 7)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+    expect(travelPath(17, 5)).toEqual([17, 18, 19, 0, 1, 2, 3, 4, 5]);
+    expect(travelPath(8, 1)).toBeNull();
+  });
+
   it("renders each canonical property exactly once", () => {
     const propertyIds = BOARD_SPACES.filter(
       (space) => space.type === "property"

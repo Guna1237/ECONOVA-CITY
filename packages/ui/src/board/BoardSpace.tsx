@@ -3,7 +3,8 @@ import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import { PROPERTY_BY_ID, type BoardSpace as BoardSpaceContent } from '@econova/game-content';
 
 import { Development } from '../marks/Buildings.js';
-import { DistrictMark, SPECIAL_MARKS } from '../marks/Marks.js';
+import { DistrictMark } from '../marks/Marks.js';
+import { NovaArt, type NovaArtKind } from '../marks/NovaArt.js';
 import { PropertyMotif } from '../marks/Motifs.js';
 import {
   DISTRICTS,
@@ -19,6 +20,11 @@ const SPECIAL_NOTE: Record<string, string> = {
   observatory: 'Special event'
 };
 
+const SPECIAL_ART: Record<string, NovaArtKind> = {
+  city_center: 'civic', innovation_hub: 'idea',
+  market_square: 'market', observatory: 'event'
+};
+
 export interface BoardSpaceProps {
   readonly space: BoardSpaceContent;
   /** Null when unowned. Public information only. */
@@ -26,6 +32,7 @@ export interface BoardSpaceProps {
   readonly developmentLevel: 0 | 1 | 2 | 3;
   readonly selected?: boolean;
   readonly destination?: boolean;
+  readonly active?: boolean;
   readonly onSelect?: ((space: BoardSpaceContent) => void) | undefined;
   readonly children?: ReactNode;
 }
@@ -41,11 +48,13 @@ export const BoardSpace = ({
   developmentLevel,
   selected = false,
   destination = false,
+  active = false,
   onSelect,
   children
 }: BoardSpaceProps): ReactElement => {
   const cell = cellForPosition(space.position);
   const interactive = space.type === 'property' && onSelect !== undefined;
+  const SpaceElement = interactive ? 'button' : 'div';
 
   const style = {
     gridRow: cell.row,
@@ -63,17 +72,18 @@ export const BoardSpace = ({
     'data-owned': ownerSeat !== null,
     'data-selected': selected,
     'data-destination': destination,
+    'data-active-space': active,
     'data-interactive': interactive
   } as const;
 
   if (space.type === 'special') {
-    const Mark = SPECIAL_MARKS[space.specialId];
+    const art = SPECIAL_ART[space.specialId];
     return (
       <div {...shared}>
         <span className="eco-space__band" />
         <span className="eco-space__no" aria-hidden="true">{space.position}</span>
         <span className="eco-space__special">
-          {Mark === undefined ? null : <Mark />}
+          {art === undefined ? null : <NovaArt kind={art} />}
           <span className="eco-space__special-name">{space.name}</span>
           <span className="eco-space__special-note">
             {SPECIAL_NOTE[space.specialId] ?? ''}
@@ -91,12 +101,12 @@ export const BoardSpace = ({
   const district = DISTRICTS[property.district];
 
   return (
-    <button
+    <SpaceElement
       {...shared}
-      type="button"
+      {...(interactive ? { type: 'button' as const } : {})}
       style={{ ...style, ...district.vars } as CSSProperties}
-      onClick={() => onSelect?.(space)}
-      aria-pressed={selected}
+      onClick={interactive ? () => onSelect?.(space) : undefined}
+      aria-pressed={interactive ? selected : undefined}
       aria-label={`${property.name}, ${district.label} district, ${
         ownerSeat === null ? 'unowned' : `owned by player ${ownerSeat.index + 1}`
       }, development level ${developmentLevel}`}
@@ -104,7 +114,6 @@ export const BoardSpace = ({
       <span className="eco-space__band" />
       {ownerSeat === null ? null : (
         <>
-          <span className="eco-space__claim-stripe" />
           <span className="eco-space__owned-frame" aria-hidden="true" />
         </>
       )}
@@ -129,7 +138,7 @@ export const BoardSpace = ({
 
       <span className="eco-space__foot">
         {ownerSeat === null ? (
-          <span className="eco-space__price">{formatCredits(property.basePrice)}</span>
+          <span className="eco-space__price"><span>Base </span>{formatCredits(property.basePrice)}</span>
         ) : (
           <span className="eco-space__claim" aria-hidden="true">
             {ownerSeat.index + 1}
@@ -138,6 +147,6 @@ export const BoardSpace = ({
       </span>
 
       <span className="eco-space__pieces">{children}</span>
-    </button>
+    </SpaceElement>
   );
 };

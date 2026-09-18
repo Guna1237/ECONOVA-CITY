@@ -1,0 +1,95 @@
+/* Public centre of the Nova board. Type follows the board's container,
+   with a separate compact composition rather than a shrunken desktop UI. */
+.eco-board-hub {
+  grid-area: 2 / 2 / 6 / 6;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 3cqw;
+  min-width: 0;
+  padding: 3cqw;
+  background: var(--board-plate);
+  color: var(--ink);
+  overflow: hidden;
+}
+.eco-board-hub__brand {
+  display: flex;
+  align-items: center;
+  gap: 1.2cqw;
+  padding-bottom: 1.8cqw;
+  border-bottom: 1px solid var(--board-rule);
+}
+.eco-board-hub__brand .eco-crest__mark { width: 5.5cqw; height: 5.5cqw; }
+.eco-board-hub__wordmark {
+  display: flex;
+  flex-direction: column;
+  font: 800 2.4cqw/1 var(--font-display);
+  letter-spacing: -.03em;
+}
+.eco-board-hub__wordmark > span { color: var(--game-red); letter-spacing: .28em; font-size: .65em; margin-top: .3em; }
+.eco-board-hub__round { margin-left: auto; font-size: 1.5cqw; white-space: nowrap; }
+.eco-board-hub__round strong { font-size: 2.5cqw; font-variant-numeric: tabular-nums; }
+.eco-board-hub__round > span { color: var(--ink-soft); }
+.eco-board-hub__moment {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: center;
+  align-items: center;
+  column-gap: 2cqw;
+  row-gap: 1.7cqw;
+  min-height: 0;
+}
+.eco-board-hub .eco-board-hub__art { grid-column: 1 / -1; width: 14cqw; height: 10cqw; justify-self: start; }
+.eco-board-hub__turn { display: grid; gap: .65cqw; min-width: 0; }
+.eco-board-hub__caption { font-size: 1.5cqw; color: var(--ink-soft); }
+.eco-board-hub__player { font: 800 4cqw/1.1 var(--font-display); overflow-wrap: anywhere; }
+.eco-board-hub__activity { font-size: 1.8cqw; font-weight: 700; }
+.eco-board-hub__location { font-size: 1.45cqw; color: var(--ink-soft); line-height: 1.4; }
+.eco-board-hub__roll { display: grid; justify-items: center; gap: 1cqw; }
+.eco-board-hub__roll .eco-dice { --die-size: 6.5cqw; }
+.eco-board-hub__roll > span:last-child { font-size: 1.25cqw; color: var(--ink-soft); }
+.eco-board-hub__footer { min-width: 0; }
+.eco-board-hub__order { display: flex; gap: 1.2cqw; margin-bottom: 2.4cqw; }
+.eco-board-hub__seat { display: flex; align-items: center; gap: .5cqw; color: var(--seat); font: 700 1.2cqw var(--font-numeric); opacity: .65; }
+.eco-board-hub__seat svg { width: 2.6cqw; height: 3cqw; }
+.eco-board-hub__seat[data-active='true'] { opacity: 1; text-decoration: underline; text-underline-offset: .4em; }
+.eco-board-hub__market-title { font-size: 1.4cqw; font-weight: 700; margin-bottom: 1cqw; }
+.eco-board-hub__market { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7cqw; }
+.eco-board-hub__district {
+  display: grid;
+  justify-items: center;
+  gap: .45cqw;
+  padding: 1cqw .3cqw;
+  background: var(--district-deep);
+  border: 1px solid color-mix(in srgb, var(--district) 32%, transparent);
+  border-radius: 4px;
+}
+.eco-board-hub__district svg { width: 1.6cqw; height: 1.6cqw; color: var(--district-lit); }
+.eco-board-hub__district > span { font-size: 1.08cqw; font-weight: 600; color: var(--ink); }
+.eco-board-hub__district strong { font: 700 2.2cqw/1.15 var(--font-numeric); }
+
+@container (max-width: 620px) {
+  .eco-board-hub { padding: 2.6cqw; gap: 2cqw; }
+  .eco-board-hub__brand { gap: 1.5cqw; padding-bottom: 1.5cqw; }
+  .eco-board-hub__brand .eco-crest__mark { width: 7cqw; height: 7cqw; }
+  .eco-board-hub__wordmark { font-size: 3cqw; }
+  .eco-board-hub__round { font-size: 2.7cqw; }
+  .eco-board-hub__round strong { font-size: 3.5cqw; }
+  .eco-board-hub__round > span { display: none; }
+  .eco-board-hub .eco-board-hub__art, .eco-board-hub__order { display: none; }
+  .eco-board-hub__caption { font-size: 2.6cqw; }
+  .eco-board-hub__player { font-size: 5cqw; }
+  .eco-board-hub__activity { font-size: 3cqw; }
+  .eco-board-hub__location { font-size: 2.6cqw; }
+  .eco-board-hub__roll .eco-dice { --die-size: 8cqw; }
+  .eco-board-hub__roll > span:last-child { display: none; }
+  .eco-board-hub__market-title { font-size: 2.6cqw; }
+  .eco-board-hub__market { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1cqw; }
+  .eco-board-hub__district { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 1cqw; padding: 1cqw; }
+  .eco-board-hub__district svg { width: 2.5cqw; height: 2.5cqw; }
+  .eco-board-hub__district > span { justify-self: start; font-size: 2.15cqw; }
+  .eco-board-hub__district strong { font-size: 2.8cqw; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .eco-board-hub__district strong { animation: eco-demand-change 220ms ease-out; }
+  @keyframes eco-demand-change { from { opacity: .3; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+}

@@ -44,6 +44,13 @@
   height: 100%;
 }
 
+/* Timed controls and notices must never squeeze the board into a thumbnail.
+   On portrait phones, let the page scroll instead of sacrificing legibility. */
+@media (max-width: 999px) and (orientation: portrait) {
+  .player-shell { height: auto; min-height: 100dvh; overflow: visible; grid-template-rows: auto auto auto auto; }
+  .player-stage__wrap { height: min(calc(100vw - 16px), 620px); }
+}
+
 /* ---- status rail ----
  *
  * On a phone this is two lines: who is up now, then what I hold. On a wider
