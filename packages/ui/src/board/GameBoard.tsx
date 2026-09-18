@@ -44,7 +44,7 @@ export const GameBoard = ({
     ])
   );
 
-  const currentPlayerId = state.turn?.playerId ?? null;
+  const currentPlayerId = state.phase === 'player_turn' ? state.turn?.playerId ?? null : null;
 
   /* A roll is presented as a tumble only when a new value arrives from the
      server. The die never spins speculatively. */

@@ -3,6 +3,26 @@
 
 This file records bugs, security issues, architectural concerns, performance problems, gameplay inconsistencies, and QA findings.
 
+## REVIEW-033: Frontend bundle-size warnings need measured follow-up
+
+SEVERITY: MEDIUM
+
+AREA: Frontend loading performance
+
+FILE: apps/player, apps/projector, apps/admin production bundles
+
+PROBLEM: The final 2026-09-18 production build passes but Vite reports JavaScript chunks above its warning threshold. Measured raw/gzip bytes are Player 655,742/191,661, Projector 568,403/173,192, and Admin 539,598/157,015. Event-device startup cost has not been measured in this visual pass.
+
+REPRODUCTION: Run `npm run build` and inspect the emitted app JavaScript assets and warnings.
+
+IMPACT: Possible slower first load on student phones and shared event Wi-Fi. No startup failure was observed in the local browser checks.
+
+RECOMMENDED FIX: Profile the entry dependency graphs and first-load cost, then split genuinely deferred functionality where it improves measured loading. Preserve shared contracts and package asset resolution. Do not merely increase warning limits or add speculative chunk configuration.
+
+TEST REQUIRED: Production build, cold-cache mobile loading, action/guide availability after lazy-load failures, and existing multiplayer/browser regressions.
+
+STATUS: OPEN. This follow-up does not invalidate the passing build or 402-test suite. See `docs/qa/BOARD_REFINEMENT_2026-09-18.md`.
+
 ## REVIEW-032: A database blip froze a live game
 
 SEVERITY: HIGH

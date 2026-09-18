@@ -107,6 +107,7 @@ export const BoardSpace = ({
       style={{ ...style, ...district.vars } as CSSProperties}
       onClick={interactive ? () => onSelect?.(space) : undefined}
       aria-pressed={interactive ? selected : undefined}
+      title={property.name}
       aria-label={`${property.name}, ${district.label} district, ${
         ownerSeat === null ? 'unowned' : `owned by player ${ownerSeat.index + 1}`
       }, development level ${developmentLevel}`}

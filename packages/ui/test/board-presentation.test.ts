@@ -5,6 +5,7 @@ import type { PlayerId, PublicProjectionDto, RoomId } from '@econova/contracts';
 import { BOARD_SPACES } from '@econova/game-content';
 import { CityCentre } from '../src/board/CityCentre.js';
 import { BoardSpace } from '../src/board/BoardSpace.js';
+import { GameBoard } from '../src/board/GameBoard.js';
 
 const id = 'board-player' as PlayerId;
 const state: PublicProjectionDto = {
@@ -33,6 +34,9 @@ describe('shared board presentation', () => {
     expect(html).not.toContain('Ready to roll');
     expect(html).not.toContain('data-active="true"');
     expect(html).not.toContain('eco-dice');
+    const board = renderToStaticMarkup(createElement(GameBoard, { state: { ...state, phase: 'paused' } }));
+    expect(board).not.toContain('data-active="true"');
+    expect(board).not.toContain('data-active-space="true"');
   });
   it('renders only the authoritative roll, independent of movement distance', () => {
     expect(render({ ...state, turn: { ...state.turn!, roll: 6 } })).toContain('Rolled 6');

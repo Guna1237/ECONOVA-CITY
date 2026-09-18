@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 
-import { BREAKING_NEWS, POLICY_BY_ID } from '@econova/game-content';
+import { BREAKING_NEWS, POLICY_BY_ID, PROPERTY_BY_ID } from '@econova/game-content';
 import {
   Button,
   GameBoard,
@@ -36,10 +36,10 @@ import '@econova/ui/tokens.css';
 import './app.css';
 
 const PANEL_TITLE: Record<Exclude<PanelId, null>, string> = {
-  holdings: 'Your holdings',
+  holdings: 'Your properties',
   cards: 'Strategy cards',
   objective: 'Secret objective',
-  roster: 'At the table'
+  roster: 'Players'
 };
 
 const Table = (): ReactElement => {
@@ -137,8 +137,8 @@ const Table = (): ReactElement => {
 
       {inspecting === null ? null : (
         <Sheet
-          title="Property record"
-          kicker="City register"
+          title={PROPERTY_BY_ID.get(inspecting)?.name ?? 'Property details'}
+          kicker="Property details"
           onClose={() => setInspecting(null)}
         >
           <PropertyPanel propertyId={inspecting} onClose={() => setInspecting(null)} />

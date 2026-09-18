@@ -252,7 +252,7 @@ export const ObjectivePanel = (): ReactElement => {
 
   return (
     <div className="eco-decision">
-      <div className="eco-decision__question">Yours alone — no one else can see this</div>
+      <div className="eco-decision__question">Private from other players</div>
       <div className="eco-card" style={{ minHeight: 0 }}>
         <span className="eco-card__timing">Secret objective</span>
         <span className="eco-card__name">{objective.name}</span>
@@ -308,7 +308,7 @@ export const RosterPanel = (): ReactElement => {
         );
       })}
       <p className="eco-empty" style={{ padding: 'var(--s3) 0 0' }}>
-        Credits, influence, cards and objectives stay private to each player.
+        Other players cannot see your Credits, Influence, cards, or secret objective.
       </p>
     </div>
   );

@@ -5,6 +5,10 @@ This file tracks authorized work and its ownership.
 
 No agent should invent major tasks without authorization.
 
+## Board refinement and guidance: 2026-09-18
+
+Owner: Codex. IMPLEMENTED and verified: icon-led board, clear turn/Demand centre, phone sizing, named property details, reading-the-board guide, and shareable player messages. Report: `docs/qa/BOARD_REFINEMENT_2026-09-18.md`. Typecheck/build PASS; 402 tests pass, one dedicated-database test skipped. Earlier full-suite failures below no longer reproduce in this final run. Remaining validation: live authenticated two-room browser flows, required decisions/reconnect, Admin visual QA, event-device performance and large-bundle investigation. Preserve concurrent backend work; do not reopen architecture or alter rules for visual polish.
+
 ## Nova artwork implementation: 2026-09-18
 
 Owner: Codex. The requested theme/help slice is IMPLEMENTED, with 61 focused tests and production build/typecheck passing. Report: `docs/qa/NOVA_THEME_2026-09-18.md`. Backend full-suite failures remain OPEN and belong to the concurrent backend pass; no server/engine edits here. Required-decision live-browser coverage, Projector/Admin visual review and modified-cost display remain. Preserve current shared work; no commit/deployment in this slice.

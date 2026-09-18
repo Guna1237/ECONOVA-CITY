@@ -64,7 +64,8 @@ export const CityCentre = ({ state, rolling = false }: CityCentreProps): ReactEl
               title={`${player.name}${player.connected ? '' : ', disconnected'}`}>
               <SeatPiece shape={identity.shape} />
               <span>{identity.index + 1}</span>
-              <span className="eco-visually-hidden">{player.name}{player.connected ? '' : ', disconnected'}</span>
+              <span className="eco-board-hub__seat-name">{player.name}</span>
+              {player.connected ? null : <span className="eco-visually-hidden">Disconnected</span>}
             </span>;
           })}
         </div>

@@ -3,6 +3,12 @@
 
 This file communicates important work between AI agents.
 
+## Board refinement handoff: 2026-09-18
+
+Continue from `docs/qa/BOARD_REFINEMENT_2026-09-18.md`, not the older failing-suite checkpoint below. Typecheck/build pass; full suite is 402 passed with one deliberate PostgreSQL skip. Keep original PNG-derived WebP art, crest, named property dialogs, compact portrait sizing, public-state-only board hub, and presentation-only eight-space Entertainment animation support. No engine/server/contract changes in this slice.
+
+Browser preview/demo coverage includes 320/390/768px Player, desktop Player, and 1920px Projector, plus property/help keyboard interactions. Next verify live authenticated two-room play and reconnect, mandatory decisions with nested help, real devices/reduced motion, and investigate measured bundle sizes without weakening Vite warnings. Player dev preview remains on 127.0.0.1:15173 and Projector demo on 127.0.0.1:15174/?demo=1. Preserve concurrent backend/pricing edits and policy state; no commit/deployment performed here.
+
 ## Nova theme implementation handoff: 2026-09-18
 
 The owner's subsequent implementation request supersedes the audit-only hold below. Current deliverable: `docs/qa/NOVA_THEME_2026-09-18.md`. Preserve extracted WebP art, original crest, shared native-dialog Sheet, HowToPlay integration, and the newer Council/Develop/Influence fixes already committed by other work. The extraction script is developer-only; production copies checked-in assets and does not require Python/PDF access.

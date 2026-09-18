@@ -726,8 +726,7 @@
   border-radius: var(--radius-plate);
   background: var(--room-bg-lift);
   box-shadow:
-    inset 0 0 0 1px var(--board-rule),
-    inset 4px 0 0 var(--brief-accent, var(--ink-ghost));
+    inset 0 0 0 1px color-mix(in srgb, var(--brief-accent, var(--ink-ghost)) 40%, var(--board-rule));
 }
 
 /* Tone says whose move it is before a single word is read. */

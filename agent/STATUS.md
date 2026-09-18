@@ -3,6 +3,12 @@
 
 This file records the current development state.
 
+## Board refinement: 2026-09-18 (Codex)
+
+Implemented the owner-requested board continuation: original PNG icons and crest, clearer turn/Demand centre, readable property labels, separated development/ownership cues, short-phone layout fix, named property dialogs, paused-state presentation, and Reading the board help. Added shareable `docs/PLAYER_MESSAGES.md`. Full footprint and evidence: `docs/qa/BOARD_REFINEMENT_2026-09-18.md`.
+
+Final typecheck and complete production build PASS. Full suite: 402 passed, one intentional PostgreSQL skip; this supersedes the earlier failing-suite checkpoint below. Browser Player preview and Projector demo checks pass, including 320px no-overflow, loaded art, property/help modal focus, and non-interactive Projector tiles. No backend/engine/rule changes by this pass. Remaining: large-chunk warnings, real authenticated multiplayer/reconnect and event-device performance QA. Concurrent changes preserved; no commit/deployment by this pass.
+
 ## Nova theme and in-game guide: 2026-09-18 (Codex)
 
 Implemented the owner-requested icon-based Player welcome/theme, preserved the real crest, added How to play at entry/lobby/play/required decisions, fixed modal focus/dismissibility, improved reconnect wording and preview exit, and changed timer progress to transform. Eight lossless source-art extracts total 232,108 bytes. No engine/server/contract changes by this pass. See `docs/qa/NOVA_THEME_2026-09-18.md` for the file list and evidence.
