@@ -232,6 +232,32 @@ export const playerProjectionSchema = z
           .nullable(),
         councilAllocation: councilAllocationSchema.nullable(),
         trade: tradeSchema.nullable(),
+        /*
+         * The prices the server will actually charge this player right now,
+         * after policies, news, district control and card effects. Present
+         * only during the player's own turn; optional so a client that shows
+         * base figures still validates, and must then label them as base.
+         */
+        quotes: z
+          .object({
+            purchase: z
+              .object({
+                propertyId: propertyIdSchema,
+                price: z.number().int().nonnegative()
+              })
+              .strict()
+              .nullable(),
+            development: z.array(
+              z
+                .object({
+                  propertyId: propertyIdSchema,
+                  cost: z.number().int().nonnegative()
+                })
+                .strict()
+            )
+          })
+          .strict()
+          .optional(),
         capabilities: interactionCapabilitiesSchema
       })
       .strict()

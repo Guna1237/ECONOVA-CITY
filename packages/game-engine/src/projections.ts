@@ -2,6 +2,7 @@ import type { ClientCommandType, InteractionCapabilities } from "@econova/contra
 
 import { GameRuleError } from "./errors.js";
 import type { GameState } from "./state.js";
+import { quotePrices } from "./transitions.js";
 
 const interactionCapabilities = (
   state: GameState,
@@ -214,6 +215,9 @@ export const createPlayerProjection = (state: GameState, playerId: string) => {
             },
       councilAllocation: ownCouncilAllocation ?? null,
       trade,
+      /* The prices this player will actually be charged, not the base figures.
+         Private to the player because card effects are part of the price. */
+      quotes: quotePrices(state, playerId),
       capabilities: interactionCapabilities(state, playerId)
     }
   };

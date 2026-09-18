@@ -606,6 +606,61 @@ const developmentCostFor = (
   });
 };
 
+export interface PriceQuotes {
+  readonly purchase: { readonly propertyId: string; readonly price: number } | null;
+  readonly development: readonly { readonly propertyId: string; readonly cost: number }[];
+}
+
+/**
+ * What this player would actually pay right now, from the same functions
+ * that charge them.
+ *
+ * Purchase and development prices move with policies, breaking news, district
+ * control and card effects, so the canonical base figures are not what a
+ * player is charged. Quoting through `purchasePriceFor` and
+ * `developmentCostFor` means the number a player sees is the number the
+ * server will take, and the client never has to reproduce the modifier order.
+ *
+ * Quotes exist only during this player's own turn, because several modifiers
+ * are effects of the current turn and are undefined for anyone else's. This
+ * reads state and changes nothing.
+ */
+export const quotePrices = (state: GameState, playerId: string): PriceQuotes => {
+  const none: PriceQuotes = { purchase: null, development: [] };
+  const turn = state.turn;
+  if (state.phase !== "player_turn" || turn === null || turn.playerId !== playerId) return none;
+  const player = state.players[playerId];
+  if (player === undefined) return none;
+
+  let purchase: PriceQuotes["purchase"] = null;
+  if (turn.stage === "awaiting_property_decision") {
+    const space = BOARD_SPACES[player.position];
+    const property =
+      space?.type === "property" ? state.properties[space.propertyId] : undefined;
+    if (property !== undefined && property.ownerId === null) {
+      purchase = { propertyId: property.id, price: purchasePriceFor(state, property) };
+    }
+  }
+
+  const development =
+    turn.stage === "action_phase"
+      ? player.propertyIds.flatMap((propertyId) => {
+          const property = state.properties[propertyId];
+          if (
+            property === undefined ||
+            property.developmentLevel >= GAME_CONFIG.maximumDevelopmentLevel ||
+            property.purchasedOnTurn === turn.number ||
+            property.receivedOnTurn === turn.number
+          ) {
+            return [];
+          }
+          return [{ propertyId, cost: developmentCostFor(state, playerId, property) }];
+        })
+      : [];
+
+  return { purchase, development };
+};
+
 const developProperty = (
   state: GameState,
   playerId: string,

@@ -13,6 +13,7 @@ import {
 
 import { usePlayerSession } from '../state/PlayerSession.js';
 import { HINTS, briefFor } from '../state/briefing.js';
+import { priceLabel, purchasePrice } from '../state/prices.js';
 import { useHints } from '../state/useHints.js';
 import {
   CardsPanel,
@@ -115,6 +116,12 @@ export const ActionDock = ({
       </>
     );
   } else if (stage === 'awaiting_property_decision' && standingOn !== null) {
+    const buyPrice = purchasePrice(projection, standingOn);
+    /* Only a quoted price may block the button. A base figure can sit above
+       what a discount makes the real price, so blocking on it could stop a
+       purchase the rules allow. */
+    const cannotAfford =
+      buyPrice !== null && buyPrice.charged && self.credits < buyPrice.amount;
     actions = (
       <>
         <Button
@@ -132,13 +139,13 @@ export const ActionDock = ({
         <Button
           tone="commit"
           request={requestState('buy-dock')}
-          hint={formatCredits(standingDefinition?.basePrice ?? 0)}
-          disabled={!can('buy_property')}
+          hint={buyPrice === null ? undefined : priceLabel(buyPrice, formatCredits)}
+          disabled={!can('buy_property') || cannotAfford}
           title={
-            can('buy_property')
-              ? undefined
-              : self.credits < (standingDefinition?.basePrice ?? 0)
-                ? `You hold ${formatCredits(self.credits)} and this costs ${formatCredits(standingDefinition?.basePrice ?? 0)}`
+            cannotAfford && buyPrice !== null
+              ? `You hold ${formatCredits(self.credits)} and this costs ${formatCredits(buyPrice.amount)}`
+              : can('buy_property')
+                ? undefined
                 : 'Buying is not available right now'
           }
           onClick={() =>

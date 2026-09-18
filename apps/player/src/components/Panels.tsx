@@ -87,10 +87,33 @@ export const PropertyPanel = ({
   const developKey = `develop:${propertyId}`;
   const buyKey = `buy:${propertyId}`;
 
-  const nextLevelCost = level === 3 ? null : definition.developmentCosts[level];
+  /*
+   * This panel opens for any property on the board, but the capabilities
+   * describe the turn, not the property: `buy_property` is granted for the
+   * space the player is standing on, and `develop_property` whenever they own
+   * something. Offering both for whatever was tapped put Buy on properties
+   * the server always refuses. The server's quotes name exactly which
+   * property can be bought and which can be developed, so they decide.
+   */
+  const quotes = self.quotes;
+  const me = view.players.find((player) => player.playerId === self.playerId);
+  const standingSpace = me === undefined ? undefined : BOARD_SPACES[me.position];
+  const standingHere =
+    standingSpace?.type === 'property' && standingSpace.propertyId === propertyId;
+
+  const buyPrice = purchasePrice(projection, propertyId);
+  const developPrice = level === 3 ? null : developmentPrice(projection, propertyId, level);
+
+  const canBuy =
+    record.ownerId === null &&
+    can('buy_property') &&
+    (quotes === undefined ? standingHere : quotes.purchase?.propertyId === propertyId);
   const canDevelop =
-    mine && nextLevelCost !== null && can('develop_property');
-  const canBuy = record.ownerId === null && can('buy_property');
+    mine &&
+    developPrice !== null &&
+    can('develop_property') &&
+    (quotes === undefined ||
+      quotes.development.some((entry) => entry.propertyId === propertyId));
 
   return (
     <>
@@ -108,7 +131,7 @@ export const PropertyPanel = ({
               tone="commit"
               block
               request={requestState(buyKey)}
-              hint={formatCredits(definition.basePrice)}
+              hint={buyPrice === null ? undefined : priceLabel(buyPrice, formatCredits)}
               onClick={() =>
                 dispatch(buyKey, { type: 'buy_property', propertyId: propertyId as never })
               }
@@ -121,7 +144,7 @@ export const PropertyPanel = ({
               tone="primary"
               block
               request={requestState(developKey)}
-              hint={formatCredits(nextLevelCost ?? 0)}
+              hint={developPrice === null ? undefined : priceLabel(developPrice, formatCredits)}
               onClick={() =>
                 dispatch(developKey, {
                   type: 'develop_property',
