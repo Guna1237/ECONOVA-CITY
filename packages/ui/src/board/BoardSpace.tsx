@@ -15,9 +15,9 @@ import {
 
 const SPECIAL_NOTE: Record<string, string> = {
   city_center: 'Passing bonus',
-  innovation_hub: 'Strategy card',
-  market_square: 'Special event',
-  observatory: 'Special event'
+  innovation_hub: 'Random event',
+  market_square: 'Random event',
+  observatory: 'Random event'
 };
 
 const SPECIAL_ART: Record<string, NovaArtKind> = {
@@ -53,7 +53,7 @@ export const BoardSpace = ({
   children
 }: BoardSpaceProps): ReactElement => {
   const cell = cellForPosition(space.position);
-  const interactive = space.type === 'property' && onSelect !== undefined;
+  const interactive = onSelect !== undefined;
   const SpaceElement = interactive ? 'button' : 'div';
 
   const style = {
@@ -79,7 +79,11 @@ export const BoardSpace = ({
   if (space.type === 'special') {
     const art = SPECIAL_ART[space.specialId];
     return (
-      <div {...shared}>
+      <SpaceElement {...shared}
+        {...(interactive ? { type: 'button' as const } : {})}
+        onClick={interactive ? () => onSelect?.(space) : undefined}
+        aria-label={interactive ? `${space.name}: what happens here?` : space.name}
+        aria-haspopup={interactive ? 'dialog' : undefined}>
         <span className="eco-space__band" />
         <span className="eco-space__no" aria-hidden="true">{space.position}</span>
         <span className="eco-space__special">
@@ -89,8 +93,9 @@ export const BoardSpace = ({
             {SPECIAL_NOTE[space.specialId] ?? ''}
           </span>
         </span>
+        {interactive ? <span className="eco-space__info" aria-hidden="true">i</span> : null}
         <span className="eco-space__pieces">{children}</span>
-      </div>
+      </SpaceElement>
     );
   }
 

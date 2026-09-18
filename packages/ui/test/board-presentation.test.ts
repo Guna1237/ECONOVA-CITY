@@ -57,4 +57,21 @@ describe('shared board presentation', () => {
     expect(html).toContain('City Center');
     expect(html).not.toContain('START HERE');
   });
+  it.each(BOARD_SPACES.filter((space) => space.type === 'special'))(
+    'offers accessible read-only help for $name only on an interactive board',
+    (space) => {
+      const props = { space, ownerSeat: null, developmentLevel: 0 as const };
+      const player = renderToStaticMarkup(createElement(BoardSpace, { ...props, onSelect: () => undefined }));
+      expect(player).toContain('<button');
+      expect(player).toContain('aria-haspopup="dialog"');
+      expect(player).toContain(`${space.name}: what happens here?`);
+      expect(renderToStaticMarkup(createElement(BoardSpace, props))).not.toContain('<button');
+    }
+  );
+  it('labels Innovation Hub as a random event, not a guaranteed card draw', () => {
+    const space = BOARD_SPACES.find((entry) => entry.type === 'special' && entry.specialId === 'innovation_hub')!;
+    const html = renderToStaticMarkup(createElement(BoardSpace, { space, ownerSeat: null, developmentLevel: 0 }));
+    expect(html).toContain('Random event');
+    expect(html).not.toContain('Strategy card');
+  });
 });

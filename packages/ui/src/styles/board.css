@@ -379,8 +379,7 @@
  * ============================================================== */
 
 .eco-space[data-kind='special'] {
-  background:
-    linear-gradient(155deg, #fdf4e2, #f7ecd6 62%);
+  background: var(--board-field);
   align-items: flex-start;
   justify-content: center;
   text-align: center;
@@ -431,11 +430,30 @@
 }
 
 .eco-space__special-note {
-  font-size: clamp(5px, 0.75cqw, 11px);
+  font-size: clamp(9px, 1.05cqw, 15px);
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--brass);
+  color: var(--ink-soft);
+}
+
+.eco-space__info {
+  position: absolute;
+  top: 10%;
+  right: 7%;
+  display: grid;
+  place-items: center;
+  width: clamp(12px, 1.8cqw, 22px);
+  aspect-ratio: 1;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: var(--ink-soft);
+  font: 600 clamp(9px, 1.1cqw, 14px)/1 var(--font-ui);
+  pointer-events: none;
+}
+.eco-space[data-kind='special'][data-active-space='true'] { background: var(--brass-deep); }
+.eco-space[data-interactive='true'] { touch-action: manipulation; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .eco-space[data-interactive='true'] .eco-space__special > .eco-nova-art { transition: transform 160ms var(--ease-out); }
+  .eco-space[data-interactive='true']:hover .eco-space__special > .eco-nova-art { transform: translateY(-2px); }
 }
 
 /* =================================================================

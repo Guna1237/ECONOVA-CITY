@@ -6,12 +6,14 @@ import {
   Button,
   GameBoard,
   Interrupt,
+  NovaArt,
   RoundTransition,
   Sheet,
   Toasts
 } from '@econova/ui';
 
 import { ActionDock, type PanelId } from './components/ActionDock.js';
+import { BoardHelp, type BoardHelpTopic } from './components/BoardHelp.js';
 import { DecisionSurface, InfluenceAction, TradeProposal } from './components/decisions/index.js';
 import { FinalResults } from './components/FinalResults.js';
 import { JoinRoom } from './components/JoinRoom.js';
@@ -49,6 +51,7 @@ const Table = (): ReactElement => {
 
   const [panel, setPanel] = useState<PanelId>(null);
   const [inspecting, setInspecting] = useState<string | null>(null);
+  const [boardHelp, setBoardHelp] = useState<BoardHelpTopic | null>(null);
   const [proposing, setProposing] = useState(false);
   const [influencing, setInfluencing] = useState(false);
   const wide = useWideLayout();
@@ -112,13 +115,20 @@ const Table = (): ReactElement => {
       </div>
 
       <main className="player-stage">
+        <div className="player-board-tools">
+          <span>Tap a space to see what it does</span>
+          <button type="button" className="player-board-tools__council"
+            aria-haspopup="dialog" onClick={() => setBoardHelp('council')}>
+            <NovaArt kind="council" /> City Council <span aria-hidden="true">?</span>
+          </button>
+        </div>
         <div className="player-stage__wrap">
           <div className="player-stage__board">
             <GameBoard
               state={view}
               selectedPropertyId={inspecting}
               onSelectSpace={(space) =>
-                space.type === 'property' ? inspect(space.propertyId) : undefined
+                space.type === 'property' ? inspect(space.propertyId) : setBoardHelp(space.specialId)
               }
             />
           </div>
@@ -134,6 +144,8 @@ const Table = (): ReactElement => {
         onInfluence={() => setInfluencing(true)}
         wide={wide}
       />
+
+      {boardHelp === null ? null : <BoardHelp topic={boardHelp} onClose={() => setBoardHelp(null)} />}
 
       {inspecting === null ? null : (
         <Sheet
