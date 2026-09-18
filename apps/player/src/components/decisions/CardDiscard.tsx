@@ -4,6 +4,7 @@ import { GAME_CONFIG } from '@econova/game-content';
 import { Button, GameCard, Sheet } from '@econova/ui';
 
 import { usePlayerSession } from '../../state/PlayerSession.js';
+import { HowToPlay } from '../HowToPlay.js';
 
 /** Over the hand limit. One card goes, and the player chooses which. */
 export const CardDiscard = (): ReactElement | null => {
@@ -21,6 +22,8 @@ export const CardDiscard = (): ReactElement | null => {
       title="Over the hand limit"
       kicker={`Keep ${GAME_CONFIG.strategyCardHandLimit} cards`}
       onClose={() => undefined}
+      dismissible={false}
+      headerAction={<HowToPlay />}
     >
       <div style={{ display: 'grid', gap: 'var(--s3)' }}>
         <p className="eco-empty" style={{ padding: 0, textAlign: 'left' }}>

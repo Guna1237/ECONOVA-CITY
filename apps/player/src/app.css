@@ -137,15 +137,79 @@
   display: grid;
   place-items: center;
   min-height: 100dvh;
-  padding: var(--s5);
+  padding: clamp(24px, 5vw, 72px);
+  gap: 40px;
+  max-width: 1240px;
+  margin: auto;
 }
 
 .player-join__panel {
-  width: min(420px, 100%);
-  padding: var(--s6) var(--s5);
-  border-radius: var(--radius-sheet);
+  width: min(440px, 100%);
+  padding: clamp(24px, 3vw, 40px);
+  border-radius: 16px;
   background: var(--board-plate);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), var(--depth-surface);
+  border: 1px solid var(--board-edge);
+  box-shadow: 0 5px 0 #dfd7c8, 0 18px 40px -28px #192b4666;
+}
+
+.player-welcome { max-width: 570px; }
+.player-welcome__brand { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.player-welcome__brand .eco-btn { min-height: 44px; flex: none; }
+.player-welcome__edition { margin: 32px 0 12px; font-size: 13px; font-weight: 800; letter-spacing: .15em; color: var(--game-red); }
+.player-welcome h1 { font-family: var(--font-display); font-size: clamp(36px, 5.3vw, 68px); line-height: 1.02; letter-spacing: -.045em; font-weight: 800; }
+.player-welcome h1 span { color: var(--game-blue); }
+.player-welcome__intro { margin-top: 20px; max-width: 36ch; font-size: 18px; line-height: 1.6; color: var(--ink-soft); text-wrap: pretty; }
+.player-welcome__pieces { margin: 28px 0 20px; max-width: 390px; }
+.player-welcome__facts { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--ink-soft); font-size: 13px; font-weight: 600; }
+.player-welcome__facts span + span { border-left: 1px solid var(--board-edge); padding-left: 18px; }
+.player-join__heading { display: flex; align-items: center; gap: 16px; }
+.player-join__heading .eco-nova-art { width: 68px; height: 60px; }
+.player-join__heading h2 { font-family: var(--font-display); font-size: 28px; letter-spacing: -.025em; }
+.player-join__intro { margin: 16px 0 24px; font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
+.player-join__panel .eco-btn[data-tone='primary'] { background: var(--game-red); color: #fff; box-shadow: 0 3px 0 #771221; }
+.player-join__panel .eco-btn[data-tone='primary']:hover:not(:disabled) { background: #9d1325; }
+.player-join__panel .eco-btn[data-tone='primary']:disabled { background: #e5ded0; color: #626777; box-shadow: inset 0 0 0 1px var(--board-rule); }
+.player-join__help { border-top: 1px solid var(--board-rule); margin-top: 24px; padding-top: 16px; display: grid; justify-items: center; gap: 4px; }
+.player-join__help > span { font-size: 13px; color: var(--ink-soft); }
+.player-rail { grid-template-columns: auto auto minmax(0, 1fr); }
+.player-rail__help { justify-self: end; }
+.player-rail__help .eco-btn { min-height: 44px; white-space: nowrap; }
+.player-guide { font-size: 15px; line-height: 1.65; }
+.player-guide h3 { font-family: var(--font-display); font-size: 21px; line-height: 1.25; margin-bottom: 8px; }
+.player-guide__intro { display: flex; gap: 18px; align-items: flex-start; margin: 8px 0 20px; }
+.player-guide__intro > .eco-nova-art { width: 58px; height: 66px; flex: none; }
+.player-guide p { color: var(--ink-soft); }
+.player-guide__timer { padding: 12px 14px; background: #194c9b08; margin-bottom: 24px; font-size: 13px; }
+.player-guide__steps { list-style: none; padding: 0; margin: 20px 0 24px; display: grid; gap: 22px; }
+.player-guide__steps li { display: grid; grid-template-columns: 60px 1fr; gap: 18px; align-items: start; }
+.player-guide__steps .eco-nova-art { width: 60px; height: 56px; }
+.player-guide__steps strong { display: block; color: var(--ink); margin-bottom: 4px; }
+.player-guide details { border-top: 1px solid var(--board-rule); }
+.player-guide summary { padding: 16px 0; min-height: 48px; cursor: pointer; font-weight: 700; color: var(--ink); }
+.player-guide details p { margin: 0 0 16px; }
+.player-guide summary:focus-visible { outline: 2px solid var(--game-blue); outline-offset: 2px; }
+
+@media (min-width: 900px) {
+  .player-join { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 64px; }
+}
+@media (min-width: 620px) {
+  .player-rail { grid-template-columns: auto auto minmax(0, 1fr) auto; }
+  .player-rail__help { grid-column: 4; grid-row: 1; }
+}
+@media (max-width: 599px) {
+  .player-join { padding: 24px 18px 36px; gap: 28px; }
+  .player-welcome { width: min(440px, 100%); }
+  .player-welcome__edition { margin-top: 20px; }
+  .player-welcome__intro { font-size: 16px; margin-top: 12px; }
+  .player-welcome__pieces { max-width: 280px; margin: 18px 0 14px; }
+  .player-welcome .eco-crest__mark { width: 44px; height: 44px; }
+  .player-rail { column-gap: 8px; padding-inline: 12px; }
+  .player-rail__help .eco-btn { padding-inline: 8px; font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .player-welcome, .player-join__panel { animation: player-welcome-in 220ms ease-out backwards; }
+  @keyframes player-welcome-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 }
 
 .player-join__mark {

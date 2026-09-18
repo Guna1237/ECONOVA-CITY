@@ -9,6 +9,8 @@ export interface SheetProps {
   readonly onClose: () => void;
   readonly children: ReactNode;
   readonly footer?: ReactNode;
+  readonly dismissible?: boolean;
+  readonly headerAction?: ReactNode;
 }
 
 /**
@@ -21,29 +23,41 @@ export const Sheet = ({
   kicker,
   onClose,
   children,
-  footer
+  footer,
+  headerAction,
+  dismissible = true
 }: SheetProps): ReactElement => {
-  const panel = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+    const dialog = panel.current;
+    if (dialog === null) return;
+    const previous = document.activeElement;
+    dialog.showModal();
+    dialog.focus();
+    return () => {
+      dialog.close();
+      if (previous instanceof HTMLElement && previous.isConnected) previous.focus();
     };
-    window.addEventListener('keydown', onKey);
-    panel.current?.focus();
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, []);
 
   return (
-    <>
-      <div className="eco-scrim" onClick={onClose} />
-      <div
+      <dialog
         ref={panel}
         className="eco-sheet"
-        role="dialog"
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
+        onCancel={(event) => {
+          event.preventDefault();
+          if (dismissible) onClose();
+        }}
+        onClick={(event) => {
+          if (!dismissible || event.target !== event.currentTarget) return;
+          const bounds = event.currentTarget.getBoundingClientRect();
+          if (event.clientX < bounds.left || event.clientX > bounds.right ||
+              event.clientY < bounds.top || event.clientY > bounds.bottom) onClose();
+        }}
       >
         <span className="eco-sheet__grip" aria-hidden="true" />
         <header className="eco-sheet__head">
@@ -51,18 +65,18 @@ export const Sheet = ({
             {kicker === undefined ? null : <div className="eco-label">{kicker}</div>}
             <h2 className="eco-sheet__title">{title}</h2>
           </div>
-          <button
+          {headerAction === undefined ? null : <div className="eco-sheet__help">{headerAction}</div>}
+          {dismissible ? <button
             type="button"
             className="eco-sheet__close"
             onClick={onClose}
             aria-label="Close"
           >
             <CloseMark width={20} height={20} />
-          </button>
+          </button> : null}
         </header>
         <div className="eco-sheet__body eco-scroll">{children}</div>
         {footer === undefined ? null : <div className="eco-sheet__foot">{footer}</div>}
-      </div>
-    </>
+      </dialog>
   );
 };

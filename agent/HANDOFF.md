@@ -3,6 +3,22 @@
 
 This file communicates important work between AI agents.
 
+## Nova theme implementation handoff: 2026-09-18
+
+The owner's subsequent implementation request supersedes the audit-only hold below. Current deliverable: `docs/qa/NOVA_THEME_2026-09-18.md`. Preserve extracted WebP art, original crest, shared native-dialog Sheet, HowToPlay integration, and the newer Council/Develop/Influence fixes already committed by other work. The extraction script is developer-only; production copies checked-in assets and does not require Python/PDF access.
+
+Source typecheck/build and all 61 focused Player/UI tests pass. Full suite has two backend failures, both reproduced separately: twelve-player app test timeout, and admin-runtime expecting ADMIN_ACTION_UNAVAILABLE but receiving ROOM_QUARANTINED during concurrent admin-end-game changes. No backend code or test expectations were changed here. Coordinate with that implementation owner; do not weaken assertions or timeouts to make the theme pass appear green.
+
+Next: exercise nested help while a real mandatory decision/draft is active, then authenticated two-room browser flows and Projector/Admin visual review. Local join/help/preview keyboard and 320/390/1440px checks are complete. The preview dev server was left on 127.0.0.1:15173. No commit/deployment.
+
+## UX audit handoff: 2026-09-17
+
+Read `docs/qa/UX_AUDIT_2026-09-17.md` for current evidence, source locations, proposed copy, approvals, ownership, and tests. `docs/PLAYER_QUICK_START.md` contains shareable pregame and during-play instructions plus an organizer warning about current UI defects. These are documentation deliverables, not an implemented help button.
+
+No application edits in this pass. Preserve baseline `3ae594f0188fdbc3e66f55449a26ead78f128901` and the existing light tabletop/real crest. Requested skills require approval before implementing the proposed visual/control changes. After approval: Council allocations, Develop/Influence accessibility, authoritative displayed costs, shared Sheet focus, then How to play and copy. Do not duplicate engine pricing in React or rewrite the server. Keep one writer per shared contract/Sheet/PlayerSession/token file.
+
+Verification: typecheck/build passed; default tests hit one 5-second private-inspection timeout, isolated rerun passed 3 tests, serial full run passed 339 with 1 deliberate PostgreSQL skip. Investigate parallel reliability without weakening tests. Local Player preview and keyboard focus were checked; deployed authenticated multiplayer and real PostgreSQL were not rerun. REVIEW-025 offline Round 4 fallback is still a proposal, not an approved rule.
+
 ## Engineering hardening handoff — 2026-09-07
 
 Codex repaired the default shared-IP twelve-player join failure, automatic pass/abstain for players already disconnected at phase opening, whole-room rebroadcast on command rejection, and missing Round 4 discard capability. Added stronger invariant checks and full two-room/eight-round socket tests. See `docs/qa/HARDENING_2026-09-07.md` for reproduction, canonical audit, performance and live deployment evidence.

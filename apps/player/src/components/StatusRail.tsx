@@ -10,6 +10,7 @@ import {
 } from '@econova/ui';
 
 import { usePlayerSession } from '../state/PlayerSession.js';
+import { HowToPlay } from './HowToPlay.js';
 
 /**
  * The standing facts: how far through the game we are, who is up, how long
@@ -58,7 +59,7 @@ export const StatusRail = (): ReactElement => {
 
         {/* The clock belongs to whoever is up, so a waiting player can see
             how long they have to wait. */}
-        {deadline !== null && view.phase === 'player_turn' ? (
+        {mode === 'live' && deadline !== null && view.phase === 'player_turn' ? (
           <Timer
             deadlineAt={deadline}
             windowSeconds={GAME_CONFIG.turnTimerSeconds}
@@ -79,6 +80,7 @@ export const StatusRail = (): ReactElement => {
 
       <Resource kind="credits" value={self.credits} />
       <Resource kind="influence" value={self.influence} />
+      <div className="player-rail__help"><HowToPlay /></div>
     </header>
   );
 };

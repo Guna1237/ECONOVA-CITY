@@ -10,6 +10,7 @@ import {
 } from '@econova/ui';
 
 import { usePlayerSession } from '../../state/PlayerSession.js';
+import { HowToPlay } from '../HowToPlay.js';
 
 const INSURANCE = 'SC12';
 
@@ -30,7 +31,7 @@ export const LandingFee = (): ReactElement | null => {
   const short = self.credits < fee.amount;
 
   return (
-    <Sheet title="Landing fee due" kicker="Your reaction" onClose={() => undefined}>
+    <Sheet title="Landing fee due" kicker="Your reaction" onClose={() => undefined} dismissible={false} headerAction={<HowToPlay />}>
       <div className="eco-decision">
         <div
           className="eco-decision__subject"

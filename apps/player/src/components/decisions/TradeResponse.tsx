@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 import { Button, PropertyRecord, Sheet, formatCredits, seatOf } from '@econova/ui';
 
 import { usePlayerSession } from '../../state/PlayerSession.js';
+import { HowToPlay } from '../HowToPlay.js';
 
 const Side = ({
   heading,
@@ -55,6 +56,8 @@ export const TradeResponse = (): ReactElement | null => {
       title={`${proposer?.name ?? 'A player'} proposes a trade`}
       kicker={`Seat ${seat.index + 1}`}
       onClose={() => undefined}
+      dismissible={false}
+      headerAction={<HowToPlay />}
       footer={
         <>
           <Button

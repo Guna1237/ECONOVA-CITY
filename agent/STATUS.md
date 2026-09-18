@@ -3,6 +3,22 @@
 
 This file records the current development state.
 
+## Nova theme and in-game guide: 2026-09-18 (Codex)
+
+Implemented the owner-requested icon-based Player welcome/theme, preserved the real crest, added How to play at entry/lobby/play/required decisions, fixed modal focus/dismissibility, improved reconnect wording and preview exit, and changed timer progress to transform. Eight lossless source-art extracts total 232,108 bytes. No engine/server/contract changes by this pass. See `docs/qa/NOVA_THEME_2026-09-18.md` for the file list and evidence.
+
+Final source typecheck/build PASS. Player/UI tests: 61 passed. Full suite: 367 passed, 2 failed, 1 deliberate PostgreSQL skip. The twelve-player join timeout and admin-runtime expected-code mismatch both reproduce in isolated server reruns; concurrent backend work is preserved, not repaired speculatively. Browser join/help/preview and keyboard checks pass at narrow phone/desktop sizes. Git diff whitespace check PASS. No commit/deployment. Remaining: backend failures, live decision/help/reconnect QA, Projector/Admin visual checks, authoritative cost display and release rehearsal.
+
+## UX audit and player instructions: 2026-09-17 (Codex)
+
+Completed a source and local Player-browser audit against the approved rules. Added `docs/qa/UX_AUDIT_2026-09-17.md` and `docs/PLAYER_QUICK_START.md`. Updated REVIEW, TASKS, and HANDOFF. Application code, dependencies, contracts, game rules, and visual assets are unchanged. The explicitly requested design-audit and controlled-UX skills require approval before UI implementation.
+
+Confirmed issues: Council forces spending all Influence; main Develop guidance imposes a nonexistent location restriction; the existing Influence command has no Player control; displayed base prices can differ from payable costs; modal keyboard focus escapes; help/demo navigation and privacy wording need correction. See REVIEW-027 through REVIEW-029 and the audit for evidence and the phased fix plan.
+
+Checks: typecheck PASS; full production build PASS; default suite 338 passed, 1 private-inspection test timeout, 1 opt-in PostgreSQL skip. Isolated private-inspection rerun 3 passed; full one-worker run 339 passed, 1 intentional skip. No guards or timeouts changed. Local Player demo inspected at 390x844, 390x640, and 1440x900, without console errors; objective modal focus escape reproduced. Authenticated production browser and PostgreSQL recovery checks were not performed in this pass.
+
+Next: obtain approval of the audit's Phase 1 fixes and action-first refinement, then implement regression-first slices. Do not call the whole product production-ready. REVIEW-025/026 and the parallel-test timeout remain open investigations/decisions.
+
 ## Engineering hardening — 2026-09-07 (Codex)
 
 Implemented shared-IP two-room join reliability, pre-existing disconnect handling when auctions/Council open, requester-only rejection snapshots, Round 4 discard capability/display integration, and stronger authoritative invariants. Canonical content regression coverage and a full two-room/six-player/eight-round real-socket test were added. No gameplay values changed; Claude's concurrent Projector work is preserved and excluded from this commit. Detail/evidence: `docs/qa/HARDENING_2026-09-07.md`.

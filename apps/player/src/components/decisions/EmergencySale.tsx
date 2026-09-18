@@ -12,6 +12,7 @@ import {
 } from '@econova/ui';
 
 import { usePlayerSession } from '../../state/PlayerSession.js';
+import { HowToPlay } from '../HowToPlay.js';
 
 /**
  * The player owes more than they hold. This has to stay calm and completely
@@ -42,6 +43,8 @@ export const EmergencySale = (): ReactElement | null => {
       title="Raise credits now"
       kicker="Emergency sale"
       onClose={() => undefined}
+      dismissible={false}
+      headerAction={<HowToPlay />}
       footer={
         <Button
           tone="risk"

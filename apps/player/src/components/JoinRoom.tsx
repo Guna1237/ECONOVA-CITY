@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { FormEvent, ReactElement } from 'react';
 
-import { Button } from '@econova/ui';
+import { Button, EconovaCrest, NovaArt } from '@econova/ui';
+import { HowToPlay } from './HowToPlay.js';
 
 import { joinRoom, type JoinedSession } from '../state/transport.js';
 
@@ -38,14 +39,17 @@ export const JoinRoom = ({
 
   return (
     <div className="player-join">
+      <section className="player-welcome" aria-labelledby="welcome-title">
+        <div className="player-welcome__brand"><EconovaCrest size={64} withWordmark /><HowToPlay /></div>
+        <p className="player-welcome__edition">ECONOVA: CITY</p>
+        <h1 id="welcome-title">Build your city.<br /><span>Make your move.</span></h1>
+        <p className="player-welcome__intro">Buy properties. Shape the market. Build the highest score in eight rounds.</p>
+        <NovaArt kind="pieces" className="player-welcome__pieces" />
+        <div className="player-welcome__facts"><span>4 to 6 players</span><span>8 rounds</span><span>One shared city</span></div>
+      </section>
       <form className="player-join__panel" onSubmit={submit}>
-        <div className="player-join__mark">
-          Econova
-          <span>City</span>
-        </div>
-        <p style={{ marginTop: 'var(--s3)', color: 'var(--ink-soft)' }}>
-          Take a seat at the table.
-        </p>
+        <div className="player-join__heading"><NovaArt kind="property" /><div><p className="eco-label">Ready to play?</p><h2>Join your room</h2></div></div>
+        <p className="player-join__intro">Ask your organizer for the room code. Your name will appear on the shared board.</p>
 
         <label className="player-field">
           <span className="eco-label">Room code</span>
@@ -55,6 +59,8 @@ export const JoinRoom = ({
             placeholder="6 characters"
             autoComplete="off"
             autoCapitalize="characters"
+            spellCheck={false}
+            name="roomCode"
             maxLength={6}
             inputMode="text"
             aria-invalid={code.length > 0 && !/^[A-Za-z0-9]{6}$/.test(code)}
@@ -68,6 +74,7 @@ export const JoinRoom = ({
             onChange={(event) => setName(event.target.value)}
             placeholder="As it appears on the board"
             autoComplete="nickname"
+            name="playerName"
             maxLength={40}
             style={{ fontFamily: 'var(--font-ui)', letterSpacing: 'normal' }}
           />
@@ -94,12 +101,13 @@ export const JoinRoom = ({
             disabled={!ready}
             request={busy ? 'submitting' : 'idle'}
           >
-            Join the room
+            Join room
           </Button>
           <Button tone="quiet" block onClick={onDemonstration}>
-            View the demonstration board
+            Preview the board
           </Button>
         </div>
+        <div className="player-join__help"><HowToPlay /><span>New here? Start with the basics.</span></div>
       </form>
     </div>
   );

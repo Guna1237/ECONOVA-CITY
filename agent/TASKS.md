@@ -5,6 +5,16 @@ This file tracks authorized work and its ownership.
 
 No agent should invent major tasks without authorization.
 
+## Nova artwork implementation: 2026-09-18
+
+Owner: Codex. The requested theme/help slice is IMPLEMENTED, with 61 focused tests and production build/typecheck passing. Report: `docs/qa/NOVA_THEME_2026-09-18.md`. Backend full-suite failures remain OPEN and belong to the concurrent backend pass; no server/engine edits here. Required-decision live-browser coverage, Projector/Admin visual review and modified-cost display remain. Preserve current shared work; no commit/deployment in this slice.
+
+## UX clarity and player guide: 2026-09-17
+
+Owner: Codex. Audit and written player instructions COMPLETE. Deliverables: `docs/qa/UX_AUDIT_2026-09-17.md`, `docs/PLAYER_QUICK_START.md`. Implementation is PENDING APPROVAL under the requested design-audit/controlled-UX workflow, not started in this pass.
+
+Proposed next slices: Council/Develop/Influence corrections; authoritative cost display; shared dialog accessibility; visible How to play and human copy; action-first responsive refinement; measured motion/performance. Preserve rules, art, and existing backend architecture. REVIEW-027/028/029 capture current defects. Prior release blockers REVIEW-025/026 remain unresolved.
+
 ## Engineering hardening checkpoint — 2026-09-07
 
 Owner: Codex. Source fixes and regression coverage completed for shared-IP two-room joining, offline phase-opening effects, invariant validation, rejection traffic and Round 4 discard integration. Full two-room six-player games finish all eight rounds in real-socket regression coverage. See `docs/qa/HARDENING_2026-09-07.md`.

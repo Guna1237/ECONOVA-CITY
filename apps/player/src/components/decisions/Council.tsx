@@ -5,6 +5,7 @@ import { GAME_CONFIG, POLICY_BY_ID } from '@econova/game-content';
 import { Button, Sheet, Stepper, Timer } from '@econova/ui';
 
 import { usePlayerSession } from '../../state/PlayerSession.js';
+import { HowToPlay } from '../HowToPlay.js';
 
 /**
  * Council is a different kind of turn: no board movement, one political
@@ -58,6 +59,8 @@ export const Council = (): ReactElement | null => {
       title="City council"
       kicker={`Round ${view.round} policy vote`}
       onClose={() => undefined}
+      dismissible={false}
+      headerAction={<HowToPlay />}
       footer={
         <div style={{ display: 'grid', gap: 'var(--s2)' }}>
           <Button

@@ -250,10 +250,13 @@
 }
 
 .eco-timer__fill {
+  display: block;
+  width: 100%;
   height: 100%;
   border-radius: 999px;
   background: var(--brass);
-  transition: width 1s linear;
+  transform-origin: left center;
+  transition: transform 250ms linear;
 }
 
 .eco-timer[data-urgent='true'] .eco-timer__fill { background: var(--signal-loss); }
@@ -371,6 +374,12 @@
 @keyframes eco-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
 .eco-sheet {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--ink);
+  width: 100%;
+  max-width: none;
   position: fixed;
   inset: auto 0 0 0;
   z-index: var(--z-overlay);
@@ -383,6 +392,13 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), var(--depth-overlay);
   animation: eco-sheet-in var(--motion-shift) var(--ease-out);
 }
+
+.eco-sheet:not([open]) { display: none; }
+.eco-sheet::backdrop { background: rgba(19, 32, 53, 0.46); }
+html:has(.eco-sheet[open]) { overflow: hidden; }
+.eco-sheet__body { overscroll-behavior: contain; }
+.eco-nova-art { display: block; width: 100%; height: auto; object-fit: contain; mix-blend-mode: multiply; }
+.eco-resource__mark .eco-nova-art { width: 30px; height: 30px; }
 
 @keyframes eco-sheet-in {
   from { transform: translateY(100%); }
@@ -419,6 +435,9 @@
   padding: var(--s4) var(--s4) var(--s3);
 }
 
+.eco-sheet__help { margin-left: auto; flex: none; }
+.eco-sheet__help .eco-btn { min-height: 44px; }
+
 .eco-sheet__title {
   font-family: var(--font-display);
   font-weight: 800;
@@ -431,8 +450,8 @@
   margin-left: auto;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   flex: none;
   border-radius: var(--radius-plate);
   color: var(--ink-faint);

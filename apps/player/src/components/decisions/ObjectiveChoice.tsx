@@ -4,6 +4,7 @@ import { OBJECTIVE_BY_ID } from '@econova/game-content';
 import { Sheet, formatCredits } from '@econova/ui';
 
 import { usePlayerSession } from '../../state/PlayerSession.js';
+import { HowToPlay } from '../HowToPlay.js';
 
 /** Two objectives, one choice, kept private for the rest of the game. */
 export const ObjectiveChoice = (): ReactElement | null => {
@@ -16,6 +17,8 @@ export const ObjectiveChoice = (): ReactElement | null => {
       title="Choose your secret objective"
       kicker="No one else will see this"
       onClose={() => undefined}
+      dismissible={false}
+      headerAction={<HowToPlay />}
     >
       <div style={{ display: 'grid', gap: 'var(--s3)' }}>
         {offer.map((objectiveId) => {

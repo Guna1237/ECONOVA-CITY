@@ -97,15 +97,14 @@ const Table = (): ReactElement => {
             {fatal}
           </Interrupt>
         ) : mode === 'demonstration' ? (
-          <Interrupt>Demonstration board — not a live room.</Interrupt>
+          <Interrupt action={<Button tone="quiet" size="sm" onClick={signOut}>Return to join</Button>}>Board preview. Explore the spaces; actions are disabled.</Interrupt>
         ) : link !== 'connected' ? (
           <Interrupt>
-            {link === 'offline' ? 'Offline' : 'Reconnecting'} — showing the last
-            state the city confirmed. Actions are paused.
+            {link === 'offline' ? 'You are offline.' : 'Reconnecting.'} Showing your last saved game state. Wait for the connection before taking another action.
           </Interrupt>
         ) : hasUncertainCommand ? (
           <Interrupt action={<Button tone="quiet" size="sm" onClick={reviewCurrentState}>I reviewed the current state</Button>}>
-            The last action has no confirmed receipt. Review the current board and your resources before taking another action. Nothing was resent.
+            We could not confirm your last action. Check the updated board and your resources before continuing. Your action was not sent again.
           </Interrupt>
         ) : view.phase === 'paused' ? (
           <Interrupt>The game is paused by the operator.</Interrupt>

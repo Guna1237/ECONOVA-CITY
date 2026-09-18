@@ -4,6 +4,7 @@ import { SPECIAL_EVENTS } from '@econova/game-content';
 import { Button, DISTRICTS, DISTRICT_ORDER, Sheet, formatSigned } from '@econova/ui';
 
 import { usePlayerSession } from '../../state/PlayerSession.js';
+import { HowToPlay } from '../HowToPlay.js';
 
 /**
  * Demand Surge (SE03) and Economic Downturn (SE04) both stop the turn to ask
@@ -21,7 +22,7 @@ export const DistrictChoice = (): ReactElement | null => {
   const raising = pending.eventId === 'SE03';
 
   return (
-    <Sheet title="Choose a district" kicker={event?.name ?? 'Special event'} onClose={() => undefined}>
+    <Sheet title="Choose a district" kicker={event?.name ?? 'Special event'} onClose={() => undefined} dismissible={false} headerAction={<HowToPlay />}>
       <div className="eco-decision">
         <div className="eco-decision__question">{event?.description ?? ''}</div>
 

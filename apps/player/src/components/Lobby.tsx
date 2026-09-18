@@ -2,7 +2,8 @@ import type { CSSProperties, ReactElement } from 'react';
 
 import { GAME_CONFIG } from '@econova/game-content';
 import type { LobbyProjectionDto } from '@econova/contracts';
-import { SeatPiece, seatOf } from '@econova/ui';
+import { EconovaCrest, SeatPiece, seatOf } from '@econova/ui';
+import { HowToPlay } from './HowToPlay.js';
 
 /**
  * The room filling up. Entering the game should feel like taking a seat at a
@@ -22,6 +23,7 @@ export const Lobby = ({
   return (
     <div className="lobby">
       <div className="lobby__panel">
+        <EconovaCrest size={48} withWordmark />
         <div className="player-join__mark">
           Econova
           <span>City</span>
@@ -67,6 +69,7 @@ export const Lobby = ({
             ? `${GAME_CONFIG.minPlayers} players are needed to start. ${lobby.players.length} seated.`
             : `${lobby.players.length} seated. The game begins when the operator starts it.`}
         </p>
+        <HowToPlay />
       </div>
     </div>
   );

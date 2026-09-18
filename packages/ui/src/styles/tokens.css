@@ -16,8 +16,8 @@
   /* ---------------------------------------------------------------
    * MATERIAL — the room, the table, the board
    * ------------------------------------------------------------- */
-  --room-bg: #efe7d8;          /* the table the board sits on */
-  --room-bg-lift: #fbf7ee;     /* trays and panels resting on the table */
+  --room-bg: #efe9dd;          /* warm stock around the supplied illustrations */
+  --room-bg-lift: #fbf8f1;
 
   --board-field: #f7f1e4;      /* the printed board field */
   --board-plate: #fdfaf3;      /* the raised centre plate */
@@ -29,9 +29,11 @@
   /* ---------------------------------------------------------------
    * INK — type printed on the board
    * ------------------------------------------------------------- */
-  --ink: #2b2318;              /* primary printed ink */
-  --ink-soft: #6a5f4e;         /* secondary */
-  --ink-faint: #978973;        /* captions */
+  --ink: #192b46;             /* navy outlines from the Nova City artwork */
+  --ink-soft: #505969;
+  --ink-faint: #626777;        /* readable captions on cream stock */
+  --game-red: #b7192c;
+  --game-blue: #194c9b;
   --ink-ghost: #bcb09b;        /* disabled, empty */
 
   /* ---------------------------------------------------------------

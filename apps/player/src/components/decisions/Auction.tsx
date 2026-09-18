@@ -14,6 +14,7 @@ import {
 } from '@econova/ui';
 
 import { usePlayerSession } from '../../state/PlayerSession.js';
+import { HowToPlay } from '../HowToPlay.js';
 
 /**
  * A sealed-bid auction. Four questions have to be answerable at a glance:
@@ -39,6 +40,8 @@ export const Auction = (): ReactElement | null => {
       title={property?.name ?? 'Property auction'}
       kicker="Sealed bid"
       onClose={() => undefined}
+      dismissible={false}
+      headerAction={<HowToPlay />}
       footer={
         submitted ? (
           <Button tone="quiet" block disabled>

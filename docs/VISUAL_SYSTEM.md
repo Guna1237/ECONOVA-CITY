@@ -4,6 +4,16 @@
 Version: 1.0
 Status: Design Source of Truth
 
+## Current implementation direction: owner-approved Nova artwork, 2026-09-18
+
+The owner's instruction to tailor the theme to `Nova_City_Monopoly_Elements.pdf` and the existing ECONOVA logo extends the later approved light-tabletop direction. It supersedes older dark-background prescriptions below, not gameplay or privacy rules.
+
+Use cream card stock, navy ink, restrained red/blue accents, and the supplied illustrated game objects. Preserve the actual ECONOVA crest, district identities, existing seat identifiers, and local font families. Keep illustration secondary to readable labels and current decisions. Do not infer Monopoly mechanics from reference artwork.
+
+Eight lossless local WebP extracts are documented in `packages/ui/src/assets/NOVA_ART.md`. The Player welcome, resource readouts, and How to play guide establish the first implementation slice. Help is available before joining, in the lobby, in play, and within required decision dialogs. Opening help never pauses authoritative timers or sends commands.
+
+Use native modal focus containment, visible keyboard focus, readable instructional contrast, short opacity/transform transitions, and reduced-motion behavior. Avoid repeated decorative animation and new renderer/font dependencies. The source crest is never redrawn or replaced to fit the theme.
+
 ---
 
 # 1. PURPOSE

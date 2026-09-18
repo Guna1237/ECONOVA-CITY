@@ -3,6 +3,86 @@
 
 This file records bugs, security issues, architectural concerns, performance problems, gameplay inconsistencies, and QA findings.
 
+## REVIEW-030: Backend verification failures during the Nova UI pass
+
+SEVERITY: HIGH
+
+AREA: Release verification and concurrent backend integration
+
+FILE: apps/server/test/app.test.ts:43; apps/server/test/admin-runtime.test.ts:138
+
+PROBLEM: Twelve-player same-IP joining exceeds the 5-second test timeout. Admin end-game rejection returns ROOM_QUARANTINED where the existing test expects ADMIN_ACTION_UNAVAILABLE. The shared tree contains concurrent end-game/runtime changes; this report does not establish their correctness or change their intended behavior.
+
+REPRODUCTION: Both fail in npm test and in an isolated one-worker run of these two server suites. Full result: 367 passed, 2 failed, 1 skipped. Isolated result: 14 passed, 2 failed.
+
+IMPACT: Full verification is not green, so release readiness cannot be claimed despite UI build/tests passing.
+
+RECOMMENDED FIX: Backend owner to reconcile the admin operation with its approved contract and investigate join timing. Preserve authorization and persistence guarantees; do not merely relax timeouts or change expected codes to hide a defect.
+
+TEST REQUIRED: Existing server suites, full suite, end-game quarantine/auth regressions and two-room joining under expected load.
+
+STATUS: OPEN. No backend modifications in the theme pass.
+
+## REVIEW-027: Council choices and privacy wording
+
+SEVERITY: HIGH
+
+AREA: Player Council form and private-information explanations
+
+FILE: apps/player/src/components/decisions/Council.tsx; apps/player/src/components/Panels.tsx
+
+PROBLEM: Option B always receives Influence not assigned to A, preventing abstaining or retaining Influence when the balance is positive. Text implies allocations are revealed after voting, contrary to canonical 23.2. Objective copy promises nobody else can see it despite approved protected operator inspection.
+
+REPRODUCTION: Inspect Council dispatch: optionBInfluence = self.influence - toA. Zero total cannot be submitted with a positive balance. The existing engine accepts allocations totaling less than the balance. Objective browser dialog displays the absolute privacy promise.
+
+IMPACT: Forced resource spending and misleading privacy expectations. This is a UI defect, not evidence of a server projection leak.
+
+RECOMMENDED FIX: Independent bounded allocations, spent/kept summary, explicit Abstain; describe public totals and privacy from other players accurately.
+
+TEST REQUIRED: Zero/partial/split/all allocation, duplicate/over-budget rejection, private projection and copy checks.
+
+STATUS: OPEN. Awaiting the requested design-audit approval gate. Details: docs/qa/UX_AUDIT_2026-09-17.md.
+
+## REVIEW-028: Player action reachability and misleading costs
+
+SEVERITY: HIGH
+
+AREA: Authoritative gameplay integration in Player controls
+
+FILE: apps/player/src/components/ActionDock.tsx; apps/player/src/components/Panels.tsx; apps/player/src/state/briefing.ts
+
+PROBLEM: Main Develop action depends on standing on an owned property although canonical 13.1 does not. Holdings inspection is a partial workaround. The existing change_demand command has no Player dispatch control. Base purchase/development costs are shown as payable amounts and base purchase price drives affordability despite modifiers.
+
+REPRODUCTION: Trace ActionDock action_phase guards, search Player for change_demand (fixture only), and inspect basePrice/developmentCosts displays versus canonical modifier ordering.
+
+IMPACT: Legal actions hidden, nonexistent restrictions taught, and potentially misleading purchase/development decisions. Server remains authoritative.
+
+RECOMMENDED FIX: Property selection for Develop, capability-gated Influence control, authoritative quotes/target eligibility with the smallest reviewed projection addition if needed. Never clone engine calculations in the client.
+
+TEST REQUIRED: Develop off-position and bought-this-turn rejection, Influence restrictions, modified-cost display/affordability, stale quote rejection and no optimistic mutations.
+
+STATUS: OPEN. Awaiting audit-plan approval; no rules changed.
+
+## REVIEW-029: Shared dialog focus and required-decision affordances
+
+SEVERITY: HIGH
+
+AREA: Accessibility and timed decision usability
+
+FILE: packages/ui/src/controls/Sheet.tsx; mandatory Player decision callers
+
+PROBLEM: aria-modal is declared without trapping/restoring focus. Inline onClose changes can retrigger focus setup. Mandatory decisions supply a no-op close handler but display an active Close button.
+
+REPRODUCTION: At 390x640, open Goal on the local Player demo and press Tab twice. document.activeElement.closest('[role=dialog]') is null while the dialog stays open. Inspect Council onClose={() => undefined}.
+
+IMPACT: Keyboard focus reaches obscured controls; mandatory dialogs appear broken to users attempting to close them.
+
+RECOMMENDED FIX: Stable focus lifecycle, trap/restore, background inertness/scroll handling, and honest dismissibility. Include a way to read help during required decisions without losing input or pausing timers.
+
+TEST REQUIRED: Tab/Shift+Tab containment, Escape and close policy, restoration, rerender stability, stacked-help avoidance, short mobile and reduced-motion behavior.
+
+STATUS: IMPLEMENTED 2026-09-18 using native modal Sheet, explicit dismissibility and help actions. Static regression and local browser Tab/Shift+Tab/Escape/focus-return checks pass. Live mandatory-decision/nested-help, screen-reader and device coverage remain release checks; see docs/qa/NOVA_THEME_2026-09-18.md.
+
 ## REVIEW-024 — RESOLVED, engineering integration hardening (2026-09-07)
 
 SEVERITY: HIGH

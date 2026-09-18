@@ -6,6 +6,7 @@ export * from './marks/Motifs.js';
 export * from './marks/CardArt.js';
 export * from './marks/Buildings.js';
 export * from './marks/Emblem.js';
+export * from './marks/NovaArt.js';
 
 export * from './board/GameBoard.js';
 export * from './board/BoardSpace.js';

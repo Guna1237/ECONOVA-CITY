@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { ReactElement } from 'react';
 
-import { CreditsMark, InfluenceMark } from '../marks/Marks.js';
+import { NovaArt } from '../marks/NovaArt.js';
 import { formatClock, formatCredits } from '../theme.js';
 
 /* -----------------------------------------------------------------
@@ -34,13 +34,12 @@ export const Resource = ({
     return () => window.clearTimeout(timer);
   }, [value]);
 
-  const Mark = kind === 'credits' ? CreditsMark : InfluenceMark;
   const tone = kind === 'credits' ? 'var(--brass)' : 'var(--signal-note)';
 
   return (
     <div className="eco-resource" style={{ '--resource-tone': tone } as CSSProperties}>
       <span className="eco-resource__mark" aria-hidden="true">
-        <Mark />
+        <NovaArt kind={kind} />
       </span>
       <span className="eco-resource__body">
         {label ? (
@@ -91,7 +90,7 @@ export const Timer = ({
     <div className="eco-timer" data-urgent={urgent}>
       {label === undefined ? null : <span className="eco-label">{label}</span>}
       <span className="eco-timer__track" aria-hidden="true">
-        <span className="eco-timer__fill" style={{ width: `${fraction * 100}%` }} />
+        <span className="eco-timer__fill" style={{ transform: `scaleX(${fraction})` }} />
       </span>
       <span className="eco-timer__count" role="timer" aria-live="off">
         {formatClock(remaining)}
