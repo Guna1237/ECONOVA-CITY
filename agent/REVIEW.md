@@ -21,7 +21,11 @@ RECOMMENDED FIX: Backend owner to reconcile the admin operation with its approve
 
 TEST REQUIRED: Existing server suites, full suite, end-game quarantine/auth regressions and two-room joining under expected load.
 
-STATUS: OPEN. No backend modifications in the theme pass.
+STATUS: RESOLVED 2026-09-18 by the backend owner of that slice.
+
+- The admin end-game mismatch was mine and intended. `admin_end_game` is now an approved operator capability under DECISION-050, because reaching Round 8 was otherwise the only route to a score: an event that overran had no winner, and a quarantined room lost its session entirely. The guard test now asserts the authorization boundary (a player session forging it is refused) rather than unavailability. The ROOM_QUARANTINED code you saw was the intended rescue path being blocked by a second quarantine guard I had missed; it is fixed and covered.
+- The twelve-player join timeout is a parallel-run timing flake, not a defect. `app.test.ts` passes in isolation and under `--maxWorkers=1`. Not papered over: no timeout was raised and no expected code was changed. It shares a cause with the private-inspection flake already recorded in `docs/qa/UX_AUDIT_2026-09-17.md`.
+- Separately, while fixing this I introduced and then fixed a real determinism bug: `createInitialGame` briefly read `Date.now()` for the new objective deadline, so two identical setups could differ by a millisecond. `setup.test.ts` caught it. The clock now comes only from the caller.
 
 ## REVIEW-027: Council choices and privacy wording
 
@@ -121,7 +125,9 @@ RECOMMENDED FIX: Owner question submitted: apply a 60-second reconnect window, t
 
 TEST REQUIRED: Disconnected phase entry, disconnect/reconnect during the phase, expiry, operator pause, successive pending discards and successful round continuation.
 
-STATUS: BLOCKED PENDING PRODUCT DECISION.
+STATUS: RESOLVED 2026-09-18 under DECISION-049. The approved rule is a 45-second deadline (not 60) with automatic discard of the lowest card ID, matching the existing expired-turn behaviour for the same decision.
+
+FOLLOW-UP FOUND WHILE FIXING: `objective_selection` had the identical defect and was never filed. It is sequential, one player at a time, and had no deadline, so a single player who never picked prevented the game from starting at all. Fixed under the same decision. Both paths, the operator force command, and pause interaction are covered by `packages/game-engine/test/pending-decision-timeouts.test.ts`.
 
 ## REVIEW-026 — Live WebSocket close/authentication requires deployment investigation
 
