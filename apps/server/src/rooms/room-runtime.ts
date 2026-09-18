@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { recordActivity } from "./activity.js";
 
 import type { AdminCommand, ClientCommand } from "@econova/contracts";
 import { GAME_CONFIG } from "@econova/game-content";
@@ -325,6 +326,7 @@ export class RoomRuntime {
     }
     const receipt: CommandReceipt = { status: "accepted", requestId: command.requestId,
       actionId: command.actionId, stateVersion: transition.state.version };
+    recordActivity(this.state, transition.state, transition.events);
     await this.persistence.persistTransition({ roomId: this.state.roomId, gameId: this.state.gameId,
       previousVersion: this.state.version, actorPlayerId, nextState: transition.state,
       events: transition.events, receipt, receiptBinding: binding,

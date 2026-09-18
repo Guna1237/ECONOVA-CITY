@@ -3,7 +3,15 @@
 
 This file tracks authorized work and its ownership.
 
+## Phone-only play, owner: Codex, 2026-09-19
+
+Implementation complete: recipient-safe activity/history, stable seat identity and supplied PNG pawns, inline news/policies, 45-second normal turn with warning at 30 seconds elapsed. Verification and remaining event-device/deployment checks: `docs/qa/PHONE_ACTIVITY_2026-09-19.md`. Projector is optional compatibility code only.
+
 No agent should invent major tasks without authorization.
+
+## First-time player board help: 2026-09-19
+
+Owner: Codex. IMPLEMENTED: special-space explanations, Council help, shortened guide, readable board affordances, and concise player messages. See `docs/qa/BOARD_LEARNABILITY_2026-09-19.md`. Full typecheck/build PASS; 419 tests pass, one PostgreSQL opt-in skip. Continue with live authenticated help/reconnect rehearsal and event-device checks, not new rules or another visual framework.
 
 ## Board refinement and guidance: 2026-09-18
 

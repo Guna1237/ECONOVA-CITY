@@ -48,7 +48,7 @@ export const TradeResponse = (): ReactElement | null => {
   const proposer = view.players.find(
     (player) => player.playerId === trade.proposerPlayerId
   );
-  const seat = seatOf(trade.proposerPlayerId, view.turnOrder);
+  const seat = seatOf(trade.proposerPlayerId, view.players);
   const cannotAfford = self.credits < trade.requestedCredits;
 
   return (

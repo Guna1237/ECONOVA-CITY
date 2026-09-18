@@ -17,6 +17,7 @@ import type {
 import { Button, Interrupt, type RequestState, type ToastItem } from '@econova/ui';
 import { secureId } from '@econova/client-core';
 import { Lobby } from '../components/Lobby.js';
+import { ActivityCursor } from './activity.js';
 
 import { demonstrationPlayerState } from '../fixtures/demonstrationState.js';
 import {
@@ -101,8 +102,14 @@ export const PlayerSessionProvider = ({
   useEffect(() => {
     if (session === null) return;
 
+    const activity = new ActivityCursor();
     const roomLink = new RoomLink(session, {
       onProjection: (next) => {
+        const fresh = activity.receive(next.public.gameId, next.public.stateVersion, next.self.activity ?? []);
+        const important = fresh.filter(item => item.title !== 'Your resources');
+        const notice = important.at(-1) ?? fresh.at(-1);
+        if (notice) pushToast({ tone: 'info', title: notice.title,
+          text: notice.text + (fresh.length > 1 ? ' More in City updates.' : '') });
         setProjection(next);
         setLobby(null);
       },
@@ -121,7 +128,7 @@ export const PlayerSessionProvider = ({
           pending.current.delete(record.requestId);
           setUncertain(current => current.filter(id => id !== record.requestId));
         }
-        if (record.status === 'rejected') pushToast({ tone: 'error', title: 'The city refused that', text: record.message ?? 'Action rejected.' });
+        if (record.status === 'rejected') pushToast({ tone: 'error', title: 'Action not completed', text: record.message ?? 'Please check the current game state and try again.' });
       },
       onFatal: (message) => setFatal(message)
     });

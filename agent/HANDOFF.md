@@ -3,6 +3,16 @@
 
 This file communicates important work between AI agents.
 
+## Phone-only activity handoff: 2026-09-19
+
+The event no longer uses a projector. Player City updates contains policy/news context and private receipts; do not reintroduce board-covering news/round overlays. `rooms/activity.ts` builds an allowlisted, bounded history before persistence, projections remove other audiences, `ActivityCursor` prevents reconnect replay. `seatIndex` is persisted on each new player, with original turn-order fallback for legacy games. PNG viewport clipping is required because existing board styles allow SVG overflow. Normal turn 45 seconds, warning at 30; other timers unchanged. See `docs/qa/PHONE_ACTIVITY_2026-09-19.md` for verification and release cautions. Do not deploy over an old paused game with >45 seconds saved without a tested recovery decision. Preserve all uncommitted work.
+
+## Board learnability handoff: 2026-09-19
+
+Current checkpoint: `docs/qa/BOARD_LEARNABILITY_2026-09-19.md`. Preserve `BoardHelp.tsx` as presentation-only shared help content, the four interactive Player special tiles, non-interactive Projector tiles, and the short `QuickStartGuide`. City Council is a separate help topic, not a new board space. All non-City-Center special spaces trigger random events; do not restore the incorrect Innovation Hub Strategy card label.
+
+419 tests, full typecheck/build, and whitespace check pass. Browser preview/demo interactions verified at phone/desktop/projector sizes; live authenticated multiplayer and required-decision help still need rehearsal. `docs/PLAYER_MESSAGES.md` contains the new concise organizer briefing. No backend/engine/contract changes or commit/deployment by this agent. Concurrent source commits were preserved.
+
 ## Board refinement handoff: 2026-09-18
 
 Continue from `docs/qa/BOARD_REFINEMENT_2026-09-18.md`, not the older failing-suite checkpoint below. Typecheck/build pass; full suite is 402 passed with one deliberate PostgreSQL skip. Keep original PNG-derived WebP art, crest, named property dialogs, compact portrait sizing, public-state-only board hub, and presentation-only eight-space Entertainment animation support. No engine/server/contract changes in this slice.

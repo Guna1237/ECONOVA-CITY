@@ -353,6 +353,14 @@
 
 .eco-piece__seat {
   position: absolute;
+  bottom: -2px;
+  right: -3px;
+  min-width: 13px;
+  min-height: 13px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #29271f;
   font-family: var(--font-numeric);
   font-weight: 700;
   font-size: calc(var(--piece-size, 22px) * 0.4);
@@ -449,6 +457,7 @@
   font: 600 clamp(9px, 1.1cqw, 14px)/1 var(--font-ui);
   pointer-events: none;
 }
+.eco-space[data-kind='special'][data-interactive='true'] .eco-space__no { display: none; }
 .eco-space[data-kind='special'][data-active-space='true'] { background: var(--brass-deep); }
 .eco-space[data-interactive='true'] { touch-action: manipulation; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {

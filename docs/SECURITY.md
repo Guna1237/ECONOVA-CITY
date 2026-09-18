@@ -3,6 +3,10 @@
 
 ## Security, Game Integrity & Anti-Cheat Specification
 
+### Activity receipts (2026-09-19)
+
+Room commits derive bounded display receipts from an explicit event allowlist, not raw event payloads. Rent/payment amounts, resource changes and trade results are participant-private, even when the underlying engine event is tagged public. News and resolved policies are public. Persist receipts in the same snapshot transaction before swapping memory or notifying observers. Player projections include only public receipts and that authenticated player's receipts; routine admin/projector projections include public receipts only. Reconnect returns authorized history, not replayed commands. The client deduplicates by game, state version and receipt ID and does not persist private activity to browser storage. Retain 40 receipts per audience.
+
 This document defines the security requirements for ECONOVA: CITY.
 
 The objective is not to make the system theoretically impossible to attack.

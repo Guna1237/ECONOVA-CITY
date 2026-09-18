@@ -921,14 +921,14 @@ Credits can never be negative. Any calculation that would result in negative Cre
 ## 29. Disconnect/Timeout Behavior
 
 ### 29.1 Turn Timer
-Each player's normal turn has a **60-second timer**, starting when their turn becomes active and ending when their actions finish.
+Each player's normal turn has a **45-second timer**, starting when their turn becomes active and ending when their actions finish. Updated by the product owner on 2026-09-19.
 
-- At **45 seconds** of elapsed normal-turn time, a warning is shown.
+- At **30 seconds** of elapsed normal-turn time (15 seconds remaining), a warning is shown.
 - When the turn enters a sub-phase with its own timer, the normal turn timer pauses. This includes:
   - Auction: **30 seconds**
   - Emergency property sale: **30 seconds**
 - When the sub-phase completes, the normal turn timer resumes with the time that remained when it was paused.
-- At **60 seconds**, the turn auto-ends:
+- At **45 seconds**, the turn auto-ends:
   - If dice hasn't been rolled: server auto-rolls.
   - If landing hasn't been resolved: unowned properties are skipped (no buy, no auction). Fees are processed automatically; if a mandatory fee cannot be paid, the 30-second emergency-sale sub-phase begins and follows Section 28.2.
   - Any remaining Actions are forfeited.
@@ -1171,7 +1171,7 @@ These rules must be enforced exactly. Misimplementation would cause gameplay bug
 | How are ties broken? | Credits → Property Value → Property Count → Joint placement. (Section 27) |
 | How are Secret Objectives dealt? | Use one shuffled 10-objective pool for 4–6 players; sequentially offer 2, remove the chosen objective, and return the unchosen objective to the bottom before the next offer. (Section 24.2) |
 | What happens when emergency-sale selection times out or the player disconnects? | Deterministic automatic liquidation by ascending current liquidation value, then lowest property ID. (Section 28.2) |
-| How do turn and sub-phase timers interact? | The 60-second normal turn timer pauses for 30-second Auction and Emergency Sale sub-phases, then resumes; Council has a separate 45-second timer. (Section 29) |
+| How do turn and sub-phase timers interact? | The 45-second normal turn timer pauses for 30-second Auction and Emergency Sale sub-phases, then resumes; Council has a separate 45-second timer. Warning at 30 seconds elapsed. (Section 29) |
 
 ---
 

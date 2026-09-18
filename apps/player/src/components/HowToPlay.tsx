@@ -40,7 +40,7 @@ export const QuickStartGuide = (): ReactElement => <div className="player-guide"
   <details><summary>How do I earn points?</summary><p>Properties earn Credits at the end of each round. Development improves their income, landing fees, and final value.</p><p>Your final score adds Credits, property values, district-control bonuses, 10 points per unspent Influence, and 200 points for a completed secret objective.</p></details>
   <details><summary>An auction appeared. What do I do?</summary><p>Enter one sealed bid or pass within 30 seconds. The highest bid wins. A tie goes to the earlier player in this round’s turn order. Bidding can close early if everyone responds.</p></details>
   <details><summary>I cannot afford a landing fee</summary><p>The game lets you choose properties to sell for half their current value, rounded down. You have 30 seconds.</p><p>If time runs out or you disconnect, the game sells the lowest liquidation-value properties first (lowest property ID breaks ties). If you still cannot pay fully, you pay your remaining Credits and stay in the game.</p></details>
-  <details><summary>How much time do I have?</summary><p>A normal turn is 60 seconds. Auctions and emergency sales pause that timer and use their own 30 seconds. Council voting has 45 seconds. An operator pause freezes the timers.</p></details>
+  <details><summary>How much time do I have?</summary><p>A normal turn is 45 seconds, with a warning when 15 seconds remain. Auctions and emergency sales pause that timer and use their own 30 seconds. Council voting has 45 seconds. An operator pause freezes the timers.</p></details>
   <details><summary>My connection dropped</summary><p>Keep this tab open and let it reconnect. Do not join as a new player. Check your refreshed board and resources before trying an unconfirmed action again. Ask your organizer if your seat does not recover.</p></details>
 </div>;
 
@@ -48,7 +48,7 @@ export const HowToPlay = (): ReactElement => {
   const [open, setOpen] = useState(false);
   return <>
     <Button tone="quiet" size="sm" onClick={() => setOpen(true)}>How to play</Button>
-    {open ? <Sheet title="How to play" kicker="The essentials, then answers as you need them" onClose={() => setOpen(false)}
+    {open ? <Sheet title="How to play" onClose={() => setOpen(false)}
       footer={<Button onClick={() => setOpen(false)}>Got it</Button>}>
       <QuickStartGuide />
     </Sheet> : null}

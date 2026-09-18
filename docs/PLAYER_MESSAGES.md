@@ -2,25 +2,29 @@
 
 Copy the sections below into your group chat or read them aloud. They describe the approved rules, not new mechanics.
 
-## Before the game
+## Send before the event
 
-Bring a charged phone. We will play ECONOVA: CITY in groups of 4 to 6. Your goal is the highest score after 8 rounds: buy properties, improve them, make deals, and work toward your secret objective. Credits are only part of your score.
+Bring a charged phone. You will play ECONOVA: CITY in groups of 4 to 6. Buy properties, improve them, and aim for the highest score after 8 rounds. No need to memorize a rulebook.
 
-Open the player link from your organizer, enter your room code and name, and keep that tab open. Your phone holds your cards and private decisions. The projector shows the shared board. Tap **How to play** whenever you need a reminder.
+Open the player link, enter the room code and your name, and keep that tab open. Tap **How to play** for the basics. Tap any board space to learn what it does.
 
-## When the game starts
+## Read aloud at the start (about 30 seconds)
 
-Choose one of your two secret objectives. On your turn: roll, resolve the space you land on, then use your available Actions. You normally get 2 Actions. You can develop, trade, change Demand with Influence, or play a card at its allowed time. End your turn when you are done.
+Your goal is the highest score, not just the most money. First, choose one secret objective. On your turn, roll and follow the prompt on your phone. Then use up to your available Actions, normally two: improve a property, trade, use Influence, or play a card when allowed. Tap End turn when you are done. Buying the property you land on does not use an Action. Watch your phone even between turns: auctions and votes involve everyone.
 
-Buying the property you land on does not cost an Action. You can develop an eligible property you own without standing on it. Tap a property on the board to inspect it.
+## Send while they play
 
-## While playing
+**Your turn:** roll, follow the prompt, use your Actions, end your turn. Keep some Credits for landing fees. Tap a space if you are unsure what it does.
 
-Watch your phone for auctions, Council votes, and other decisions. Your turn normally has 60 seconds. Auctions and emergency sales have their own 30-second window; Council voting has 45 seconds. Reading the guide does not pause these timers.
+**Special spaces:** Innovation Hub, Market Square, and Observatory trigger a random event when you land there. City Center gives 150 Credits when you move forward past or onto it, at most once per turn. Moving backward with Shortcut gives no bonus.
 
-You do not have to spend all your Influence in Council. You can split it, keep some, or abstain. Talk to the other players about trades, then check both sides on your phone before accepting.
+**City Council:** everyone votes at the start of Rounds 3 and 6. Read both policies. Spend Influence on either, split it, or abstain. You may keep some Influence. Tap the City Council help button for a reminder.
 
-If your connection drops, keep the same tab open and let it reconnect. Do not join as a new player or keep tapping an unconfirmed action. Ask your organizer for help if it does not recover.
+**Watch the clock:** a normal turn is 45 seconds. The warning appears with 15 seconds left. Auctions and emergency sales pause that clock and use their own 30 seconds. Council gets 45 seconds. Opening help does not pause the game.
+
+**No projector needed:** open City updates on your phone to see current news, active policies, rent receipts and trade results. Your pawn and colour stay the same for the whole game. Private payments and trade details are only shown to the people involved.
+
+**Lost connection?** Keep the same tab open and let it reconnect. Do not join as a new player or keep tapping an unconfirmed action. Ask the organizer if it does not recover.
 
 ## One-line reminder
 

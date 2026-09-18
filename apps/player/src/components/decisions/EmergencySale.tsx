@@ -29,7 +29,7 @@ export const EmergencySale = (): ReactElement | null => {
 
   const owed = self.pendingLandingFee?.amount ?? null;
   const shortfall = owed === null ? null : Math.max(0, owed - self.credits);
-  const seat = seatOf(self.playerId, view.turnOrder);
+  const seat = seatOf(self.playerId, view.players);
 
   const toggle = (propertyId: string) =>
     setSelected((current) =>

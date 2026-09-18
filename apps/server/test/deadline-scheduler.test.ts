@@ -17,7 +17,7 @@ describe("authoritative room scheduler", () => {
     if (mode === "auction") {
       state.turn!.stage = "auction";
       state.turn!.turnDeadlineAt = null;
-      state.turn!.remainingTurnMilliseconds = 50_000;
+      state.turn!.remainingTurnMilliseconds = 35_000;
       state.auction = { id: "auction-1", propertyId: "P01", triggeringPlayerId: playerId, eligiblePlayerIds: state.currentTurnOrder, bids: {}, submittedPlayerIds: [], deadlineAt: 41_000 };
     }
     if (mode === "council") {
@@ -25,7 +25,7 @@ describe("authoritative room scheduler", () => {
       state.council = { id: "council-3", round: 3, optionAId: "POL01A", optionBId: "POL01B", allocations: {}, deadlineAt: 56_000 };
     }
     if (mode === "emergency_sale") {
-      state.turn!.stage = "emergency_sale"; state.turn!.turnDeadlineAt = null; state.turn!.remainingTurnMilliseconds = 50_000;
+      state.turn!.stage = "emergency_sale"; state.turn!.turnDeadlineAt = null; state.turn!.remainingTurnMilliseconds = 35_000;
       state.pendingLandingFee = { payerId: playerId, ownerId: otherId, propertyId: "P01", amount: 10 };
       state.emergencySale = { ...state.pendingLandingFee, deadlineAt: 41_000 };
     }
@@ -49,7 +49,7 @@ describe("authoritative room scheduler", () => {
     expect(runtime.getState().players).toEqual(expectedPlayers);
     expect(runtime.getState().trade).toEqual(paused.trade);
     expect(runtime.isQuarantined()).toBe(false);
-    if (mode === "normal" || mode === "trade") expect(runtime.getState().turn!.turnDeadlineAt).toBe(141_000);
+    if (mode === "normal" || mode === "trade") expect(runtime.getState().turn!.turnDeadlineAt).toBe(126_000);
   });
 
   it("resolves a turn without browser input and isolates a later room deadline", async () => {
@@ -62,12 +62,12 @@ describe("authoritative room scheduler", () => {
     const scheduler = new RoomRealtime(rooms, new ConnectionHub(), Date.now);
     scheduler.attach(first); scheduler.attach(second);
     try {
-      await vi.advanceTimersByTimeAsync(60000);
+      await vi.advanceTimersByTimeAsync(45000);
       expect(first.runtime!.getState().turn!.number).toBe(2);
       expect(first.runtime!.isQuarantined()).toBe(false);
       expect(second.runtime!.getState()).toEqual(before);
       expect(persistence.transitions).toHaveLength(1);
-      expect(first.runtime!.nextDeadlineAt()).toBe(121000);
+      expect(first.runtime!.nextDeadlineAt()).toBe(91000);
     } finally { scheduler.close(); }
   });
   it("persists disconnect then expires its canonical reconnect window", async () => {

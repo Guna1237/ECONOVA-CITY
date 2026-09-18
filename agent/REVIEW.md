@@ -3,6 +3,48 @@
 
 This file records bugs, security issues, architectural concerns, performance problems, gameplay inconsistencies, and QA findings.
 
+## Phone-only activity review, 2026-09-19
+
+### REVIEW-035: Timer-version deployment boundary
+
+ID: REVIEW-035
+SEVERITY: HIGH
+AREA: Deployment / saved-game recovery
+FILE: packages/game-engine/src/invariants.ts
+PROBLEM: Owner-approved 45-second turn bound rejects a legacy paused 60-second turn with more than 45 seconds saved.
+REPRODUCTION: Recover a pre-change snapshot with remainingTurnMilliseconds = 50_000 under the new configuration.
+IMPACT: That older game requires review rather than silently resuming with altered timing.
+RECOMMENDED FIX: Deploy between games. If a pre-change game must continue, approve and test a versioned timer migration before deployment; do not discard or silently mutate saved games.
+TEST REQUIRED: Legacy paused turn, auction, emergency sale and reconnect snapshots under the approved migration policy.
+STATUS: OPEN deployment constraint. No production deployment attempted.
+
+- Fixed: rotating turn order changed seat colours. Persist explicit join-order seat indexes, including JSONB key-order regression coverage.
+- Fixed: engine events never reached phone notifications. New bounded receipt builder restricts rent/trades/resources to authorized participants and preserves persistence-before-publication.
+- Fixed: NewsMoment effect cleanup canceled its dismissal timer on unrelated demand snapshots; the large banner could remain indefinitely. Replaced with persistent inline news/policy/history panel, no auto-overlay.
+- Fixed during browser QA: inherited SVG overflow exposed the entire pawn sheet. Explicit clip paths preserve exact PNG pixels.
+- Release caution: old paused normal-turn snapshots with >45 seconds remaining cannot satisfy the new timer invariant. Deploy between games, or agree and test a migration before resuming such a game. No silent mutation or weakened invariant was added.
+- Remaining: authenticated event-phone/browser notification/reconnect rehearsal, opt-in PostgreSQL recovery, existing chunk-size warning follow-up. See `docs/qa/PHONE_ACTIVITY_2026-09-19.md`.
+
+## REVIEW-034: Special spaces had no explanations and Innovation Hub implied the wrong reward
+
+SEVERITY: MEDIUM
+
+AREA: Player onboarding and rule presentation
+
+FILE: packages/ui/src/board/BoardSpace.tsx; apps/player/src/App.tsx
+
+PROBLEM: Special spaces rendered as non-interactive regions even on the Player board. Innovation Hub was labelled Strategy card, although GAME_DESIGN_SPEC section 21 assigns a random Special Event to all three non-City-Center special spaces.
+
+REPRODUCTION: Previously, tap Innovation Hub or Observatory on the Player preview: no explanation appeared. Inspect the Innovation Hub label on a wide board.
+
+IMPACT: First-time players could not discover what spaces do and could expect a guaranteed card from Innovation Hub.
+
+RECOMMENDED FIX: Implemented read-only, keyboard-accessible explanations and the correct Random event label. City Council has its own help button and is not misrepresented as a space. Projector remains non-interactive.
+
+TEST REQUIRED: Covered by `board-presentation.test.ts` and `board-help.test.ts`, plus Chromium checks of all four spaces and Council, phone/desktop focus behavior, and Projector markup.
+
+STATUS: RESOLVED 2026-09-19. No rule or engine changes.
+
 ## REVIEW-033: Frontend bundle-size warnings need measured follow-up
 
 SEVERITY: MEDIUM

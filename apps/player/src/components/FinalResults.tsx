@@ -33,7 +33,7 @@ export const FinalResults = (): ReactElement => {
           const player = view.players.find(
             (entry) => entry.playerId === result.playerId
           );
-          const seat = seatOf(result.playerId, view.turnOrder);
+          const seat = seatOf(result.playerId, view.players);
           const objective = OBJECTIVE_BY_ID.get(result.objectiveId);
           const you = result.playerId === self.playerId;
 

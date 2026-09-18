@@ -1888,6 +1888,18 @@ Not changed: scoring formula, tie-breakers, property economics, timers, or any p
 
 ---
 
+## DECISION-051: Phone activity and shorter normal turns
+
+Status: APPROVED by product owner, 2026-09-19.
+
+Normal turns now last 45 seconds, with a warning at 30 seconds elapsed. This supersedes the normal-turn duration and warning in prior decisions only. Auctions and emergency sales remain 30 seconds; Council remains 45 seconds; reconnect grace remains 60 seconds. Pause/resume behavior is unchanged.
+
+Players will play without a projector. Their phones must show news, active policies and recipient-authorized activity receipts. Public policy/news history and private participant receipts are persisted with the authoritative snapshot before publication, bounded to 40 items per audience. No raw engine event payload is broadcast as a receipt. Seat identity follows fixed lobby join order, not the rotating gameplay order. Use the supplied PNG pawns with visible seat numbers.
+
+Affected: GAME_DESIGN_SPEC Section 29, game-content config, projections, room commit presentation receipts, Player UI and player instructions. No other gameplay values or mechanics change.
+
+---
+
 # DECISION CHANGE RULE
 
 When superseding a decision:

@@ -198,9 +198,18 @@ describe("real HTTP and WebSocket multiplayer", () => {
           for (const message of snapshots) {
             expect(message.roomId).toBe(roomId);
             expect(JSON.stringify(message)).not.toMatch(/"cards"|"bids"|"allocations"|"token"|"sessionId"/);
+            const publicView = message.audience === 'projector' ? message.projection : message.projection.public;
+            expect(publicView.activity?.every(item => ['City news', 'Policy passed', 'Special event'].includes(item.title))).toBe(true);
           }
         }
-        for (const peer of players.values()) {
+        for (const [playerId, peer] of players) {
+          const snapshot = await peer.wait(m => m.type === 'state_snapshot' && m.stateVersion === final.version);
+          if (snapshot.type !== 'state_snapshot' || snapshot.audience !== 'player') throw Error('Expected player snapshot');
+          const expected = (final.activity ?? []).filter(item => item.recipientPlayerId === null || item.recipientPlayerId === playerId)
+            .map(({ id, round, title, text }) => ({ id, round, title, text }));
+          expect(snapshot.projection.self.activity).toEqual(expected);
+          expect(expected.length).toBeGreaterThan(0);
+          expect(expected.every(item => item.id.startsWith(final.gameId + ':'))).toBe(true);
           const clientTime = performance.now();
           peer.send({ type: "ping", clientTime: Math.floor(clientTime) });
           await peer.wait(m => m.type === "pong" && m.clientTime === Math.floor(clientTime));

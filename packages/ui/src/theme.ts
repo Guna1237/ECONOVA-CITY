@@ -68,14 +68,16 @@ export interface SeatTheme {
 export const SEAT_COUNT = 6;
 
 /**
- * Seats are assigned by turn order, so every surface — board, roster,
- * projector, admin — agrees on which colour belongs to which player.
+ * Gameplay order rotates. Seat identity does not. Older fixtures and lobby
+ * arrays use their stable join order; live projections carry an explicit seat.
  */
 export const seatOf = (
   playerId: string,
-  turnOrder: readonly string[]
+  roster: readonly (string | { readonly playerId: string; readonly seatIndex?: number | undefined })[]
 ): SeatTheme => {
-  const found = turnOrder.indexOf(playerId);
+  const position = roster.findIndex(player => typeof player === 'string' ? player === playerId : player.playerId === playerId);
+  const player = roster[position];
+  const found = typeof player === 'object' ? player.seatIndex ?? position : position;
   const index = found === -1 ? 0 : found % SEAT_COUNT;
   return {
     index,

@@ -368,7 +368,7 @@ describe("auctions and mandatory liquidation", () => {
     expect(state.auction?.deadlineAt).toBe(41_000);
     expect(state.turn).toMatchObject({
       turnDeadlineAt: null,
-      remainingTurnMilliseconds: 50_000
+      remainingTurnMilliseconds: 35_000
     });
 
     for (const playerId of state.currentTurnOrder) {
@@ -383,7 +383,7 @@ describe("auctions and mandatory liquidation", () => {
     expect(state.auction).toBeNull();
     expect(state.turn).toMatchObject({
       stage: "action_phase",
-      turnDeadlineAt: 70_000,
+      turnDeadlineAt: 55_000,
       remainingTurnMilliseconds: null
     });
   });
@@ -437,7 +437,7 @@ describe("auctions and mandatory liquidation", () => {
     state.emergencySale = { payerId, ownerId, propertyId: "P13", amount: 120, deadlineAt: 31_000 };
     state.turn!.stage = "emergency_sale";
     state.turn!.turnDeadlineAt = null;
-    state.turn!.remainingTurnMilliseconds = 60_000;
+    state.turn!.remainingTurnMilliseconds = 45_000;
     const ownerCredits = state.players[ownerId]!.credits;
 
     const result = handleEmergencySaleTimeout(state, 31_000);
@@ -449,7 +449,7 @@ describe("auctions and mandatory liquidation", () => {
     expect(result.state.players[ownerId]!.credits).toBe(ownerCredits + 120);
     expect(result.state.turn).toMatchObject({
       stage: "action_phase",
-      turnDeadlineAt: 91_000,
+      turnDeadlineAt: 76_000,
       remainingTurnMilliseconds: null
     });
   });
@@ -472,7 +472,7 @@ describe("auctions and mandatory liquidation", () => {
     expect(state.turn).toMatchObject({
       stage: "emergency_sale",
       turnDeadlineAt: null,
-      remainingTurnMilliseconds: 50_000
+      remainingTurnMilliseconds: 35_000
     });
 
     state = runAt(
@@ -485,7 +485,7 @@ describe("auctions and mandatory liquidation", () => {
     expect(state.emergencySale).toBeNull();
     expect(state.turn).toMatchObject({
       stage: "action_phase",
-      turnDeadlineAt: 70_000,
+      turnDeadlineAt: 55_000,
       remainingTurnMilliseconds: null
     });
   });
@@ -508,7 +508,7 @@ describe("auctions and mandatory liquidation", () => {
     expect(state.emergencySale).toBeNull();
     expect(state.turn).toMatchObject({
       stage: "action_phase",
-      turnDeadlineAt: 70_000,
+      turnDeadlineAt: 55_000,
       remainingTurnMilliseconds: null
     });
   });
@@ -732,13 +732,13 @@ describe("timer and connection transitions", () => {
       disconnectedAt: 11_000
     });
     expect(disconnected.turn).toMatchObject({
-      remainingTurnMilliseconds: 50_000,
+      remainingTurnMilliseconds: 35_000,
       turnDeadlineAt: null
     });
 
     const reconnected = reconnectPlayer(disconnected, playerId, 20_000).state;
     expect(reconnected.players[playerId]).toMatchObject({ connected: true, disconnectedAt: null });
-    expect(reconnected.turn?.turnDeadlineAt).toBe(70_000);
+    expect(reconnected.turn?.turnDeadlineAt).toBe(55_000);
     expect(reconnected.turn?.remainingTurnMilliseconds).toBeNull();
   });
 
@@ -755,7 +755,7 @@ describe("timer and connection transitions", () => {
     expect(state.properties.P01?.ownerId).toBeNull();
     expect(state.turn).toMatchObject({
       stage: "action_phase",
-      turnDeadlineAt: 91_000,
+      turnDeadlineAt: 76_000,
       remainingTurnMilliseconds: null
     });
   });
@@ -786,7 +786,7 @@ describe("timer and connection transitions", () => {
     expect(state.auction).toBeNull();
     expect(state.turn).toMatchObject({
       stage: "action_phase",
-      turnDeadlineAt: 70_000,
+      turnDeadlineAt: 55_000,
       remainingTurnMilliseconds: null
     });
   });
@@ -808,14 +808,14 @@ describe("timer and connection transitions", () => {
     }
 
     expect(state.auction).toBeNull();
-    expect(state.turn).toMatchObject({ stage: "action_phase", turnDeadlineAt: null, remainingTurnMilliseconds: 50_000 });
+    expect(state.turn).toMatchObject({ stage: "action_phase", turnDeadlineAt: null, remainingTurnMilliseconds: 35_000 });
     expect(() => handleReconnectTimeout(state, 74_999, sequenceRandom(0)))
       .toThrowError(expect.objectContaining({ code: "RECONNECT_WINDOW_ACTIVE" }));
     const reconnected = reconnectPlayer(state, triggererId, 50_000).state;
-    expect(reconnected.turn).toMatchObject({ turnDeadlineAt: 100_000, remainingTurnMilliseconds: null });
-    expect(() => handleTurnTimeout(reconnected, 99_999, sequenceRandom(0)))
+    expect(reconnected.turn).toMatchObject({ turnDeadlineAt: 85_000, remainingTurnMilliseconds: null });
+    expect(() => handleTurnTimeout(reconnected, 84_999, sequenceRandom(0)))
       .toThrowError(expect.objectContaining({ code: "TIMER_ACTIVE" }));
-    expect(handleTurnTimeout(reconnected, 100_000, sequenceRandom(0)).state.turn!.playerId).not.toBe(triggererId);
+    expect(handleTurnTimeout(reconnected, 85_000, sequenceRandom(0)).state.turn!.playerId).not.toBe(triggererId);
   });
 
   it("deterministically resolves an event district choice after reconnect timeout", () => {

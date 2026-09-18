@@ -40,6 +40,20 @@ const createState = (): GameState => {
 };
 
 describe("recipient-specific projections", () => {
+  it("keeps join-order seats stable when turn order rotates and state is recovered", () => {
+    const state = createState();
+    const seats = () => Object.fromEntries(createPublicProjection(state).players.map(p => [p.playerId, p.seatIndex]));
+    expect(seats()).toEqual({ p1: 0, p2: 1, p3: 2, p4: 3 });
+    state.currentTurnOrder.push(state.currentTurnOrder.shift()!);
+    state.players = Object.fromEntries(Object.entries(state.players).reverse());
+    expect(seats()).toEqual({ p1: 0, p2: 1, p3: 2, p4: 3 });
+    expect(createPublicProjection(JSON.parse(JSON.stringify(state))).players).toEqual(createPublicProjection(state).players);
+  });
+
+  it("starts a 45-second normal turn without changing sub-phase or reconnect timers", () => {
+    const state = startGame(createState(), createSeededRandom(4), 1_000).state;
+    expect(state.turn!.turnDeadlineAt).toBe(46_000);
+  });
   it("offers the Round 4 discard only to the pending player outside a normal turn", () => {
     const state = createState();
     const [playerId, otherId] = state.turnOrder;

@@ -51,6 +51,7 @@ export const validateGameState = (state: GameState): string[] => {
 
   for (const [id, player] of Object.entries(state.players)) {
     if (player.id !== id) issues.push(`Player ${id} has a mismatched identity`);
+    if (player.seatIndex !== undefined && (!nonNegativeInteger(player.seatIndex) || player.seatIndex >= GAME_CONFIG.maxPlayers)) issues.push(`Player ${id} has an invalid seat`);
     if (player.credits < 0) issues.push(`Player ${player.id} has negative Credits`);
     if (player.influence < 0) issues.push(`Player ${player.id} has negative Influence`);
     if (!nonNegativeInteger(player.credits)) issues.push(`Player ${player.id} has invalid Credits`);

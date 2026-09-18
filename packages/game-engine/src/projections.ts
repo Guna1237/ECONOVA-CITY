@@ -102,6 +102,9 @@ const publicPlayers = (state: GameState) =>
     if (player === undefined) throw new GameRuleError("UNKNOWN_PLAYER", "Player does not exist.");
     return {
       playerId: player.id,
+      // Explicit join-order identity survives PostgreSQL JSONB key reordering.
+      // Legacy snapshots fall back to the original, non-rotating turn order.
+      seatIndex: player.seatIndex ?? state.turnOrder.indexOf(player.id),
       name: player.name,
       position: player.position,
       propertyIds: [...player.propertyIds],
@@ -109,10 +112,15 @@ const publicPlayers = (state: GameState) =>
     };
   });
 
+const activityFor = (state: GameState, playerId: string | null) =>
+  (state.activity ?? []).filter(item => item.recipientPlayerId === null || item.recipientPlayerId === playerId)
+    .map(({ id, round, title, text }) => ({ id, round, title, text }));
+
 export const createPublicProjection = (state: GameState) => ({
   gameId: state.gameId,
   roomId: state.roomId,
   stateVersion: state.version,
+  activity: activityFor(state, null),
   phase: state.phase,
   round: state.round,
   turnOrder: [...state.currentTurnOrder],
@@ -191,6 +199,7 @@ export const createPlayerProjection = (state: GameState, playerId: string) => {
     self: {
       playerId,
       credits: player.credits,
+      activity: activityFor(state, playerId),
       influence: player.influence,
       cards: [...player.cards],
       propertyIds: [...player.propertyIds],

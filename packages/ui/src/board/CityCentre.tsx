@@ -31,7 +31,7 @@ export const CityCentre = ({ state, rolling = false }: CityCentreProps): ReactEl
   // A paused game retains its turn internally, but must not look active.
   const active = phase === 'player_turn' && turn !== null;
   const current = active ? players.find((player) => player.playerId === turn.playerId) : undefined;
-  const seat = current === undefined ? null : seatOf(current.playerId, state.turnOrder);
+  const seat = current === undefined ? null : seatOf(current.playerId, state.players);
   const location = current === undefined ? null : BOARD_SPACES.find((space) => space.position === current.position);
 
   return (
@@ -58,7 +58,7 @@ export const CityCentre = ({ state, rolling = false }: CityCentreProps): ReactEl
           {state.turnOrder.map((id) => {
             const player = players.find((entry) => entry.playerId === id);
             if (player === undefined) return null;
-            const identity = seatOf(id, state.turnOrder);
+            const identity = seatOf(id, state.players);
             return <span key={id} className="eco-board-hub__seat" data-active={active && id === turn.playerId}
               style={{ '--seat': identity.color } as CSSProperties}
               title={`${player.name}${player.connected ? '' : ', disconnected'}`}>

@@ -1,6 +1,10 @@
 # ECONOVA: CITY
 ## PRODUCT SPECIFICATION
 
+### Current event mode: phones only (owner update, 2026-09-19)
+
+The upcoming event does not use a projector. Every player must see current news, active policies, turn timing, rent receipts and trade results on their own phone. Existing projector support is retained for compatibility, but it is not required to understand or operate this event. Projector-specific sections below describe the optional display, not a dependency for players. Private information remains recipient-scoped.
+
 **Document:** `docs/PRODUCT.md`  
 **Product:** ECONOVA: CITY  
 **Status:** Master Product Definition  

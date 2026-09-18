@@ -51,6 +51,29 @@ const rollCommand = (state: GameState, actionId = "action-roll"): ClientCommand 
 });
 
 describe("serialized authoritative room runtime", () => {
+  it("persists activity exactly once, recovers it, and never publishes a failed trade receipt", async () => {
+    const state = createGame('room-activity'); state.turn!.stage = 'action_phase';
+    const persistence = new InMemoryGamePersistence();
+    const runtime = new RoomRuntime({ state, persistence, random: createSeededRandom(8), now: () => 2_000 });
+    const session = playerSession(state);
+    const other = state.currentTurnOrder.find(id => id !== session.playerId)!;
+    const command: ClientCommand = { type: 'propose_trade', requestId: 'proposal', actionId: 'proposal', expectedStateVersion: state.version,
+      counterpartyPlayerId: other, offeredCredits: 10, requestedCredits: 0, offeredPropertyIds: [], requestedPropertyIds: [] };
+    expect((await runtime.processCommand(session, command)).status).toBe('accepted');
+    const committed = runtime.getState();
+    expect(committed.activity?.map(item => item.title)).toEqual(['Trade offered', 'Trade received']);
+    expect(await persistence.loadLatestState(state.gameId)).toEqual(committed);
+    const recovered = new RoomRuntime({ state: JSON.parse(JSON.stringify(committed)), persistence, random: createSeededRandom(8), now: () => 2_000 });
+    expect((await recovered.processCommand(session, command)).status).toBe('accepted');
+    expect(recovered.getState().activity).toEqual(committed.activity);
+    expect(persistence.transitions).toHaveLength(1);
+    persistence.failNextTransition = true;
+    const reply: ClientCommand = { type: 'respond_trade', response: 'reject', tradeId: committed.trade!.id,
+      requestId: 'reply', actionId: 'reply', expectedStateVersion: committed.version };
+    expect((await recovered.processCommand({ ...session, playerId: other }, reply)).status).toBe('rejected');
+    expect(recovered.getState()).toEqual(committed);
+    expect(recovered.isQuarantined()).toBe(true);
+  });
   it.each(["player", "admin"] as const)("rechecks %s authority after a pending receipt read", async (role) => {
     for (const loss of ["revoked", "expired"] as const) {
       const state = createGame(`room-auth-${role}-${loss}`);
@@ -148,14 +171,14 @@ describe("serialized authoritative room runtime", () => {
     const runtime = new RoomRuntime({ state, persistence, random: createSeededRandom(8), now: () => now });
     const playerId = state.turn!.playerId;
     await runtime.processPresence(playerId, false);
-    expect(runtime.getState().turn).toMatchObject({ turnDeadlineAt: null, remainingTurnMilliseconds: 59_000 });
+    expect(runtime.getState().turn).toMatchObject({ turnDeadlineAt: null, remainingTurnMilliseconds: 44_000 });
     expect(runtime.getState().players[playerId]).toMatchObject({ connected: false, disconnectedAt: 2_000 });
     expect(runtime.nextDeadlineAt()).toBe(62_000);
     await runtime.processPresence(playerId, false);
     expect(persistence.transitions).toHaveLength(1);
     now = 3_000;
     await runtime.processPresence(playerId, true);
-    expect(runtime.getState().turn?.turnDeadlineAt).toBe(62_000);
+    expect(runtime.getState().turn?.turnDeadlineAt).toBe(47_000);
     expect(runtime.getState().players[playerId]?.disconnectedAt).toBeNull();
     await runtime.processPresence(playerId, true);
     expect(persistence.transitions).toHaveLength(2);
@@ -164,18 +187,18 @@ describe("serialized authoritative room runtime", () => {
 
   it("processes normal and reconnect deadlines only when due", async () => {
     const state = createGame("room-deadline");
-    let now = 60_999;
+    let now = 45_999;
     const runtime = new RoomRuntime({ state, persistence: new InMemoryGamePersistence(), random: createSeededRandom(8), now: () => now });
-    expect(runtime.nextDeadlineAt()).toBe(61_000);
+    expect(runtime.nextDeadlineAt()).toBe(46_000);
     expect(await runtime.processDeadlines()).toBeNull();
-    now = 61_000;
+    now = 46_000;
     expect((await runtime.processDeadlines())?.status).toBe("accepted");
     expect(runtime.getState().turn?.number).toBe(2);
-    expect(runtime.nextDeadlineAt()).toBe(121_000);
+    expect(runtime.nextDeadlineAt()).toBe(91_000);
     await runtime.processPresence(runtime.getState().turn!.playerId, false);
-    now = 120_999;
+    now = 105_999;
     expect(await runtime.processDeadlines()).toBeNull();
-    now = 121_000;
+    now = 106_000;
     await runtime.processDeadlines();
     expect(runtime.getState().turn?.number).toBe(3);
   });

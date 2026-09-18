@@ -1,6 +1,10 @@
 # ECONOVA: CITY
 # VISUAL SYSTEM
 
+## Phone-only event update, 2026-09-19
+
+Use the owner's six raster PNG pawns with persistent seat numbers. Seat color follows the server's fixed seat index, never current turn order. Current news, active policies and recent authorized receipts belong in a compact, expandable City updates panel in normal page flow. Do not cover the phone board with automatic news or round-change interstitials. History remains readable after the transient notification disappears. Panel motion is brief, opacity/transform-only, and disabled for reduced motion. The optional projector is not required for any of this information.
+
 Version: 1.0
 Status: Design Source of Truth
 
@@ -2473,5 +2477,11 @@ If the answer to these questions is yes, the visual system is doing its job.
 The goal is not simply to make ECONOVA beautiful.
 
 The goal is to make the game state itself beautiful, understandable and exciting.
+
+## First-time player guidance (2026-09-19)
+
+The existing light tabletop palette, crest, and supplied PNG-derived illustrations remain the visual direction. On the Player board, every space supports inspection. Special spaces use a small information marker and a readable explanation of what happens, the next step, and any important exception. The Projector board stays non-interactive.
+
+City Council has a separate labelled help control; it must not appear to be a landing space. How to play leads with the goal and three turn steps, then reveals detailed answers on request. Help does not send game commands or pause timers. Keep explanations short, preserve keyboard focus return, and respect reduced motion. Canonical gameplay remains defined only by GAME_DESIGN_SPEC.md.
 
 END OF VISUAL_SYSTEM.md

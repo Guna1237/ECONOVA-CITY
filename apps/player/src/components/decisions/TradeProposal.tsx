@@ -100,7 +100,7 @@ export const TradeProposal = ({
           <div className="eco-decision__question">Trade with</div>
           <div className="trade-partners">
             {others.map((player) => {
-              const seat = seatOf(player.playerId, view.turnOrder);
+              const seat = seatOf(player.playerId, view.players);
               const chosen = counterparty === player.playerId;
               return (
                 <button
@@ -149,7 +149,7 @@ export const TradeProposal = ({
                     <PropertyRecord
                       key={propertyId}
                       propertyId={propertyId}
-                      ownerSeat={seatOf(self.playerId, view.turnOrder)}
+                      ownerSeat={seatOf(self.playerId, view.players)}
                       developmentLevel={
                         view.properties.find((e) => e.propertyId === propertyId)
                           ?.developmentLevel ?? 0
@@ -189,7 +189,7 @@ export const TradeProposal = ({
                       ownerSeat={
                         counterparty === null
                           ? null
-                          : seatOf(counterparty, view.turnOrder)
+                          : seatOf(counterparty, view.players)
                       }
                       developmentLevel={
                         view.properties.find((e) => e.propertyId === propertyId)

@@ -28,7 +28,7 @@ export const StatusRail = (): ReactElement => {
     view.turn === null
       ? null
       : view.players.find((player) => player.playerId === view.turn?.playerId) ?? null;
-  const seat = current === null ? null : seatOf(current.playerId, view.turnOrder);
+  const seat = current === null ? null : seatOf(current.playerId, view.players);
   const isMe = current?.playerId === self.playerId;
   const deadline = view.turn?.deadlineAt ?? null;
 
@@ -63,6 +63,7 @@ export const StatusRail = (): ReactElement => {
           <Timer
             deadlineAt={deadline}
             windowSeconds={GAME_CONFIG.turnTimerSeconds}
+            warningAfterSeconds={GAME_CONFIG.turnWarningSeconds}
             label={isMe ? 'Your time' : 'Time left'}
           />
         ) : null}

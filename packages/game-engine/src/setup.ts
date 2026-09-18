@@ -52,6 +52,7 @@ export const createInitialGame = (input: {
   for (const player of input.players) {
     players[player.id] = {
       id: player.id,
+      seatIndex: input.players.indexOf(player),
       name: player.name,
       credits: GAME_CONFIG.startingCredits,
       influence: GAME_CONFIG.startingInfluence,

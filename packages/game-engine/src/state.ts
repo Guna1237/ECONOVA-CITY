@@ -1,4 +1,5 @@
 import type { DistrictId } from "@econova/game-content";
+import type { ActivityItemDto } from "@econova/contracts";
 
 import type { DevelopmentLevel } from "./calculations.js";
 import type { FinalScoreBreakdown } from "./calculations.js";
@@ -27,6 +28,7 @@ export type TurnStage =
 
 export interface PlayerState {
   readonly id: string;
+  readonly seatIndex?: number;
   name: string;
   credits: number;
   influence: number;
@@ -163,4 +165,6 @@ export interface GameState {
     readonly breakdown: FinalScoreBreakdown;
   }>;
   publicAnnouncements: Array<{ readonly type: string; readonly payload: Record<string, unknown> }>;
+  /** Bounded, durable presentation receipts. Never projected without audience filtering. */
+  activity?: Array<ActivityItemDto & { readonly recipientPlayerId: string | null }>;
 }

@@ -14,7 +14,7 @@ export const Standings = ({ state }: { readonly state: PublicProjectionDto }): R
     {state.turnOrder.map((playerId) => {
       const player = state.players.find((entry) => entry.playerId === playerId);
       if (player === undefined) return null;
-      const seat = seatOf(playerId, state.turnOrder);
+      const seat = seatOf(playerId, state.players);
       const current = state.turn?.playerId === playerId;
 
       return (

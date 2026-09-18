@@ -36,6 +36,7 @@ export const PlayerPiece = ({
     title={connected ? name : `${name} — disconnected`}
   >
     <SeatPiece shape={seat.shape} />
+    <span className="eco-piece__seat" aria-hidden="true">{seat.index + 1}</span>
     <span className="eco-visually-hidden">
       {name}
       {active ? ' — current turn' : ''}

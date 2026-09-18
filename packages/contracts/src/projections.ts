@@ -110,11 +110,20 @@ const tradeSchema = z
   })
   .strict();
 
+export const activityItemSchema = z.object({
+  id: z.string().min(1).max(160),
+  round: z.number().int().nonnegative(),
+  title: z.string().min(1).max(100),
+  text: z.string().min(1).max(500)
+}).strict();
+export type ActivityItemDto = z.infer<typeof activityItemSchema>;
+
 export const publicProjectionSchema = z
   .object({
     gameId: identifierSchema,
     roomId: roomIdSchema,
     stateVersion: z.number().int().nonnegative(),
+    activity: z.array(activityItemSchema).max(80).optional(),
     phase: gamePhaseSchema,
     round: z.number().int().nonnegative(),
     turnOrder: z.array(playerIdSchema),
@@ -135,6 +144,7 @@ export const publicProjectionSchema = z
         .object({
           playerId: playerIdSchema,
           name: z.string().min(1).max(40),
+          seatIndex: z.number().int().min(0).max(5).optional(),
           position: z.number().int().min(0).max(19),
           propertyIds: z.array(propertyIdSchema).max(16),
           connected: z.boolean()
@@ -215,6 +225,7 @@ export const playerProjectionSchema = z
       .object({
         playerId: playerIdSchema,
         credits: z.number().int().nonnegative(),
+        activity: z.array(activityItemSchema).max(80).optional(),
         influence: z.number().int().nonnegative(),
         cards: z.array(cardIdSchema),
         propertyIds: z.array(propertyIdSchema).max(16),

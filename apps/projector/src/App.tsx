@@ -89,7 +89,7 @@ const Results = ({ state }: { readonly state: PublicProjectionDto }): ReactEleme
           const player = state.players.find(
             (entry) => entry.playerId === result.playerId
           );
-          const seat = seatOf(result.playerId, state.turnOrder);
+          const seat = seatOf(result.playerId, state.players);
           const objective = OBJECTIVE_BY_ID.get(result.objectiveId);
 
           return (
@@ -188,7 +188,7 @@ export const App = (): ReactElement => {
     view.turn === null
       ? null
       : view.players.find((player) => player.playerId === view.turn?.playerId) ?? null;
-  const seat = current === null ? null : seatOf(current.playerId, view.turnOrder);
+  const seat = current === null ? null : seatOf(current.playerId, view.players);
 
   const news =
     view.activeBreakingNewsId === null
@@ -246,6 +246,7 @@ export const App = (): ReactElement => {
                   <Timer
                     deadlineAt={view.turn.deadlineAt}
                     windowSeconds={GAME_CONFIG.turnTimerSeconds}
+                    warningAfterSeconds={GAME_CONFIG.turnWarningSeconds}
                   />
                 ) : null}
               </div>

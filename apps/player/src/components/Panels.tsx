@@ -41,7 +41,7 @@ export const HoldingsPanel = ({
     );
   }
 
-  const seat = seatOf(self.playerId, view.turnOrder);
+  const seat = seatOf(self.playerId, view.players);
 
   return (
     <div>
@@ -122,7 +122,7 @@ export const PropertyPanel = ({
       <PropertyInspector
         propertyId={propertyId}
         ownerLabel={owner === null ? 'Unowned' : mine ? 'Yours' : owner.name}
-        ownerSeat={owner === null ? null : seatOf(owner.playerId, view.turnOrder)}
+        ownerSeat={owner === null ? null : seatOf(owner.playerId, view.players)}
         developmentLevel={level}
       />
 
@@ -279,7 +279,7 @@ export const RosterPanel = (): ReactElement => {
       {view.turnOrder.map((playerId) => {
         const player = view.players.find((entry) => entry.playerId === playerId);
         if (player === undefined) return null;
-        const seat = seatOf(playerId, view.turnOrder);
+        const seat = seatOf(playerId, view.players);
         const isCurrent = view.turn?.playerId === playerId;
 
         return (

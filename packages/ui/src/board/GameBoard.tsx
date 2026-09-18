@@ -79,7 +79,7 @@ export const GameBoard = ({
             <BoardSpace
               key={space.position}
               space={space}
-              ownerSeat={ownerId === null ? null : seatOf(ownerId, state.turnOrder)}
+              ownerSeat={ownerId === null ? null : seatOf(ownerId, state.players)}
               developmentLevel={record?.developmentLevel ?? 0}
               active={state.phase === 'player_turn' && state.players.some(
                 (player) => player.playerId === currentPlayerId && player.position === space.position
@@ -94,7 +94,7 @@ export const GameBoard = ({
                 .map((player) => (
                   <PlayerPiece
                     key={player.playerId}
-                    seat={seatOf(player.playerId, state.turnOrder)}
+                    seat={seatOf(player.playerId, state.players)}
                     name={player.name}
                     active={player.playerId === currentPlayerId}
                     playerId={player.playerId}

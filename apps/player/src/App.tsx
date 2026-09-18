@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import type { ReactElement } from 'react';
 
 import { BREAKING_NEWS, POLICY_BY_ID, PROPERTY_BY_ID } from '@econova/game-content';
@@ -7,7 +7,6 @@ import {
   GameBoard,
   Interrupt,
   NovaArt,
-  RoundTransition,
   Sheet,
   Toasts
 } from '@econova/ui';
@@ -56,15 +55,6 @@ const Table = (): ReactElement => {
   const [influencing, setInfluencing] = useState(false);
   const wide = useWideLayout();
 
-  /* A round change is announced once, briefly. */
-  const [announcedRound, setAnnouncedRound] = useState<number | null>(null);
-  const lastRound = useRef(view.round);
-  useEffect(() => {
-    if (view.round === lastRound.current) return;
-    lastRound.current = view.round;
-    setAnnouncedRound(view.round);
-  }, [view.round]);
-
   const news =
     view.activeBreakingNewsId === null
       ? null
@@ -112,6 +102,7 @@ const Table = (): ReactElement => {
         ) : view.phase === 'paused' ? (
           <Interrupt>The game is paused by the operator.</Interrupt>
         ) : null}
+        <NewsMoment projection={projection} />
       </div>
 
       <main className="player-stage">
@@ -133,7 +124,6 @@ const Table = (): ReactElement => {
             />
           </div>
         </div>
-        <NewsMoment eventId={view.activeBreakingNewsId} demand={view.demand} />
       </main>
 
       <ActionDock
@@ -200,10 +190,6 @@ const Table = (): ReactElement => {
       ) : null}
 
       {hasUncertainCommand ? null : <DecisionSurface />}
-
-      {announcedRound === null ? null : (
-        <RoundTransition round={announcedRound} onDone={() => setAnnouncedRound(null)} />
-      )}
 
       <Toasts items={toasts} onDismiss={dismissToast} />
     </div>

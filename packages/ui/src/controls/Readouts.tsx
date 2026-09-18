@@ -62,6 +62,7 @@ export interface TimerProps {
   readonly deadlineAt: number;
   /** Full window length in seconds, used to draw the drain. */
   readonly windowSeconds: number;
+  readonly warningAfterSeconds?: number;
   readonly label?: string;
 }
 
@@ -73,6 +74,7 @@ export interface TimerProps {
 export const Timer = ({
   deadlineAt,
   windowSeconds,
+  warningAfterSeconds,
   label
 }: TimerProps): ReactElement => {
   const [now, setNow] = useState(() => Date.now());
@@ -84,7 +86,7 @@ export const Timer = ({
 
   const remaining = Math.max(0, deadlineAt - now);
   const fraction = Math.max(0, Math.min(1, remaining / (windowSeconds * 1000)));
-  const urgent = remaining <= 10_000;
+  const urgent = remaining <= (warningAfterSeconds === undefined ? 10 : windowSeconds - warningAfterSeconds) * 1000;
 
   return (
     <div className="eco-timer" data-urgent={urgent}>

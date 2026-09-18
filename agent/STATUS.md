@@ -3,6 +3,18 @@
 
 This file records the current development state.
 
+## Phone activity and stable pawns: 2026-09-19 (Codex)
+
+Final verification: typecheck/build/diff-check PASS; 431 tests PASS, one opt-in PostgreSQL skip. Four real WebSocket tests PASS with recipient-specific receipt assertions across two six-player games. Browser preview checked at 320px, 390px and 1440px; no horizontal overflow or automatic news/round overlays. Full authenticated event-device/browser receipt flow remains NOT VERIFIED.
+
+Implemented owner-requested phone-only awareness, durable private/public receipts, fixed seat identity, original PNG pawns, non-obstructing news/policy history, and 45-second turns warning at 30 seconds elapsed. Source/tests/docs summarized in `docs/qa/PHONE_ACTIVITY_2026-09-19.md`. Prior dirty board-help changes preserved. No deployment or commit. Release caution: deploy between games; pre-change paused snapshots with more than 45 seconds remaining require an explicit migration policy. Live multi-phone browser walkthrough and opt-in PostgreSQL process recovery remain separate release checks.
+
+## First-time player board help: 2026-09-19 (Codex)
+
+Implemented special-space tap/keyboard help, a separate City Council help button, a short How to play overview with collapsed answers, calmer special tiles, and a shorter shareable player briefing. Corrected Innovation Hub's presentation label to Random event without changing rules. Full evidence and file list: `docs/qa/BOARD_LEARNABILITY_2026-09-19.md`.
+
+Typecheck/build PASS; 419 tests pass, one opt-in PostgreSQL skip; diff whitespace PASS. Browser checks cover all four special spaces, Council, focus return/containment, 320/390px Player, desktop Player, and non-interactive Projector. No backend/engine/contract/dependency changes. Remaining: real authenticated multiplayer/help/reconnect and event-device QA; REVIEW-033 bundle warnings. No commit or deployment by this agent.
+
 ## Board refinement: 2026-09-18 (Codex)
 
 Implemented the owner-requested board continuation: original PNG icons and crest, clearer turn/Demand centre, readable property labels, separated development/ownership cues, short-phone layout fix, named property dialogs, paused-state presentation, and Reading the board help. Added shareable `docs/PLAYER_MESSAGES.md`. Full footprint and evidence: `docs/qa/BOARD_REFINEMENT_2026-09-18.md`.

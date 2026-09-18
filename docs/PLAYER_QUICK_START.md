@@ -62,7 +62,7 @@ At the start of Rounds 3 and 6, the City Council offers two policies for the tab
 
 ### Watch the timer
 
-A normal turn lasts 60 seconds, with a warning at the 45 second mark. Auctions and emergency property sales each run on their own separate 30 second timer. While one of those is happening, your regular turn timer pauses, then picks back up afterward. Council votes have their own timer too. Reading instructions does not pause the game for anyone, but if an operator pauses the game, every timer freezes until they resume it.
+A normal turn lasts 45 seconds, with a warning after 30 seconds (15 seconds left). Auctions and emergency property sales each run on their own separate 30 second timer. While one of those is happening, your regular turn timer pauses, then picks back up afterward. Council votes have their own timer too. Reading instructions does not pause the game for anyone, but if an operator pauses the game, every timer freezes until they resume it.
 
 Two decisions happen outside a normal turn, and each gives you 45 seconds. First, choose your secret objective at the start. In Round 4, if your hand is full, choose a card to discard. If the timer runs out, the game keeps your first offered objective or discards your lowest numbered card. Choose before the deadline to keep control of that decision.
 

@@ -51,7 +51,7 @@ export const ActionDock = ({
 
   const mine = view.turn?.playerId === self.playerId;
   const stage = view.turn?.stage ?? null;
-  const seat = seatOf(self.playerId, view.turnOrder);
+  const seat = seatOf(self.playerId, view.players);
 
   const me = view.players.find((player) => player.playerId === self.playerId);
   const space = me === undefined ? undefined : BOARD_SPACES[me.position];

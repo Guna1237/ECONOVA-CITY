@@ -1,100 +1,46 @@
-import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties, ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import { BREAKING_NEWS, POLICY_BY_ID } from '@econova/game-content';
+import type { PlayerProjectionDto } from '@econova/contracts';
+import './city-updates.css';
 
-import { BREAKING_NEWS } from '@econova/game-content';
-import type { DistrictId } from '@econova/game-content';
-import type { PublicProjectionDto } from '@econova/contracts';
-import { DISTRICTS, DistrictMark, formatSigned } from '@econova/ui';
-
-type Demand = PublicProjectionDto['demand'];
-
-/**
- * A bulletin entering the board — a newsroom moment, not a modal.
- *
- * It names the district it hits, states the consequence in the content
- * package's own words, and where the city's demand actually moved it shows
- * the change that followed. The before value is the last demand this client
- * was told about, so the readout narrates observed authoritative state rather
- * than predicting an outcome.
- */
-export const NewsMoment = ({
-  eventId,
-  demand
-}: {
-  readonly eventId: string | null;
-  readonly demand: Demand;
-}): ReactElement | null => {
-  const [showing, setShowing] = useState<string | null>(null);
-  const [change, setChange] = useState<{ before: number; after: number } | null>(null);
-
-  const lastEvent = useRef<string | null>(eventId);
-  const previousDemand = useRef<Demand>(demand);
-
-  useEffect(() => {
-    if (eventId === lastEvent.current) {
-      previousDemand.current = demand;
-      return;
-    }
-    lastEvent.current = eventId;
-    if (eventId === null) return;
-
-    const news = BREAKING_NEWS.find((entry) => entry.id === eventId);
-    const districtId = (news?.effect as { district?: DistrictId } | undefined)?.district;
-    setChange(
-      districtId === undefined
-        ? null
-        : { before: previousDemand.current[districtId], after: demand[districtId] }
-    );
-    previousDemand.current = demand;
-
-    setShowing(eventId);
-    const timer = window.setTimeout(() => setShowing(null), 5200);
-    return () => window.clearTimeout(timer);
-  }, [eventId, demand]);
-
-  if (showing === null) return null;
-
-  const news = BREAKING_NEWS.find((entry) => entry.id === showing);
-  if (news === undefined) return null;
-
-  /* Several bulletins name a district; the ones that do get its colour. */
-  const districtId = (news.effect as { district?: DistrictId }).district ?? null;
-  const district = districtId === null ? null : DISTRICTS[districtId];
-  const moved = change !== null && change.before !== change.after;
-
+/** Persistent, in-flow information for games played without a projector. */
+export const NewsMoment = ({ projection }: { readonly projection: PlayerProjectionDto }): ReactElement => {
+  const view = projection.public;
+  const news = BREAKING_NEWS.find(entry => entry.id === view.activeBreakingNewsId);
+  const policies = view.activePolicyIds.flatMap(id => {
+    const policy = POLICY_BY_ID.get(id);
+    return policy ? [policy] : [];
+  });
+  const activity = [...(projection.self.activity ?? view.activity ?? [])].reverse();
+  const latest = activity.find(item => item.title !== 'Your resources') ?? activity[0];
   return (
-    <div
-      className="news-moment"
-      role="status"
-      style={(district?.vars ?? {}) as CSSProperties}
-      data-district={districtId ?? 'none'}
-    >
-      <div className="news-moment__rule" aria-hidden="true" />
-      <div className="news-moment__body">
-        <div className="news-moment__kicker">
-          Breaking news
-          {district === null ? null : (
-            <>
-              <span aria-hidden="true">·</span>
-              <DistrictMark mark={district.mark} width={13} height={13} />
-              {district.label}
-            </>
-          )}
-        </div>
-        <div className="news-moment__headline">{news.name}</div>
-        <div className="news-moment__text">{news.description}</div>
-
-        {moved && district !== null ? (
-          <div className="news-moment__change">
-            <span className="news-moment__change-label">{district.label} demand</span>
-            <span className="news-moment__from">{formatSigned(change.before)}</span>
-            <span className="news-moment__arrow" aria-hidden="true">
-              →
-            </span>
-            <span className="news-moment__to">{formatSigned(change.after)}</span>
+    <section className="city-updates" aria-label="City updates">
+      <details>
+        <summary>
+          <span className="city-updates__heading">City updates</span>
+          <span className="city-updates__preview">
+            {policies.length ? `${policies.length} active polic${policies.length === 1 ? 'y' : 'ies'}` : 'No policies yet'}
+            {news ? ` · ${news.name}` : ' · News and receipts'}
+          </span>
+          <span className="city-updates__toggle" aria-hidden="true">⌄</span>
+        </summary>
+        <div className="city-updates__content">
+          <div className="city-updates__rules">
+            <div><h3>Current news</h3>{news ? <><strong>{news.name}</strong><p>{news.description}</p></> : <p>No news is active.</p>}</div>
+            <div><h3>Active policies</h3>{policies.length ? policies.map(policy => (
+              <div key={policy.id}><strong>{policy.name}</strong><p>{policy.description}</p></div>
+            )) : <p>No policy has passed yet. Council votes happen in Rounds 3 and 6.</p>}</div>
           </div>
-        ) : null}
-      </div>
-    </div>
+          <h3>Recent activity</h3>
+          <p className="city-updates__privacy">Your payments and trades are visible only to the players involved.</p>
+          {activity.length ? <ol className="city-updates__history">{activity.map(item => (
+            <li key={item.id}><span className="city-updates__round">R{item.round}</span><div><strong>{item.title}</strong><p>{item.text}</p></div></li>
+          ))}</ol> : <p>Rent, trade results and game updates will appear here.</p>}
+        </div>
+      </details>
+      <p className="city-updates__latest" role="status" aria-live="polite" aria-atomic="true">
+        {latest ? <><strong>{latest.title}</strong> {latest.text}</> : 'Keep this panel handy. Everything you need is on your phone.'}
+      </p>
+    </section>
   );
 };

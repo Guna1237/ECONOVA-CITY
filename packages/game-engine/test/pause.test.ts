@@ -15,7 +15,7 @@ function subphase(kind: "auction" | "council" | "emergency_sale"): GameState {
     state.phase = "council"; state.round = 3; state.turn = null;
     state.council = { id: "council-3", round: 3, optionAId: "POL01A", optionBId: "POL01B", allocations: {}, deadlineAt: 46_000 };
   } else {
-    state.turn!.stage = kind; state.turn!.turnDeadlineAt = null; state.turn!.remainingTurnMilliseconds = 50_000;
+    state.turn!.stage = kind; state.turn!.turnDeadlineAt = null; state.turn!.remainingTurnMilliseconds = 35_000;
     if (kind === "auction") state.auction = { id: "auction-1", propertyId: "P01", triggeringPlayerId: payerId, eligiblePlayerIds: state.currentTurnOrder, bids: {}, submittedPlayerIds: [], deadlineAt: 31_000 };
     else {
       state.players[payerId]!.credits = 0;
@@ -39,7 +39,7 @@ describe("operator pause freezes game time", () => {
     resumed = resumeGame(pauseGame(resumed, 112_000, "again").state, 212_000).state;
     expect(readDeadline(resumed)).toBe(deadline + 200_000);
     expect(resumed.players).toEqual(state.players);
-    if (kind !== "council") expect(resumed.turn!.remainingTurnMilliseconds).toBe(50_000);
+    if (kind !== "council") expect(resumed.turn!.remainingTurnMilliseconds).toBe(35_000);
   });
 
   it("preserves normal time when a player disconnects and reconnects while paused", () => {
@@ -48,8 +48,8 @@ describe("operator pause freezes game time", () => {
     paused = disconnectPlayer(paused, id, 21_000).state;
     paused = reconnectPlayer(paused, id, 31_000).state;
     expect(paused.turn!.turnDeadlineAt).toBeNull();
-    expect(paused.turn!.remainingTurnMilliseconds).toBe(50_000);
-    expect(resumeGame(paused, 111_000).state.turn!.turnDeadlineAt).toBe(161_000);
+    expect(paused.turn!.remainingTurnMilliseconds).toBe(35_000);
+    expect(resumeGame(paused, 111_000).state.turn!.turnDeadlineAt).toBe(146_000);
   });
 
   it.each([false, true])("freezes reconnect grace (disconnected during pause: %s)", duringPause => {
@@ -60,7 +60,7 @@ describe("operator pause freezes game time", () => {
     expect(resumed.turn!.turnDeadlineAt).toBeNull();
     expect(resumed.players[id]!.disconnectedAt).toBe(duringPause ? 111_000 : 106_000);
     const reconnected = reconnectPlayer(resumed, id, 112_000).state;
-    expect(reconnected.turn!.turnDeadlineAt).toBe(duringPause ? 162_000 : 167_000);
+    expect(reconnected.turn!.turnDeadlineAt).toBe(duringPause ? 147_000 : 152_000);
   });
 
   it.each(["auction", "council", "emergency_sale"] as const)("defers %s disconnect effects until resume, even after reconnect", kind => {
@@ -87,7 +87,7 @@ describe("operator pause freezes game time", () => {
     const resumed = resumeGame(pauseGame(disconnected, 11_000, "operator").state, 111_000).state;
     expect(resumed.trade).toEqual(state.trade);
     expect(resumed.players[other]!.disconnectedAt).toBe(106_000);
-    expect(resumed.turn!.turnDeadlineAt).toBe(161_000);
+    expect(resumed.turn!.turnDeadlineAt).toBe(146_000);
   });
 
   it.each(["accept", "reject"] as const)("rejects a trade %s command while paused and allows it after resume", response => {
