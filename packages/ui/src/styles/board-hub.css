@@ -41,7 +41,7 @@
 .eco-board-hub .eco-board-hub__art { grid-column: 1 / -1; width: 14cqw; height: 10cqw; justify-self: start; }
 .eco-board-hub__turn { display: grid; gap: .65cqw; min-width: 0; }
 .eco-board-hub__caption { font-size: 1.5cqw; color: var(--ink-soft); }
-.eco-board-hub__player { font: 800 4cqw/1.1 var(--font-display); overflow-wrap: anywhere; }
+.eco-board-hub__player { font: 800 4cqw/1.1 var(--font-display); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .eco-board-hub__activity { font-size: 1.8cqw; font-weight: 700; }
 .eco-board-hub__location { font-size: 1.45cqw; color: var(--ink-soft); line-height: 1.4; }
 .eco-board-hub__roll { display: grid; justify-items: center; gap: 1cqw; }

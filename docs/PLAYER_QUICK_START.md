@@ -4,7 +4,7 @@ This is a plain-language handout for players, based on `GAME_DESIGN_SPEC.md`. It
 
 ## Send before the game
 
-Welcome to ECONOVA: CITY. You and 4 to 6 other players are each trying to build the strongest property portfolio over 8 rounds. Whoever has the highest score when the game ends wins.
+Welcome to ECONOVA: CITY. Your group of 4 to 6 players competes to build the strongest property portfolio over 8 rounds. Whoever has the highest score when the game ends wins.
 
 Here is the shape of it: you buy properties, develop them, collect income from them, and use cards and Influence to steer the city in your favor. Your score at the end is not just the Credits sitting in your account. It also counts your properties, any districts you control, whatever Influence you have left, and your secret objective if you complete it.
 
@@ -45,7 +45,7 @@ At the start of Rounds 3 and 6, the City Council offers two policies for the tab
 
 A normal turn lasts 60 seconds, with a warning at the 45 second mark. Auctions and emergency property sales each run on their own separate 30 second timer. While one of those is happening, your regular turn timer pauses, then picks back up afterward. Council votes have their own timer too. Reading instructions does not pause the game for anyone, but if an operator pauses the game, every timer freezes until they resume it.
 
-Two decisions happen outside a normal turn, and each gives you 45 seconds. The first is picking your secret objective at the very start. The second only affects you in Round 4, and only if your hand is already full, in which case you choose a card to discard. If either timer runs out the game keeps moving rather than making everyone wait: you simply keep the first objective you were offered, or the game discards your lowest numbered card. Nothing is taken from you, so there is no penalty for being slow, but it is nicer to choose for yourself.
+Two decisions happen outside a normal turn, and each gives you 45 seconds. First, choose your secret objective at the start. In Round 4, if your hand is full, choose a card to discard. If the timer runs out, the game keeps your first offered objective or discards your lowest numbered card. Choose before the deadline to keep control of that decision.
 
 ### If you cannot pay a landing fee
 

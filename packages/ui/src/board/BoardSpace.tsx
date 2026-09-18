@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import { Fragment, type CSSProperties, type ReactElement, type ReactNode } from 'react';
 
 import { PROPERTY_BY_ID, type BoardSpace as BoardSpaceContent } from '@econova/game-content';
 
@@ -124,12 +124,15 @@ export const BoardSpace = ({
         <span>{district.label}</span>
       </span>
 
-      <span className="eco-space__name">{property.name}</span>
+      <span className="eco-space__name">{property.name.split(/(?<=[a-z])(?=[A-Z])/u).map((part, index) => (
+        <Fragment key={index}>{index === 0 ? null : <wbr />}{part}</Fragment>
+      ))}</span>
 
       <PropertyMotif propertyId={property.id} className="eco-space__motif" />
 
       {developmentLevel > 0 ? (
         <Development
+          key={`${property.id}-${developmentLevel}`}
           district={property.district}
           level={developmentLevel}
           className="eco-space__built"

@@ -428,7 +428,7 @@
   color: var(--ink);
   /* A long special name wraps rather than spilling over the brass band. */
   max-width: 100%;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 
 .eco-space__special-note {
@@ -1085,6 +1085,10 @@
   .eco-space__built { height: 22%; width: 50%; left: 28%; }
   .eco-space__pieces { max-width: 90%; flex-wrap: wrap; justify-content: flex-end; gap: 0; }
   .eco-space__claim { font-size: 8px; }
+  .eco-space[data-kind='special'] { padding: 9% 3%; }
+  .eco-space[data-kind='special'][data-edge='left'] { padding-left: 9%; }
+  .eco-space[data-kind='special'][data-edge='right'] { padding-right: 9%; }
+  .eco-space__special-name { font-size: 8px; }
 }
 
 /* =================================================================

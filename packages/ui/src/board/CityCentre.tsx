@@ -46,7 +46,7 @@ export const CityCentre = ({ state, rolling = false }: CityCentreProps): ReactEl
         <NovaArt kind="property" className="eco-board-hub__art" />
         <div className="eco-board-hub__turn" aria-live="polite" aria-atomic="true">
           <span className="eco-board-hub__caption">{active ? 'Current turn' : 'Game status'}</span>
-          <strong className="eco-board-hub__player">{current?.name ?? PHASE_LABEL[phase] ?? 'Waiting'}</strong>
+          <strong className="eco-board-hub__player" title={current?.name}>{current?.name ?? PHASE_LABEL[phase] ?? 'Waiting'}</strong>
           <span className="eco-board-hub__activity">{active ? TURN_ACTIVITY[turn.stage] ?? 'Taking a turn' : phase === 'paused' ? 'Waiting for the operator to resume' : 'Follow the instructions on your phone'}</span>
           {location === null || location === undefined ? null : <span className="eco-board-hub__location">Space {location.position}: {location.name}</span>}
         </div>
