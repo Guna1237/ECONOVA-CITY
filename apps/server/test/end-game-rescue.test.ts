@@ -116,6 +116,36 @@ describe("ending a session that cannot continue", () => {
     expect(persistence.transitions.at(-1)?.nextState.phase).toBe("completed");
   });
 
+  it("tells connected screens the result, not that the room is still under review", async () => {
+    const { runtime, state } = await quarantinedRoom();
+    /*
+     * Observers are notified synchronously inside commit and read the
+     * quarantine flag to choose what to send. Checking only the final state
+     * missed that the broadcast went out while the room still looked frozen.
+     */
+    const seen: { quarantined: boolean; phase: string }[] = [];
+    runtime.subscribe((committed) => {
+      seen.push({ quarantined: runtime.isQuarantined(), phase: committed.phase });
+    });
+
+    await runtime.processAdminCommand(
+      adminSession(state),
+      admin("admin_end_game", "end", runtime.getState().version)
+    );
+
+    expect(seen).toEqual([{ quarantined: false, phase: "completed" }]);
+  });
+
+  it("stays quarantined if the rescue itself is refused", async () => {
+    const { runtime, state } = await quarantinedRoom();
+    const ended = await runtime.processAdminCommand(
+      adminSession(state),
+      admin("admin_end_game", "end", runtime.getState().version + 99)
+    );
+    expect(ended.status).toBe("rejected");
+    expect(runtime.isQuarantined()).toBe(true);
+  });
+
   it("reads as a finished room afterwards rather than staying flagged", async () => {
     const { runtime, state } = await quarantinedRoom();
     await runtime.processAdminCommand(

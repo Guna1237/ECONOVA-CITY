@@ -3,6 +3,42 @@
 
 This file records bugs, security issues, architectural concerns, performance problems, gameplay inconsistencies, and QA findings.
 
+## REVIEW-032: A database blip froze a live game
+
+SEVERITY: HIGH
+
+AREA: Persistence resilience
+
+FILE: apps/server/src/persistence/postgres.ts; apps/server/src/persistence/transient.ts
+
+PROBLEM: Every accepted and rejected command is persisted before a player sees it, and a failed write quarantines the room so memory never runs ahead of the database. That is right for a real conflict, but writes were single-attempt, so a dropped connection, reset socket or database failover quarantined a live game over a one-second network blip. Two defects made it worse: the catch ran ROLLBACK on the connection that had just died, and that second failure replaced the error that explained the first; and the failed connection went back to the pool, where a client-side query timeout can leave it open inside an aborted transaction for the next command to inherit.
+
+IMPACT: On a hosted database, an ordinary transient failure ended a session mid-game, recoverable only by ending it early.
+
+RECOMMENDED FIX: Implemented. Only connection-level failures (SQLSTATE class 08, 57P0x shutdowns, Node socket errors, pg's message-only terminations) are retried, three attempts with short backoff; anything the database refused on its merits still surfaces at once. Retries are idempotent: when a commit landed but its acknowledgement was lost, the transition write recognises its own version already stored, and the rejected-receipt write treats a unique violation on a retry as its own row. Rollback failures no longer mask the original error, and failed connections are destroyed rather than pooled.
+
+TEST REQUIRED: `apps/server/test/postgres-transient.test.ts` covers classification, the attempt budget, loss before write, loss after commit, a genuine conflict (not retried), connection destruction and rollback masking. Still worth one live check against the deployed database.
+
+STATUS: RESOLVED 2026-09-18.
+
+## REVIEW-031: A rescued room never showed its results
+
+SEVERITY: HIGH
+
+AREA: Operator recovery (DECISION-050)
+
+FILE: apps/server/src/rooms/room-runtime.ts
+
+PROBLEM: Ending a quarantined room scored and persisted the game, but the quarantine flag was cleared after commit returned. Commit notifies observers synchronously, and the realtime layer reads that flag to decide what to send, so every screen was told the room was still under review. Nothing re-broadcast afterwards, so the table never saw the result the rescue existed to produce.
+
+IMPACT: The rescue path worked in the runtime and failed in front of the players.
+
+RECOMMENDED FIX: Implemented. The flag is lifted once the scoring transition has succeeded and before commit notifies anyone; a persistence failure re-quarantines through the existing catch, and a refused rescue leaves the room quarantined.
+
+TEST REQUIRED: `end-game-rescue.test.ts` now asserts what observers see at notification time. Verified to fail against the previous code.
+
+STATUS: RESOLVED 2026-09-18. Introduced in dddcf7e; the original test checked only final runtime state.
+
 ## REVIEW-030: Backend verification failures during the Nova UI pass
 
 SEVERITY: HIGH

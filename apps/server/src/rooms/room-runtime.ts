@@ -116,15 +116,7 @@ export class RoomRuntime {
         case "admin_end_game":
           return endGameNow(this.state, input.reason);
       }
-      }, stillAuthorized, rescuing).then((receipt) => {
-        /* A rescued room holds a finished, invariant-checked game now, so it
-           should read as completed rather than stay flagged for review. */
-        if (rescuing && receipt.status === "accepted" && this.isQuarantined()) {
-          this.status = "active";
-          this.quarantineReason = null;
-        }
-        return receipt;
-      });
+      }, stillAuthorized, rescuing);
     });
   }
 
@@ -297,6 +289,18 @@ export class RoomRuntime {
         await this.persistence.persistRejectedReceipt(this.state.gameId, this.state.roomId, receipt, binding);
         this.cache({ receipt, binding });
         return receipt;
+      }
+      /*
+       * A rescue has produced a finished, invariant-checked game, so the room
+       * stops being quarantined before commit tells anyone. Commit notifies
+       * observers synchronously, and they read this flag to decide what to
+       * send: lifting it any later meant every screen was told the room was
+       * still under review and never saw the results. If persisting fails,
+       * the catch below quarantines the room again.
+       */
+      if (allowQuarantined && this.isQuarantined()) {
+        this.status = "active";
+        this.quarantineReason = null;
       }
       return await this.commit(transition, command, binding, role === "player" ? session.playerId : null,
         role === "admin" ? { adminSessionId: session.sessionId, actionType: command.type,

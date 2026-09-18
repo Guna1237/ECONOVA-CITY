@@ -35,6 +35,25 @@ Properties earn you income at the end of every round. When another player lands 
 
 If you move forward across or onto City Center, you earn 150 Credits, at most once per turn. Moving backward, for example with a Shortcut card, does not trigger that bonus.
 
+### The four special spaces
+
+Four spaces on the board are not properties: City Center, Innovation Hub, Market Square, and Observatory.
+
+City Center is the only safe one. Landing there or passing over it just earns you the 150 Credits, and nothing else happens.
+
+Innovation Hub, Market Square, and Observatory all work exactly the same way as each other. Landing on any one of them draws one random city event from a shared pool of eight. You cannot tell in advance which of the three you will get, and none of them favors one particular outcome over another. The eight possible results are:
+
+- Gain 80 Credits.
+- Gain 2 Influence.
+- Choose a district to raise its Demand by 1.
+- Choose a district to lower its Demand by 1.
+- Draw one Strategy Card.
+- Your next development this turn costs 30 Credits less, to a minimum of 10.
+- Gain 1 Influence and 40 Credits.
+- Whichever district currently has the highest Demand earns 10 extra income this round, for every property in it.
+
+So Innovation Hub can just as easily hand you a Demand shift or a discount as a card, and Market Square or Observatory can just as easily hand you a card. Nothing about the space itself decides the outcome, only landing on one of the three does.
+
 ### Auctions and Council votes
 
 If you decline a property, it goes to auction. An auction lasts up to 30 seconds. You submit one sealed bid or pass. The highest bid wins, and if two players tie, the win goes to whoever comes first in the current round's turn order. If everyone bids or passes before the clock runs out, the auction finishes early.

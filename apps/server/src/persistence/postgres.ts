@@ -12,6 +12,7 @@ import type {
   ReceiptBinding,
   StoredCommandReceipt
 } from "./types.js";
+import { withTransientRetry } from "./transient.js";
 
 const gameStatus = (state: GameState): string => {
   if (state.phase === "completed") return "completed";
@@ -67,6 +68,7 @@ export class PostgresGamePersistence implements GamePersistence {
   ): Promise<void> {
     assertGameInvariants(state);
     const client = await this.pool.connect();
+    let failed = false;
     try {
       await client.query("BEGIN");
       await client.query(
@@ -92,10 +94,12 @@ export class PostgresGamePersistence implements GamePersistence {
       }
       await client.query("COMMIT");
     } catch (error) {
-      await client.query("ROLLBACK");
+      failed = true;
+      // Same reasoning as writeTransition: keep the real error, drop the socket.
+      try { await client.query("ROLLBACK"); } catch { /* the original error is the one that matters */ }
       throw error;
     } finally {
-      client.release();
+      client.release(failed);
     }
   }
 
@@ -126,7 +130,16 @@ export class PostgresGamePersistence implements GamePersistence {
     receipt: Extract<CommandReceipt, { status: "rejected" }>,
     binding?: ReceiptBinding
   ): Promise<void> {
-    await insertReceipt(this.pool, gameId, roomId, null, receipt, binding);
+    await withTransientRetry(async (isRetry) => {
+      try {
+        await insertReceipt(this.pool, gameId, roomId, null, receipt, binding);
+      } catch (error) {
+        /* A unique violation on a retry is this receipt, written by the
+           attempt whose acknowledgement was lost. */
+        if (isRetry && (error as { code?: unknown }).code === "23505") return;
+        throw error;
+      }
+    });
   }
 
   async getCommandReceipts(
@@ -154,7 +167,13 @@ export class PostgresGamePersistence implements GamePersistence {
 
   async persistTransition(transition: PersistedTransition): Promise<void> {
     assertGameInvariants(transition.nextState);
+    await withTransientRetry((isRetry) => this.writeTransition(transition, isRetry));
+  }
+
+  /** One transactional attempt at persisting a transition. */
+  private async writeTransition(transition: PersistedTransition, isRetry: boolean): Promise<void> {
     const client = await this.pool.connect();
+    let failed = false;
     try {
       await client.query("BEGIN");
       const update = await client.query(
@@ -171,6 +190,23 @@ export class PostgresGamePersistence implements GamePersistence {
         ]
       );
       if (update.rowCount !== 1) {
+        /*
+         * On a retry, a missing row usually means the previous attempt did
+         * commit and only its acknowledgement was lost. The room runtime is
+         * the sole writer for its game and commits in version order, so the
+         * stored version already matching this transition means the whole
+         * transaction, events and receipt included, is in place.
+         */
+        if (isRetry) {
+          const stored = await client.query<{ state_version: string | number }>(
+            "SELECT state_version FROM games WHERE id = $1 AND room_id = $2",
+            [transition.gameId, transition.roomId]
+          );
+          if (Number(stored.rows[0]?.state_version) === transition.nextState.version) {
+            await client.query("ROLLBACK");
+            return;
+          }
+        }
         throw new Error("Persistence state-version conflict");
       }
       for (const [eventIndex, event] of transition.events.entries()) {
@@ -242,10 +278,20 @@ export class PostgresGamePersistence implements GamePersistence {
       }
       await client.query("COMMIT");
     } catch (error) {
-      await client.query("ROLLBACK");
+      failed = true;
+      /*
+       * On a dead connection ROLLBACK fails too, and letting that throw would
+       * replace the error that actually explains what happened. PostgreSQL
+       * rolls back an abandoned transaction on its own when the session ends.
+       */
+      try { await client.query("ROLLBACK"); } catch { /* the original error is the one that matters */ }
       throw error;
     } finally {
-      client.release();
+      /* A failed attempt may leave the connection open inside an aborted
+         transaction (a client-side query timeout does exactly that). Returning
+         it to the pool would hand the next command a poisoned connection, so
+         it is destroyed instead. */
+      client.release(failed);
     }
   }
 }
