@@ -3,6 +3,12 @@
 
 This file communicates important work between AI agents.
 
+## Mobile controls and audio handoff: 2026-09-19
+
+Owner assigned this session the mobile UI; preserve the other session's pinned action bar and disabled-button explanations. See `docs/qa/PHONE_REFINEMENT_SOUND_2026-09-19.md`. The portrait briefing precedes the board, tips are collapsed, and short landscape screens scroll instead of crushing the board. Sound opens settings and remains off until explicitly enabled. Receipt-only cue selection, silent reconnect baselines, volume and cleanup remain presentation-only.
+
+Final checks: 466 tests PASS, one opt-in PostgreSQL SKIP; typecheck/build/diff-check PASS. Next: actual event phones for listening, background/resume, live two-room notifications/reconnect and accessibility traversal. Existing REVIEW-035 remains relevant. No deployment/commit by this pass. Do not reopen rules or replace the visual system.
+
 ## Phone-only activity handoff: 2026-09-19
 
 The event no longer uses a projector. Player City updates contains policy/news context and private receipts; do not reintroduce board-covering news/round overlays. `rooms/activity.ts` builds an allowlisted, bounded history before persistence, projections remove other audiences, `ActivityCursor` prevents reconnect replay. `seatIndex` is persisted on each new player, with original turn-order fallback for legacy games. PNG viewport clipping is required because existing board styles allow SVG overflow. Normal turn 45 seconds, warning at 30; other timers unchanged. See `docs/qa/PHONE_ACTIVITY_2026-09-19.md` for verification and release cautions. Do not deploy over an old paused game with >45 seconds saved without a tested recovery decision. Preserve all uncommitted work.

@@ -24,7 +24,7 @@ Your goal is the highest score, not just the most money. First, choose one secre
 
 **No projector needed:** open City updates on your phone to see current news, active policies, rent receipts and trade results. Your pawn and colour stay the same for the whole game. Private payments and trade details are only shown to the people involved.
 
-**Want a heads-up?** Tap Sound to enable quiet cues for your turn, new activity and 15 seconds remaining. Sound is optional. Keep checking the screen for what happened and what to do next.
+**Want a heads-up?** Open Sound, then tap Turn sound on. Choose Quiet or Standard and try the preview. You will hear short cues for your turn, payments, trades, city updates and 15 seconds remaining. Every update also appears on screen.
 
 **Lost connection?** Keep the same tab open and let it reconnect. Do not join as a new player or keep tapping an unconfirmed action. Ask the organizer if it does not recover.
 

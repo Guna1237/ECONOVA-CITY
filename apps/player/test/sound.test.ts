@@ -40,7 +40,7 @@ describe('optional game sound cues', () => {
     cursor.receive(snapshot(), 0);
     const p = snapshot(2);
     p.self.activity = [{ id: 'receipt:2', title: 'Trade declined', text: 'A player declined your trade.', round: 1 }];
-    expect(cursor.receive(p, 1)).toBe('activity');
+    expect(cursor.receive(p, 1)).toBe('declined');
     expect(cursor.receive(p, 2)).toBeNull();
     expect(cursor.receive(snapshot(), 3)).toBeNull();
     expect(cursor.receive(p, 4)).toBeNull();
@@ -56,6 +56,23 @@ describe('optional game sound cues', () => {
     waiting.public.stateVersion = 4;
     expect(cursor.receive(waiting, 3)).toBeNull();
     expect(cursor.receive(waiting, 35_000)).toBeNull();
+  });
+
+  it.each([
+    ['Rent received', 'received'], ['Property income', 'received'], ['Rent paid', 'paid'],
+    ['Trade received', 'trade'], ['Trade completed', 'received'], ['Trade expired', 'declined'],
+    ['Policy passed', 'news'], ['City news', 'news'], ['Your resources', 'activity']
+  ])('uses an appropriate cue for %s without replaying it', (title, cue) => {
+    const cursor = new SoundCueCursor();
+    cursor.receive(snapshot(), 0);
+    const p = snapshot(2);
+    p.self.activity = [
+      { id: 'summary', title: 'Your resources', text: 'Updated', round: 1 },
+      { id: 'specific', title, text: 'Update', round: 1 }
+    ];
+    expect(cursor.receive(p, 1)).toBe(cue);
+    expect(cursor.receive(p, 2)).toBeNull();
+    expect(cursor.receive(p, 30_000)).toBe('warning');
   });
 
   it('keeps pauses and sub-phases silent and schedules warnings from the resumed deadline', () => {
@@ -102,6 +119,7 @@ describe('optional game sound cues', () => {
     audio.play('activity');
     audio.play('activity');
     expect(context.createOscillator).toHaveBeenCalledTimes(1);
+    expect(gain.gain.linearRampToValueAtTime).toHaveBeenLastCalledWith(0.025, 0.018);
     oscillator.onended?.();
     expect(oscillator.disconnect).toHaveBeenCalled();
     expect(gain.disconnect).toHaveBeenCalled();
@@ -110,8 +128,14 @@ describe('optional game sound cues', () => {
     audio.play('turn');
     expect(context.createOscillator).toHaveBeenCalledTimes(1);
     await audio.enable();
+    audio.setVolume('standard');
     audio.play('turn');
     expect(context.createOscillator).toHaveBeenCalledTimes(3);
+    expect(gain.gain.linearRampToValueAtTime).toHaveBeenLastCalledWith(0.05, 2.118);
+    // An important timer reminder is not dropped behind a recent activity cue.
+    context.currentTime = 2.2;
+    audio.play('warning');
+    expect(context.createOscillator).toHaveBeenCalledTimes(5);
     await audio.mute();
     expect(oscillator.stop).toHaveBeenLastCalledWith();
     audio.dispose();

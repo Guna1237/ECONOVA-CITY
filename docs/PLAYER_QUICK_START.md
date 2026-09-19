@@ -10,7 +10,7 @@ Here is the shape of it: you buy properties, develop them, collect income from t
 
 Before you sit down to play, bring a charged phone. Your organizer will send you a player link. Open it, enter your room code and your name, and keep that browser tab open for the whole game. Each room is its own separate game, completely independent from any other room running at the same time. Everything you need is on your phone: the board, your cards and decisions, and City updates for news, policies, rent and trade results. No projector is needed.
 
-Tap **How to play** for a short reminder, or tap any board space to learn what happens there. Your action buttons and the Holdings, Cards, Goal and Players tabs stay at the bottom of the screen the whole time, so you never have to scroll to find them. For quiet cues, tap **Sound**; the speaker icon shows whether it is on. Sound is optional and starts muted.
+Tap **How to play** for a short reminder, or tap any board space to learn what happens there. On a portrait phone, your next step appears above the board and your action buttons stay at the bottom. Use **View board** and **Your actions** to move between them. Open **Need a tip?** if you want a little more help. For optional cues, open **Sound**, tap **Turn sound on**, and choose Quiet or Standard. Sound starts muted, and every update also appears on screen.
 
 You start the game with 1,000 Credits, 5 Influence, and 2 Strategy Cards. You will also be shown two secret objectives and asked to pick one. Keep your choice to yourself. Nobody else needs to know, and if you complete it by the end of the game, it earns you 200 extra points.
 

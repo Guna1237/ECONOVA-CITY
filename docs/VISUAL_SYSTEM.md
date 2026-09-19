@@ -5,7 +5,9 @@
 
 Preserve the warm Nova artwork, existing fonts and vector seat-colored pawns. Compact map labels use `--type-board-label` (10.5px minimum); full details remain available by tapping a space. A visible next-step link takes players directly to their controls and keyboard focus follows it. Active policy names are visible in the collapsed City updates panel. History has one scroll container, not nested scrolling.
 
-Sound is opt-in, initially off, with a persistent labelled toggle during play. Quiet, short cues accompany a newly observed local turn, new authorized activity, and the normal-turn warning. Text remains the source of meaning. No music, ticking, historical replay or sounds while the page is hidden/disconnected. Web Audio starts only from the toggle gesture; failures must not affect gameplay. Timed audio follows the authoritative deadline and cancels during paused timers or sub-phases. Motion uses smooth deceleration without overshoot and honors reduced motion.
+On portrait phones, the contextual briefing precedes the board and optional coaching is collapsed under Need a tip? The existing action bar remains pinned, with measured bottom padding so content can scroll clear of it. View board and Your actions links support both directions with keyboard focus. Preserve the current artwork and desktop composition.
+
+Sound is opt-in, initially off. The labelled Sound button opens settings with an explicit on/off action, Quiet or Standard volume, and a turn-cue preview. Short cues distinguish incoming Credits, payments, trade offers/results, and news/policy receipts. Text remains the source of meaning. No music, ticking, historical replay or sounds while the page is hidden/disconnected. Web Audio starts only from the enable gesture; failures must not affect gameplay. Timed audio follows the authoritative deadline and cancels during paused timers or sub-phases. The single warning takes priority over other sound cues. Motion uses smooth deceleration without overshoot and honors reduced motion.
 
 ## Phone-only event update, 2026-09-19
 

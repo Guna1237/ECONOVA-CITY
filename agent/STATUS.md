@@ -3,6 +3,12 @@
 
 This file records the current development state.
 
+## Mobile controls and sound refinement: 2026-09-19 (Codex)
+
+Implemented action-first portrait guidance, collapsed tips, reciprocal board navigation, readable short-landscape layout, and opt-in sound settings with quieter differentiated cues. Preserved pinned controls, disabled-action feedback, artwork and all server/engine behavior. Corrected a stale Projector privacy test to include the existing public seat index. Full evidence/files: `docs/qa/PHONE_REFINEMENT_SOUND_2026-09-19.md`.
+
+Final typecheck/build/diff-check PASS. Full suite: 466 PASS, one intentional PostgreSQL SKIP. Browser preview checked at 320/390px, landscape 844 x 390 and desktop 1440 x 900. Physical-device listening and live authenticated multiplayer/audio remain NOT VERIFIED. An initial server join-test timeout passed unchanged on isolated and full reruns; monitor recurrence. No commit or deployment by this pass.
+
 ## Phone activity and stable pawns: 2026-09-19 (Codex)
 
 Final verification: typecheck/build/diff-check PASS; 431 tests PASS, one opt-in PostgreSQL skip. Four real WebSocket tests PASS with recipient-specific receipt assertions across two six-player games. Browser preview checked at 320px, 390px and 1440px; no horizontal overflow or automatic news/round overlays. Full authenticated event-device/browser receipt flow remains NOT VERIFIED.

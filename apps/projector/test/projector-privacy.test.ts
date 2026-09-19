@@ -34,15 +34,18 @@ describe("projector shows public state only", () => {
     }
   });
 
-  it("exposes only name, position, holdings and presence per player", () => {
+  it("exposes only public identity, stable seat, position, holdings and presence per player", () => {
     for (const player of demonstrationPublicState.players) {
       expect(Object.keys(player).sort()).toEqual([
         "connected",
         "name",
         "playerId",
         "position",
-        "propertyIds"
+        "propertyIds",
+        "seatIndex"
       ]);
+      expect(player.seatIndex).toBeGreaterThanOrEqual(0);
+      expect(player.seatIndex).toBeLessThanOrEqual(5);
     }
   });
 

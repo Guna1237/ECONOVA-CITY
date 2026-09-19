@@ -3,6 +3,23 @@
 
 This file records bugs, security issues, architectural concerns, performance problems, gameplay inconsistencies, and QA findings.
 
+## Mobile refinement verification, 2026-09-19
+
+### REVIEW-036: Intermittent twelve-player test timeout
+
+ID: REVIEW-036
+SEVERITY: MEDIUM
+AREA: Test reliability / event join load
+FILE: apps/server/test/app.test.ts
+PROBLEM: The twelve-player/two-room join test exceeded its existing 5-second timeout during the first full-suite run in this UI pass. It passed unchanged in isolation and in the final complete suite.
+REPRODUCTION: Observed once during `npm test` with local browser/dev tooling running; not consistently reproduced.
+IMPACT: A load-sensitive test could obscure a genuine regression. No runtime join failure was established by this pass.
+RECOMMENDED FIX: Backend owner should investigate timing/load if it recurs. Do not increase the timeout or weaken rate-limit assertions without evidence.
+TEST REQUIRED: Repeated full-suite runs and event-sized join rehearsal under measured load.
+STATUS: OPEN observation; final verification green. No backend modification.
+
+Fixed during verification: Projector's strict public-field assertion omitted the existing approved seatIndex. Added that exact field and range assertions; private-field exclusions remain intact.
+
 ## Phone-only activity review, 2026-09-19
 
 ### REVIEW-035: Timer-version deployment boundary

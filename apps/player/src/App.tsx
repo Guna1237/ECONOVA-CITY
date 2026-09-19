@@ -107,11 +107,12 @@ const Table = (): ReactElement => {
         <NewsMoment projection={projection} />
       </div>
 
-      <main className="player-stage">
+      <main className="player-stage" id="city-board" tabIndex={-1} aria-label="City board">
         <div className="player-board-tools">
           <a className="player-next-step" href="#player-actions">
-            <span>Your next step</span>
-            <strong>{fatal !== null || (mode === 'live' && link !== 'connected') ? 'Wait for connection' : briefing.headline}</strong>
+            <span className="player-next-step__mobile">↑ Your actions</span>
+            <span className="player-next-step__desktop">Your next step</span>
+            <strong className="player-next-step__desktop">{fatal !== null || (mode === 'live' && link !== 'connected') ? 'Wait for connection' : briefing.headline}</strong>
           </a>
           <button type="button" className="player-board-tools__council"
             aria-haspopup="dialog" onClick={() => setBoardHelp('council')}>

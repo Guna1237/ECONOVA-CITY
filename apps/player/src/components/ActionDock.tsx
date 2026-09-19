@@ -328,6 +328,7 @@ export const ActionDock = ({
           {briefing.roll === null ? null : (
             <span className="player-brief__roll">Rolled {briefing.roll}</span>
           )}
+          {!wide ? <a className="player-brief__map" href="#city-board">View board ↓</a> : null}
         </div>
 
         <h2 className="player-brief__headline">{briefing.headline}</h2>
@@ -336,8 +337,10 @@ export const ActionDock = ({
         )}
 
         {showHint && briefing.hint !== null ? (
-          <p className="player-brief__hint">
-            <span>{HINTS[briefing.hint]}</span>
+          <details className="player-brief__tip" key={briefing.hint}>
+            <summary>Need a tip?</summary>
+            <div className="player-brief__hint">
+            <p>{HINTS[briefing.hint]}</p>
             <button
               type="button"
               onClick={() => hints.dismiss(briefing.hint!)}
@@ -345,7 +348,8 @@ export const ActionDock = ({
             >
               Got it
             </button>
-          </p>
+            </div>
+          </details>
         ) : null}
       </div>
 

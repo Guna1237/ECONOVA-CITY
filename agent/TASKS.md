@@ -3,6 +3,10 @@
 
 This file tracks authorized work and its ownership.
 
+## Mobile controls and sound, owner: Codex, 2026-09-19
+
+IMPLEMENTED: action-first portrait briefing, collapsible tips, reciprocal board/action links, usable short-landscape layout and opt-in sound settings with volume and distinct receipt cues. Verification and limitations: `docs/qa/PHONE_REFINEMENT_SOUND_2026-09-19.md`. No backend/engine/gameplay edits. Next validation is live event-phone audio and multiplayer rehearsal, not another UI framework or rules change.
+
 ## Phone-only play, owner: Codex, 2026-09-19
 
 Implementation complete: recipient-safe activity/history, stable seat identity and supplied PNG pawns, inline news/policies, 45-second normal turn with warning at 30 seconds elapsed. Verification and remaining event-device/deployment checks: `docs/qa/PHONE_ACTIVITY_2026-09-19.md`. Projector is optional compatibility code only.
