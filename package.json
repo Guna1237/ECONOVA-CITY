@@ -25,7 +25,8 @@
     "dev:player": "npm run dev -w @econova/player",
     "dev:projector": "npm run dev -w @econova/projector",
     "dev:admin": "npm run dev -w @econova/admin",
-    "db:migrate": "npm run db:migrate -w @econova/server"
+    "db:migrate": "npm run db:migrate -w @econova/server",
+    "db:reset": "npm run db:reset -w @econova/server --"
   },
   "dependencies": {
     "@vitejs/plugin-react": "6.1.1",

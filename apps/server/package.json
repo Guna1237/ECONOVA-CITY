@@ -10,7 +10,8 @@
     "typecheck": "tsc -b --pretty false",
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
-    "db:migrate": "tsx src/persistence/migrate.ts"
+    "db:migrate": "tsx src/persistence/migrate.ts",
+    "db:reset": "node dist/persistence/reset.js"
   },
   "dependencies": {
     "@econova/contracts": "0.1.0",
