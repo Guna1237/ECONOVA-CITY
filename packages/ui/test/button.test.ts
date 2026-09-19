@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
-import { Button } from './Button.js';
+import { Button } from '../src/controls/Button.js';
 
 const render = (props: Parameters<typeof Button>[0]): string =>
   renderToStaticMarkup(createElement(Button, props));
