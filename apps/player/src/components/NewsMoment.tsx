@@ -34,12 +34,12 @@ export const NewsMoment = ({ projection }: { readonly projection: PlayerProjecti
           <h3>Recent activity</h3>
           <p className="city-updates__privacy">Your payments and trades are visible only to the players involved.</p>
           {activity.length ? <ol className="city-updates__history">{activity.map(item => (
-            <li key={item.id}><span className="city-updates__round">R{item.round}</span><div><strong>{item.title}</strong><p>{item.text}</p></div></li>
+            <li key={item.id}><span className="city-updates__round">Round {item.round}</span><div><strong>{item.title}</strong><p>{item.text}</p></div></li>
           ))}</ol> : <p>Rent, trade results and game updates will appear here.</p>}
         </div>
       </details>
       <p className="city-updates__latest" role="status" aria-live="polite" aria-atomic="true">
-        <span key={latest?.id ?? 'empty'}>{latest ? <><strong>{latest.title}</strong> {latest.text}</> : 'Keep this panel handy. Everything you need is on your phone.'}</span>
+        <span key={latest?.id ?? 'empty'}>{latest ? <><strong>{latest.title}</strong> {latest.text}</> : 'No updates yet. Rent, trades and city news will appear here.'}</span>
       </p>
     </section>
   );

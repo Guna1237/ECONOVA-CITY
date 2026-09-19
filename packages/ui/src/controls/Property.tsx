@@ -111,6 +111,8 @@ export interface PropertyInspectorProps {
   readonly ownerLabel: string;
   readonly ownerSeat?: SeatTheme | null;
   readonly developmentLevel: 0 | 1 | 2 | 3;
+  /** Authorized controls supplied by the client, before secondary figures. */
+  readonly actions?: ReactNode;
 }
 
 const Figure = ({
@@ -122,10 +124,8 @@ const Figure = ({
 }): ReactElement => (
   <div
     style={{
-      padding: 'var(--s3)',
-      borderRadius: 'var(--radius-plate)',
-      background: 'var(--room-bg)',
-      boxShadow: 'inset 0 0 0 1px var(--board-rule)'
+      padding: 'var(--s2) 0',
+      borderBottom: '1px solid var(--board-rule)'
     }}
   >
     <div className="eco-label">{label}</div>
@@ -139,7 +139,8 @@ export const PropertyInspector = ({
   propertyId,
   ownerLabel,
   ownerSeat = null,
-  developmentLevel
+  developmentLevel,
+  actions
 }: PropertyInspectorProps): ReactElement | null => {
   const property = PROPERTY_BY_ID.get(propertyId);
   if (property === undefined) return null;
@@ -176,6 +177,8 @@ export const PropertyInspector = ({
           </div>
         </div>
       </div>
+
+      {actions}
 
       <div>
         <div className="eco-label" style={{ marginBottom: 'var(--s2)' }}>

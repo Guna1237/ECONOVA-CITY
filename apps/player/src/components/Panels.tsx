@@ -124,10 +124,8 @@ export const PropertyPanel = ({
         ownerLabel={owner === null ? 'Unowned' : mine ? 'Yours' : owner.name}
         ownerSeat={owner === null ? null : seatOf(owner.playerId, view.players)}
         developmentLevel={level}
-      />
-
-      {canBuy || canDevelop ? (
-        <div className="player-actions">
+        actions={canBuy || canDevelop ? (
+        <div className="player-actions" role="group" aria-label="Available property actions">
           {canBuy ? (
             <Button
               tone="commit"
@@ -158,7 +156,8 @@ export const PropertyPanel = ({
             </Button>
           ) : null}
         </div>
-      ) : null}
+        ) : null}
+      />
 
       <div style={{ marginTop: 'var(--s3)' }}>
         <Button tone="quiet" block onClick={onClose}>
