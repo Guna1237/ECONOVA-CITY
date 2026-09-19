@@ -5,7 +5,7 @@ This file records the current development state.
 
 ## Indian company names and event copy: 2026-09-19
 
-Owner-requested name-only property refresh and simpler Player wording implemented. IDs, economics, engine and backend unchanged. Tile wrapping protects longer company names on narrow phones. Full file list, verification and event-day checks: `docs/qa/INDIAN_COMPANY_EVENT_PASS_2026-09-19.md`. Final verification in progress. Concurrent Button test relocation preserved; no commit or deployment by this pass.
+Owner-requested name-only property refresh and simpler Player wording implemented. IDs, economics, engine and backend unchanged. Tile wrapping protects longer company names on narrow phones. Full file list, verification and event-day checks: `docs/qa/INDIAN_COMPANY_EVENT_PASS_2026-09-19.md`. Final typecheck/build/diff-check PASS; 470 tests PASS, one dedicated PostgreSQL SKIP. Built-app preview checked at 320/390/1440px with no overflow or console errors. Live event-phone/multiplayer rehearsal remains NOT VERIFIED. Concurrent Button test relocation preserved; no commit or deployment by this pass.
 
 ## Mobile controls and sound refinement: 2026-09-19 (Codex)
 

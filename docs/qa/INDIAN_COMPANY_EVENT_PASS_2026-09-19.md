@@ -1,6 +1,6 @@
 # Indian company names and event copy
 
-Status: implementation complete; final verification in progress.
+Status: DONE_WITH_CONCERNS. Requested changes and local checks complete; live event rehearsal remains required.
 
 ## Changes
 
@@ -32,7 +32,17 @@ Frontend-design guided continuity and legibility, gstack browse supplied phone/b
 
 ## Verification
 
-Before the final wrapping adjustment, full typecheck/build/diff-check passed and 467 tests passed with one dedicated PostgreSQL opt-in skip. Production-preview browser check at 320 x 568 showed all 16 names, Properties tab, and Amul details with unchanged values, with no page overflow. It caught tile-text clipping, which prompted the wrapping fix and regression tests. Final results will be recorded below.
+Final results:
+
+- `npm run typecheck`: PASS.
+- `npm test`: 470 PASS, one intentional dedicated-PostgreSQL opt-in SKIP; 57 passing test files.
+- `npm run build`: PASS for packages, server, Player, Projector and Admin. Vite emitted a non-blocking build-plugin timing diagnostic. Player JS: 434.21kB / 133.43kB gzip. No added dependency.
+- `git diff --check`: PASS.
+- A source comparison against HEAD, ignoring property name strings only, is identical. IDs, positions, districts and economics were not changed.
+- Production-preview browser at 320 x 568, 390 x 844 and 1440 x 900: no horizontal overflow, all 16 company tiles present, no broken images or console errors. The initial 320px check caught clipping; after the fix, Saregama, Britannia and Mahindra labels have equal client/scroll widths and readable line breaks.
+- Amul and Britannia details show the new names with their original values. Britannia uses the new Starting values / Base upgrade costs wording. Properties navigation is visible. Modal close via Escape works.
+
+The browser runs the built Player bundle, not a development-only mock UI. Gameplay interaction used the explicit board preview; this is not a claim that a live multiplayer event was rehearsed.
 
 ## Before opening the room
 
