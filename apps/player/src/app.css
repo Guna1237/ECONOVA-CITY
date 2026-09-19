@@ -124,6 +124,36 @@
       0 -12px 24px -18px rgba(90, 68, 34, 0.5);
   }
   .player-dock__bar .eco-dock__actions .eco-btn { min-height: 44px; }
+
+  /* The answer to "why is this greyed out?" floats just above the bar rather
+     than growing it, so nothing on the page jumps when it appears. */
+  .player-dock__bar .player-why {
+    display: block;
+    position: absolute;
+    inset-inline: var(--s3);
+    bottom: calc(100% + var(--s2));
+    padding: var(--s2) var(--s3);
+    border-radius: var(--radius-plate);
+    background: var(--ink);
+    color: var(--room-bg-lift);
+    font: 600 var(--type-small) / 1.35 var(--font-ui);
+    box-shadow: 0 10px 22px -12px rgba(43, 35, 24, 0.65);
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition:
+      opacity 160ms var(--ease-out),
+      transform 220ms var(--ease-out);
+  }
+  .player-dock__bar .player-why[data-open='true'] { opacity: 1; transform: none; }
+}
+
+/* Outside the pinned bar (wide layouts) the explanation sits in the flow. */
+.player-why { margin: 0; font-size: var(--type-small); color: var(--ink-soft); }
+.player-why[data-open='false'] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .player-why { transition: none; }
 }
 
 /* ---- status rail ----

@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import type { CSSProperties, ReactElement } from 'react';
 
 import { PROPERTY_BY_ID, BOARD_SPACES, GAME_CONFIG } from '@econova/game-content';
@@ -47,9 +48,35 @@ export const ActionDock = ({
       them behind tabs — there is room, so nothing needs to be reached for. */
   readonly wide: boolean;
 }): ReactElement => {
-  const { projection, dispatch, requestState, can } = usePlayerSession();
+  const { projection, dispatch, requestState, can, mode, link } = usePlayerSession();
   const { public: view, self } = projection;
   const barRef = usePinnedBarHeight();
+
+  /* Why a greyed-out button is unavailable, shown when it is tapped. It clears
+     on its own, and whenever the game moves on, so it never goes stale. */
+  const [why, setWhy] = useState<string | null>(null);
+  /* A per-button reason is only the real one when nothing bigger is in the
+     way. In the preview every button is off because it is a preview, and in a
+     live game a lost connection pauses them all; say that instead. */
+  const explain = useCallback(
+    (reason: string) =>
+      setWhy(
+        mode === 'demonstration'
+          ? 'This is a board preview, so actions are off. Join a room to play.'
+          : link !== 'connected'
+            ? 'Reconnecting. Your actions come back as soon as the connection does.'
+            : reason
+      ),
+    [mode, link]
+  );
+  useEffect(() => {
+    setWhy(null);
+  }, [view.stateVersion]);
+  useEffect(() => {
+    if (why === null) return;
+    const timer = window.setTimeout(() => setWhy(null), 4_000);
+    return () => window.clearTimeout(timer);
+  }, [why]);
 
   const mine = view.turn?.playerId === self.playerId;
   const stage = view.turn?.stage ?? null;
@@ -88,6 +115,7 @@ export const ActionDock = ({
         block
         request={requestState('roll')}
         disabled={!can('roll')}
+        onBlocked={explain}
         title={can('roll') ? undefined : 'The city is still resolving the last action'}
         onClick={() => dispatch('roll', { type: 'roll' })}
       >
@@ -154,6 +182,7 @@ export const ActionDock = ({
           request={requestState('buy-dock')}
           hint={buyPrice === null ? undefined : priceLabel(buyPrice, formatCredits)}
           disabled={!can('buy_property') || cannotAfford}
+          onBlocked={explain}
           title={
             cannotAfford && buyPrice !== null
               ? `You hold ${formatCredits(self.credits)} and this costs ${formatCredits(buyPrice.amount)}`
@@ -207,6 +236,7 @@ export const ActionDock = ({
         <Button
           tone="primary"
           disabled={developReason !== null}
+          onBlocked={explain}
           title={developReason ?? undefined}
           hint={developable.length === 1 ? undefined : `${developable.length} eligible`}
           onClick={() =>
@@ -221,6 +251,7 @@ export const ActionDock = ({
         <Button
           tone="default"
           disabled={tradeReason !== null}
+          onBlocked={explain}
           title={tradeReason ?? undefined}
           onClick={onTrade}
         >
@@ -247,6 +278,7 @@ export const ActionDock = ({
           tone="commit"
           request={requestState('end')}
           disabled={!can('end_turn')}
+          onBlocked={explain}
           title={can('end_turn') ? undefined : 'The city is still resolving an action'}
           onClick={() => dispatch('end', { type: 'end_turn' })}
         >
@@ -260,9 +292,15 @@ export const ActionDock = ({
 
   const actionRow =
     actions === null ? null : (
-      <div className="eco-dock__actions" data-stack={false}>
-        {actions}
-      </div>
+      <>
+        {/* Announced politely: it answers a tap, it is not an alarm. */}
+        <p className="player-why" role="status" aria-live="polite" data-open={why !== null}>
+          {why ?? ''}
+        </p>
+        <div className="eco-dock__actions" data-stack={false}>
+          {actions}
+        </div>
+      </>
     );
 
   const tabs: readonly {

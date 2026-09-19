@@ -39,9 +39,9 @@
   touch-action: manipulation;
 }
 
-.eco-btn:hover:not(:disabled) { filter: brightness(1.03); }
+.eco-btn:hover:not(:disabled):not([aria-disabled='true']) { filter: brightness(1.03); }
 
-.eco-btn:active:not(:disabled) {
+.eco-btn:active:not(:disabled):not([aria-disabled='true']) {
   transform: translateY(3px);
   box-shadow:
     inset 0 2px 4px rgba(90, 68, 34, 0.3),
@@ -82,7 +82,7 @@
   box-shadow: inset 0 0 0 1px var(--board-rule);
 }
 
-.eco-btn[data-tone='quiet']:active:not(:disabled) {
+.eco-btn[data-tone='quiet']:active:not(:disabled):not([aria-disabled='true']) {
   transform: none;
   background: var(--board-cell-lit);
   box-shadow: inset 0 0 0 1px var(--board-edge);
@@ -96,7 +96,9 @@
 
 .eco-btn[data-block='true'] { width: 100%; }
 
-.eco-btn:disabled {
+/* aria-disabled: unavailable, but a tap explains why (see Button). */
+.eco-btn:disabled,
+.eco-btn[aria-disabled='true'] {
   color: var(--ink-ghost);
   background: #f2ece0;
   box-shadow: inset 0 0 0 1px var(--board-rule);
