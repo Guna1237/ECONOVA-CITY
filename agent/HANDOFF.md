@@ -3,6 +3,10 @@
 
 This file communicates important work between AI agents.
 
+## Property details and receipts: 2026-09-19
+
+`PropertyInspector` accepts optional `actions`; Player supplies existing capability/quote-gated controls before reference figures. Other consumers remain read-only by default. Preserve that separation. Receipt type is larger; history has full Round labels. See `docs/qa/PLAYER_DETAIL_REFINEMENT_2026-09-19.md` for tests and remaining live-device checks. No backend/engine changes or deployment.
+
 ## Indian company theme handoff: 2026-09-19
 
 Use the updated property names in the canonical game-content catalog and GAME_DESIGN_SPEC.md. All IDs and rules are unchanged. Keep Strategy Card names descriptive and do not import company logos or invent company-specific bonuses. Existing audit/receipt text stays historical. Final evidence and short event checklist: `docs/qa/INDIAN_COMPANY_EVENT_PASS_2026-09-19.md`. No backend changes, commit or deployment by this pass.

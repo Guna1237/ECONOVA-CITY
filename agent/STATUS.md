@@ -3,6 +3,10 @@
 
 This file records the current development state.
 
+## Player details and activity refinement: 2026-09-19
+
+Moved authorized property controls above reference figures, reduced metric-box clutter, separated income/rent bonus lines and improved receipt readability. No rule or backend changes. Tests and browser evidence: `docs/qa/PLAYER_DETAIL_REFINEMENT_2026-09-19.md`. Final typecheck/build/diff-check PASS; 472 tests PASS, one intentional PostgreSQL SKIP. Built preview checked at 320/390px. Authenticated phone purchase/development still needs event rehearsal. No commit/deployment by this pass.
+
 ## Indian company names and event copy: 2026-09-19
 
 Owner-requested name-only property refresh and simpler Player wording implemented. IDs, economics, engine and backend unchanged. Tile wrapping protects longer company names on narrow phones. Full file list, verification and event-day checks: `docs/qa/INDIAN_COMPANY_EVENT_PASS_2026-09-19.md`. Final typecheck/build/diff-check PASS; 470 tests PASS, one dedicated PostgreSQL SKIP. Built-app preview checked at 320/390/1440px with no overflow or console errors. Live event-phone/multiplayer rehearsal remains NOT VERIFIED. Concurrent Button test relocation preserved; no commit or deployment by this pass.

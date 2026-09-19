@@ -3,6 +3,10 @@
 
 This file tracks authorized work and its ownership.
 
+## Property details and receipt readability, owner: Codex, 2026-09-19
+
+IMPLEMENTED: action-first property panel, simpler figures and larger receipt text. Preserve server-controlled prices and eligibility. Verification: `docs/qa/PLAYER_DETAIL_REFINEMENT_2026-09-19.md`. Next release check is an authenticated event-phone purchase/development flow, not more visual infrastructure.
+
 ## Indian company names and event copy, owner: Codex, 2026-09-19
 
 IMPLEMENTED: 16 company-themed property names, unchanged gameplay/IDs, consistent canonical examples, simpler phone/property text and narrow-board wrapping. Final checks and remaining event rehearsal: `docs/qa/INDIAN_COMPANY_EVENT_PASS_2026-09-19.md`. Preserve concurrent Button test relocation.

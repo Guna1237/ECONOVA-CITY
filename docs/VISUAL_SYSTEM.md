@@ -1,6 +1,10 @@
 # ECONOVA: CITY
 # VISUAL SYSTEM
 
+## Property-action hierarchy, 2026-09-19
+
+Keep permitted Buy/Develop controls and their server-quoted amounts immediately below the property ownership header, before reference figures. Reference figures use a readable two-column layout with light separators; income and rent changes have separate lines. Player receipt text is 14px, with full Round labels in history. Do not infer prices or eligibility from visual styling. Preserve the established fonts, colors and artwork.
+
 ## Phone readability and optional audio, 2026-09-19
 
 Preserve the warm Nova artwork, existing fonts and vector seat-colored pawns. Compact map labels use `--type-board-label` (10.5px minimum); full details remain available by tapping a space. A visible next-step link takes players directly to their controls and keyboard focus follows it. Active policy names are visible in the collapsed City updates panel. History has one scroll container, not nested scrolling.

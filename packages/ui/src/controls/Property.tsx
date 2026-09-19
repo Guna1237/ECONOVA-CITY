@@ -120,7 +120,7 @@ const Figure = ({
   value
 }: {
   readonly label: string;
-  readonly value: string;
+  readonly value: ReactNode;
 }): ReactElement => (
   <div
     style={{
@@ -197,11 +197,17 @@ export const PropertyInspector = ({
           <Figure label="Base landing fee" value={formatCredits(property.baseFee)} />
           <Figure
             label="Each upgrade adds"
-            value={`+${property.developmentIncomeBonus} income · +${property.developmentFeeBonus} fee`}
+            value={<>
+              <span style={{ display: 'block' }}>Income +{property.developmentIncomeBonus}</span>
+              <span style={{ display: 'block' }}>Rent +{property.developmentFeeBonus}</span>
+            </>}
           />
           <Figure
             label="Each +1 Demand adds"
-            value={`+${property.demandIncomeMultiplier} income · +${property.demandFeeMultiplier} fee`}
+            value={<>
+              <span style={{ display: 'block' }}>Income +{property.demandIncomeMultiplier}</span>
+              <span style={{ display: 'block' }}>Rent +{property.demandFeeMultiplier}</span>
+            </>}
           />
         </div>
         <p
