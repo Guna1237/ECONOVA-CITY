@@ -1114,7 +1114,14 @@
   .eco-space[data-kind='special'] { padding: 9% 3%; }
   .eco-space[data-kind='special'][data-edge='left'] { padding-left: 9%; }
   .eco-space[data-kind='special'][data-edge='right'] { padding-right: 9%; }
-  .eco-space__special-name { font-size: var(--type-board-label); max-width: 100%; overflow-wrap: anywhere; }
+  /* Breaking anywhere left "Observator / y" on the board. Words now break
+     only at the syllable marked in BoardSpace, with a visible hyphen. */
+  .eco-space__special-name {
+    font-size: var(--type-board-label);
+    max-width: 100%;
+    overflow-wrap: normal;
+    hyphens: manual;
+  }
 }
 
 /* =================================================================

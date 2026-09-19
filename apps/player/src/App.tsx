@@ -110,7 +110,7 @@ const Table = (): ReactElement => {
       <main className="player-stage">
         <div className="player-board-tools">
           <a className="player-next-step" href="#player-actions">
-            <span>{mode === 'demonstration' ? 'Preview the controls' : 'Your next step'}</span>
+            <span>Your next step</span>
             <strong>{fatal !== null || (mode === 'live' && link !== 'connected') ? 'Wait for connection' : briefing.headline}</strong>
           </a>
           <button type="button" className="player-board-tools__council"

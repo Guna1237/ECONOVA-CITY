@@ -3,6 +3,29 @@ import { GAME_CONFIG } from '@econova/game-content';
 import { usePlayerSession } from '../state/PlayerSession.js';
 import { GameAudio, SoundCueCursor } from '../state/sound.js';
 
+const SpeakerMark = ({ on }: { readonly on: boolean }): ReactElement => (
+  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+    <path d="M2 6h2.5L8 3v10L4.5 10H2z" fill="currentColor" />
+    {on ? (
+      <path
+        d="M10.5 5.5a3.5 3.5 0 0 1 0 5M12.5 3.5a6.5 6.5 0 0 1 0 9"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    ) : (
+      <path
+        d="M10.5 6l4 4M14.5 6l-4 4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    )}
+  </svg>
+);
+
 export const SoundControl = (): ReactElement => {
   const { projection, link, mode } = usePlayerSession();
   const [enabled, setEnabled] = useState(false);
@@ -64,6 +87,14 @@ export const SoundControl = (): ReactElement => {
   return <button type="button" className="player-sound" aria-pressed={enabled}
     disabled={busy} onClick={() => { void toggle(); }}
     title={unavailable ? 'Sound could not start. Tap to try again. The game still works without it.' : 'Quiet cues for your turn, new activity and 15 seconds remaining'}>
-    {unavailable ? 'Retry sound' : enabled ? 'Sound on' : 'Sound off'}
+    {/* The label stays "Sound" and the speaker shows the state. A label that
+        flipped between "Sound on" and "Sound off" read as either the state or
+        the action, and players could not tell which. */}
+    {unavailable ? 'Retry sound' : (
+      <>
+        <SpeakerMark on={enabled} />
+        <span>Sound</span>
+      </>
+    )}
   </button>;
 };

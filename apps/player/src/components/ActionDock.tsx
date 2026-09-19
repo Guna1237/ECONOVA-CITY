@@ -15,6 +15,7 @@ import { usePlayerSession } from '../state/PlayerSession.js';
 import { HINTS, briefFor } from '../state/briefing.js';
 import { priceLabel, purchasePrice } from '../state/prices.js';
 import { useHints } from '../state/useHints.js';
+import { usePinnedBarHeight } from '../state/usePinnedBarHeight.js';
 import {
   CardsPanel,
   HoldingsPanel,
@@ -48,6 +49,7 @@ export const ActionDock = ({
 }): ReactElement => {
   const { projection, dispatch, requestState, can } = usePlayerSession();
   const { public: view, self } = projection;
+  const barRef = usePinnedBarHeight();
 
   const mine = view.turn?.playerId === self.playerId;
   const stage = view.turn?.stage ?? null;
@@ -256,6 +258,13 @@ export const ActionDock = ({
     /* A stage the rules resolve on their own, or one a decision sheet owns. */
   }
 
+  const actionRow =
+    actions === null ? null : (
+      <div className="eco-dock__actions" data-stack={false}>
+        {actions}
+      </div>
+    );
+
   const tabs: readonly {
     id: Exclude<PanelId, null>;
     label: string;
@@ -302,11 +311,7 @@ export const ActionDock = ({
         ) : null}
       </div>
 
-      {actions === null ? null : (
-        <div className="eco-dock__actions" data-stack={false}>
-          {actions}
-        </div>
-      )}
+      {wide && actionRow !== null ? actionRow : null}
 
       {wide ? (
         <div className="player-standing eco-scroll">
@@ -345,6 +350,11 @@ export const ActionDock = ({
           </section>
         </div>
       ) : (
+        /* On a phone the page scrolls so the board can stay full width, which
+           used to carry the controls and the tabs off the bottom of the screen.
+           They travel together in one bar that is pinned in view. */
+        <div className="player-dock__bar" ref={barRef}>
+        {actionRow}
         <div className="eco-dock__tabs">
           {tabs.map(({ id, label, Icon, count }) => (
             <button
@@ -362,6 +372,7 @@ export const ActionDock = ({
               ) : null}
             </button>
           ))}
+        </div>
         </div>
       )}
     </div>

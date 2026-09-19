@@ -20,6 +20,23 @@ const SPECIAL_NOTE: Record<string, string> = {
   observatory: 'Random event'
 };
 
+/*
+ * Syllable breaks for names too long to fit a phone-sized cell on one line.
+ * A soft hyphen only appears when the word has to break, so wide boards show
+ * "Observatory" whole and narrow ones show "Obser-vatory" rather than cutting
+ * the last letter off. Browser hyphenation dictionaries are not reliable
+ * enough to depend on, so the break points are given explicitly.
+ */
+const SOFT_BREAKS: Record<string, string> = {
+  Observatory: 'Obser­vatory'
+};
+
+const breakable = (name: string): string =>
+  name
+    .split(' ')
+    .map((word) => SOFT_BREAKS[word] ?? word)
+    .join(' ');
+
 const SPECIAL_ART: Record<string, NovaArtKind> = {
   city_center: 'civic', innovation_hub: 'idea',
   market_square: 'market', observatory: 'event'
@@ -88,7 +105,7 @@ export const BoardSpace = ({
         <span className="eco-space__no" aria-hidden="true">{space.position}</span>
         <span className="eco-space__special">
           {art === undefined ? null : <NovaArt kind={art} />}
-          <span className="eco-space__special-name">{space.name}</span>
+          <span className="eco-space__special-name">{breakable(space.name)}</span>
           <span className="eco-space__special-note">
             {SPECIAL_NOTE[space.specialId] ?? ''}
           </span>
