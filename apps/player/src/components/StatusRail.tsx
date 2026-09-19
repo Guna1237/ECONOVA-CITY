@@ -11,6 +11,7 @@ import {
 
 import { usePlayerSession } from '../state/PlayerSession.js';
 import { HowToPlay } from './HowToPlay.js';
+import { SoundControl } from './SoundControl.js';
 
 /**
  * The standing facts: how far through the game we are, who is up, how long
@@ -81,7 +82,7 @@ export const StatusRail = (): ReactElement => {
 
       <Resource kind="credits" value={self.credits} />
       <Resource kind="influence" value={self.influence} />
-      <div className="player-rail__help"><HowToPlay /></div>
+      <div className="player-rail__help"><SoundControl /><HowToPlay /></div>
     </header>
   );
 };

@@ -30,7 +30,7 @@
   place-items: stretch;
   min-height: 0;
   padding: var(--s1) var(--s2);
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
 .player-board-tools {
@@ -44,6 +44,28 @@
   line-height: 1.4;
 }
 .player-board-tools > span { max-width: 24ch; }
+.player-next-step { display: grid; align-content: center; gap: 2px; min-height: 44px; min-width: 0; color: var(--ink); text-decoration: none; }
+.player-next-step > span { color: var(--ink-soft); font-size: var(--type-caption); }
+.player-next-step strong { font-size: var(--type-small); text-decoration: underline; text-underline-offset: 3px; }
+.player-next-step:focus-visible { outline: 2px solid var(--game-blue); outline-offset: 2px; }
+.player-board-caption { margin: var(--s2) var(--s1) 0; font-size: var(--type-small); line-height: 1.4; color: var(--ink-soft); }
+.player-rail__help { display: flex; align-items: center; justify-content: end; gap: var(--s2); }
+.player-sound { min-width: 64px; min-height: 44px; padding: var(--s1); border: 1px solid var(--board-rule); border-radius: var(--radius-plate); background: transparent; color: var(--ink-soft); font: 600 var(--type-caption) var(--font-ui); cursor: pointer; touch-action: manipulation; }
+.player-sound[aria-pressed='true'] { background: var(--board-cell); color: var(--ink); border-color: var(--ink-soft); }
+.player-sound:hover { background: var(--board-cell-lit); }
+.player-sound:focus-visible { outline: 2px solid var(--game-blue); outline-offset: 2px; }
+.player-dock { scroll-margin-top: var(--s3); }
+.player-dock:focus-visible { outline: 2px solid var(--game-blue); outline-offset: -2px; }
+@media (max-width: 399px) {
+  .player-rail { gap: var(--s2); padding-inline: var(--s3); }
+  .player-rail__help { gap: var(--s1); }
+  .player-sound { min-width: 44px; width: 44px; }
+}
+@media (max-width: 359px) {
+  .player-rail { grid-template-columns: 1fr 1fr; }
+  .player-rail__help { grid-column: 1 / -1; justify-content: space-between; }
+  .player-sound { width: auto; min-width: 64px; }
+}
 .player-board-tools__council {
   display: inline-flex;
   flex: none;
@@ -356,7 +378,7 @@
   /* The board sits next to the tray as one confident group, rather than
      floating centered in its own column with a gap of dead table before
      the tray begins. */
-  .player-stage__wrap { justify-items: end; }
+  .player-stage__wrap { justify-items: center; }
 
   .player-dock {
     gap: var(--s4);

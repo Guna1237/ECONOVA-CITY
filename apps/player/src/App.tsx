@@ -32,6 +32,7 @@ import {
   type JoinedSession
 } from './state/PlayerSession.js';
 import { useWideLayout } from './state/useWideLayout.js';
+import { briefFor } from './state/briefing.js';
 
 import '@econova/ui/tokens.css';
 import './app.css';
@@ -54,6 +55,7 @@ const Table = (): ReactElement => {
   const [proposing, setProposing] = useState(false);
   const [influencing, setInfluencing] = useState(false);
   const wide = useWideLayout();
+  const briefing = briefFor(projection);
 
   const news =
     view.activeBreakingNewsId === null
@@ -107,7 +109,10 @@ const Table = (): ReactElement => {
 
       <main className="player-stage">
         <div className="player-board-tools">
-          <span>Tap a space to see what it does</span>
+          <a className="player-next-step" href="#player-actions">
+            <span>{mode === 'demonstration' ? 'Preview the controls' : 'Your next step'}</span>
+            <strong>{fatal !== null || (mode === 'live' && link !== 'connected') ? 'Wait for connection' : briefing.headline}</strong>
+          </a>
           <button type="button" className="player-board-tools__council"
             aria-haspopup="dialog" onClick={() => setBoardHelp('council')}>
             <NovaArt kind="council" /> City Council <span aria-hidden="true">?</span>
@@ -124,6 +129,7 @@ const Table = (): ReactElement => {
             />
           </div>
         </div>
+        <p className="player-board-caption">Tap any space for details. Pawns show players; numbered badges show owners.</p>
       </main>
 
       <ActionDock

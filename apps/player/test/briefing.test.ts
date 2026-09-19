@@ -27,6 +27,12 @@ const atStage = (stage: string): PlayerProjectionDto =>
  * situation using canonical content — never a stage enum leaked to the screen.
  */
 describe('turn briefing', () => {
+  it('does not tell a paused player to act on the retained turn', () => {
+    const brief = briefFor(withPublic({ phase: 'paused' }));
+    expect(brief.headline).toBe('Game paused');
+    expect(brief.detail).toContain('timer is paused');
+    expect(brief.hint).toBeNull();
+  });
   it('tells the player to roll when the turn opens', () => {
     const brief = briefFor(atStage('awaiting_roll'));
     expect(brief.headline).toBe('Your turn');

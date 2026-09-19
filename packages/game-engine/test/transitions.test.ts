@@ -80,6 +80,23 @@ const run = (
     random
   }).state;
 
+/*
+ * Rolling now moves straight away unless the player holds the Shortcut card,
+ * in which case they are asked for a direction. One random source serves both
+ * steps, drawing the die first and then anything the landing needs, which is
+ * the same order the engine draws them in when it moves on the roll itself.
+ */
+const rollForward = (
+  state: GameState,
+  playerId: string,
+  random: RandomSource = sequenceRandom(0)
+): GameState => {
+  const rolled = run(state, playerId, command(state, "roll"), random);
+  return rolled.turn?.stage === "awaiting_shortcut_choice"
+    ? run(rolled, playerId, command(rolled, "choose_shortcut", { useShortcut: false }), random)
+    : rolled;
+};
+
 const runAt = (
   state: GameState,
   actorPlayerId: string,
@@ -135,8 +152,7 @@ describe("canonical content integration", () => {
   ] as const)("resolves Special Event catalog entry %i on a real landing", (index, credits, influence, stage) => {
     let state = startGame(readyGame(), sequenceRandom(0), 1000).state;
     const active = state.turn!.playerId;
-    state = run(state, active, command(state, "roll"), sequenceRandom(4));
-    state = run(state, active, command(state, "choose_shortcut", { useShortcut: false }), sequenceRandom(index));
+    state = rollForward(state, active, sequenceRandom(4, index));
     expect(state.players[active]).toMatchObject({ position: 5, credits, influence });
     expect(state.turn).toMatchObject({ stage, actionsRemaining: 2 });
     if (index === 4) expect(state.players[active]!.cards).toHaveLength(3);
@@ -196,8 +212,7 @@ describe("authoritative turn transitions", () => {
     let state = startGame(readyGame(), sequenceRandom(0), 1000).state;
     const active = state.turn!.playerId;
     for (const id of state.turnOrder.filter(id => id !== active)) state = disconnectPlayer(state, id, 1000).state;
-    state = run(state, active, command(state, "roll"));
-    state = run(state, active, command(state, "choose_shortcut", { useShortcut: false }));
+    state = rollForward(state, active);
     state = run(state, active, command(state, "start_auction", { propertyId: "P01" }));
     expect(state.auction!.submittedPlayerIds).toHaveLength(3);
     const auctionId = state.auction!.id;
@@ -240,25 +255,17 @@ describe("authoritative turn transitions", () => {
     const playerId = state.turn?.playerId ?? "";
     state.players[playerId]!.position = 19;
 
+    setHand(state, playerId, []);
+    // Without the Shortcut card there is no direction to choose: the roll moves.
     state = run(state, playerId, command(state, "roll"), sequenceRandom(0));
-    expect(state.turn).toMatchObject({ roll: 1, stage: "awaiting_shortcut_choice" });
-    state = run(
-      state,
-      playerId,
-      command(state, "choose_shortcut", { useShortcut: false })
-    );
+    expect(state.turn).toMatchObject({ roll: 1 });
     expect(state.players[playerId]).toMatchObject({ position: 0, credits: 1_150 });
     expect(state.turn?.stage).toBe("action_phase");
 
     state.players[playerId]!.position = 0;
     state.turn!.stage = "awaiting_roll";
     state.turn!.roll = null;
-    state = run(state, playerId, command(state, "roll"), sequenceRandom(0));
-    state = run(
-      state,
-      playerId,
-      command(state, "choose_shortcut", { useShortcut: false })
-    );
+    state = rollForward(state, playerId, sequenceRandom(0));
     expect(state.turn?.stage).toBe("awaiting_property_decision");
     const before = state.players[playerId]!.credits;
     state = run(
@@ -292,12 +299,7 @@ describe("authoritative turn transitions", () => {
     const payerCredits = state.players[payerId]!.credits;
     const ownerCredits = state.players[ownerId]!.credits;
 
-    state = run(state, payerId, command(state, "roll"), sequenceRandom(0));
-    state = run(
-      state,
-      payerId,
-      command(state, "choose_shortcut", { useShortcut: false })
-    );
+    state = rollForward(state, payerId, sequenceRandom(0));
     expect(state.turn?.stage).toBe("landing_fee_reaction");
     state = run(
       state,

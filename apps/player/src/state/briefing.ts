@@ -69,6 +69,10 @@ export const briefFor = (projection: PlayerProjectionDto): Briefing => {
 
   const base = { roll } as const;
 
+  if (view.phase === 'paused') {
+    return { ...base, headline: 'Game paused', detail: 'Wait for the operator to resume. Your timer is paused too.', tone: 'waiting', hint: null };
+  }
+
   /* ---- decisions the rules are actively waiting on ---------------- */
 
   if (self.objectiveOffer !== null) {
@@ -121,7 +125,7 @@ export const briefFor = (projection: PlayerProjectionDto): Briefing => {
     return {
       ...base,
       headline: 'City council',
-      detail: `Split your ${self.influence} influence between the two policies.`,
+      detail: 'Read both policies. Vote with Influence, split your votes, or abstain.',
       tone: 'decision',
       hint: 'council'
     };
@@ -185,8 +189,8 @@ export const briefFor = (projection: PlayerProjectionDto): Briefing => {
     case 'awaiting_shortcut_choice':
       return {
         ...base,
-        headline: 'Take the shortcut?',
-        detail: 'You can move backward by your roll instead of forward.',
+        headline: 'Play your Shortcut card?',
+        detail: 'You can spend it to move backward by your roll, or keep it and move forward.',
         tone: 'decision',
         hint: null
       };
@@ -240,7 +244,7 @@ export const briefFor = (projection: PlayerProjectionDto): Briefing => {
     ...base,
     headline: 'Your turn',
     detail:
-      turn === null ? null : `${STAGE_LABEL[turn.stage] ?? 'Resolving'} — hold tight.`,
+      turn === null ? null : `${STAGE_LABEL[turn.stage] ?? 'Resolving'}. Please wait.`,
     tone: 'you',
     hint: null
   };

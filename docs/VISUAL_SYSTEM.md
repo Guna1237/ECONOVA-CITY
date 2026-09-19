@@ -1,6 +1,12 @@
 # ECONOVA: CITY
 # VISUAL SYSTEM
 
+## Phone readability and optional audio, 2026-09-19
+
+Preserve the warm Nova artwork, existing fonts and stable PNG pawns. Compact map labels use `--type-board-label` (10.5px minimum); full details remain available by tapping a space. A visible next-step link takes players directly to their controls and keyboard focus follows it. Active policy names are visible in the collapsed City updates panel. History has one scroll container, not nested scrolling.
+
+Sound is opt-in, initially off, with a persistent labelled toggle during play. Quiet, short cues accompany a newly observed local turn, new authorized activity, and the normal-turn warning. Text remains the source of meaning. No music, ticking, historical replay or sounds while the page is hidden/disconnected. Web Audio starts only from the toggle gesture; failures must not affect gameplay. Timed audio follows the authoritative deadline and cancels during paused timers or sub-phases. Motion uses smooth deceleration without overshoot and honors reduced motion.
+
 ## Phone-only event update, 2026-09-19
 
 Use the owner's six raster PNG pawns with persistent seat numbers. Seat color follows the server's fixed seat index, never current turn order. Current news, active policies and recent authorized receipts belong in a compact, expandable City updates panel in normal page flow. Do not cover the phone board with automatic news or round-change interstitials. History remains readable after the transient notification disappears. Panel motion is brief, opacity/transform-only, and disabled for reduced motion. The optional projector is not required for any of this information.

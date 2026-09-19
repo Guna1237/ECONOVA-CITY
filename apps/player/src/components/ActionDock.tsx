@@ -93,26 +93,37 @@ export const ActionDock = ({
       </Button>
     );
   } else if (stage === 'awaiting_shortcut_choice') {
+    /*
+     * Moving backward spends the Shortcut card. The server only asks this
+     * question of a player who holds it, but the button checks the hand too,
+     * so the screen can never offer a move the server will refuse.
+     */
+    const hasShortcut = self.cards.includes('SC11' as never);
+    const steps = view.turn?.roll ?? null;
     actions = (
       <>
         <Button
-          tone="quiet"
+          tone={hasShortcut ? 'quiet' : 'primary'}
           request={requestState('shortcut-no')}
+          hint={steps === null ? undefined : `${steps} ahead`}
           onClick={() =>
             dispatch('shortcut-no', { type: 'choose_shortcut', useShortcut: false })
           }
         >
           Move forward
         </Button>
-        <Button
-          tone="primary"
-          request={requestState('shortcut-yes')}
-          onClick={() =>
-            dispatch('shortcut-yes', { type: 'choose_shortcut', useShortcut: true })
-          }
-        >
-          Move backward
-        </Button>
+        {hasShortcut ? (
+          <Button
+            tone="primary"
+            request={requestState('shortcut-yes')}
+            hint={steps === null ? 'Uses Shortcut' : `${steps} back · uses Shortcut`}
+            onClick={() =>
+              dispatch('shortcut-yes', { type: 'choose_shortcut', useShortcut: true })
+            }
+          >
+            Move backward
+          </Button>
+        ) : null}
       </>
     );
   } else if (stage === 'awaiting_property_decision' && standingOn !== null) {
@@ -258,7 +269,7 @@ export const ActionDock = ({
   ];
 
   return (
-    <div className="eco-dock player-dock">
+    <div className="eco-dock player-dock" id="player-actions" tabIndex={-1} aria-label="Your actions">
       <div className="player-brief" data-tone={briefing.tone}>
         <div className="player-brief__line">
           <span

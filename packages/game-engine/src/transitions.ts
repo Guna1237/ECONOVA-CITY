@@ -1227,6 +1227,41 @@ export const reconnectPlayer = (
   };
 };
 
+/*
+ * Moving backward is only ever possible by spending the Shortcut card, and a
+ * player may play one card per turn. Asking every player "forward or
+ * backward?" on every roll added a pointless tap to each of roughly forty
+ * turns a game, and offered a backward move that was always refused to anyone
+ * without the card. The question is now asked only when the answer can be yes.
+ */
+const canTakeShortcut = (state: GameState, playerId: string): boolean => {
+  const turn = requireTurn(state);
+  return !turn.cardPlayed && requirePlayer(state, playerId).cards.includes("SC11");
+};
+
+/** Move the rolled distance and resolve the space landed on. */
+const moveAndLand = (
+  state: GameState,
+  playerId: string,
+  direction: "forward" | "backward",
+  random: RandomSource,
+  events: GameEvent[]
+): void => {
+  const turn = requireTurn(state);
+  if (turn.roll === null) throw new GameInvariantError("Movement requires a roll.");
+  const player = requirePlayer(state, playerId);
+  const movement = resolveMovement({
+    position: player.position,
+    dieRoll: turn.roll,
+    direction,
+    entertainmentPropertiesOwned: entertainmentOwned(state, playerId)
+  });
+  player.position = movement.destination;
+  if (movement.passedCityCenter) player.credits += GAME_CONFIG.cityCenterPassingBonus;
+  events.push(publicEvent("player_moved", { playerId, ...movement }));
+  resolveLanding(state, playerId, random, events);
+};
+
 const autoCompleteTurn = (
   state: GameState,
   random: RandomSource,
@@ -1243,16 +1278,7 @@ const autoCompleteTurn = (
     turn.stage = "awaiting_shortcut_choice";
   }
   if (turn.stage === "awaiting_shortcut_choice" && turn.roll !== null) {
-    const player = requirePlayer(state, playerId);
-    const movement = resolveMovement({
-      position: player.position,
-      dieRoll: turn.roll,
-      direction: "forward",
-      entertainmentPropertiesOwned: entertainmentOwned(state, playerId)
-    });
-    player.position = movement.destination;
-    if (movement.passedCityCenter) player.credits += GAME_CONFIG.cityCenterPassingBonus;
-    resolveLanding(state, playerId, random, events);
+    moveAndLand(state, playerId, "forward", random, events);
   }
   if (turn.stage === "awaiting_property_decision") beginActionPhase(state);
   if (turn.stage === "landing_fee_reaction") {
@@ -1375,8 +1401,12 @@ const executeOnClone = (
         throw new GameRuleError("INVALID_PHASE", "Dice cannot be rolled now.");
       }
       turn.roll = turn.effects.includes("SC01") ? 6 : context.random.nextInt(6) + 1;
-      turn.stage = "awaiting_shortcut_choice";
       events.push(publicEvent("dice_rolled", { playerId: actorPlayerId, roll: turn.roll }));
+      if (canTakeShortcut(next, actorPlayerId)) {
+        turn.stage = "awaiting_shortcut_choice";
+        return;
+      }
+      moveAndLand(next, actorPlayerId, "forward", context.random, events);
       return;
     }
     case "choose_shortcut": {
@@ -1390,17 +1420,13 @@ const executeOnClone = (
         consumeCard(next, player, "SC11");
         turn.cardPlayed = true;
       }
-      const player = requirePlayer(next, actorPlayerId);
-      const movement = resolveMovement({
-        position: player.position,
-        dieRoll: turn.roll,
-        direction: command.useShortcut ? "backward" : "forward",
-        entertainmentPropertiesOwned: entertainmentOwned(next, actorPlayerId)
-      });
-      player.position = movement.destination;
-      if (movement.passedCityCenter) player.credits += GAME_CONFIG.cityCenterPassingBonus;
-      events.push(publicEvent("player_moved", { playerId: actorPlayerId, ...movement }));
-      resolveLanding(next, actorPlayerId, context.random, events);
+      moveAndLand(
+        next,
+        actorPlayerId,
+        command.useShortcut ? "backward" : "forward",
+        context.random,
+        events
+      );
       return;
     }
     case "buy_property": {

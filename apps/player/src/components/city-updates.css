@@ -1,9 +1,9 @@
 .city-updates {
   margin: 8px 12px;
-  border: 1px solid var(--line, #d9cfbc);
-  border-radius: 8px;
-  background: var(--paper, #faf7ef);
-  color: var(--ink, #29271f);
+  border: 1px solid var(--board-rule);
+  border-radius: var(--radius-plate);
+  background: var(--room-bg-lift);
+  color: var(--ink);
   min-width: 0;
 }
 .city-updates summary {
@@ -28,7 +28,7 @@
 .city-updates p { overflow-wrap: anywhere; }
 .city-updates__content p { margin: 4px 0 10px; }
 .city-updates__privacy, .city-updates__round { font-size: 12px; color: #625a4b; }
-.city-updates__history { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow-y: auto; overscroll-behavior: contain; }
+.city-updates__history { list-style: none; margin: 0; padding: 0; }
 .city-updates__history li { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line, #d9cfbc); }
 .city-updates__round { flex: 0 0 24px; font-variant-numeric: tabular-nums; }
 @media (min-width: 760px) {
@@ -36,5 +36,6 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   .city-updates__content { animation: city-update-in 180ms ease-out; }
+  .city-updates__latest > span { display: block; animation: city-update-in 180ms ease-out; }
   @keyframes city-update-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
 }

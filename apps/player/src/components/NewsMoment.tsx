@@ -19,7 +19,7 @@ export const NewsMoment = ({ projection }: { readonly projection: PlayerProjecti
         <summary>
           <span className="city-updates__heading">City updates</span>
           <span className="city-updates__preview">
-            {policies.length ? `${policies.length} active polic${policies.length === 1 ? 'y' : 'ies'}` : 'No policies yet'}
+            {policies.length ? policies.map(policy => policy.name).join(', ') : 'No policies yet'}
             {news ? ` · ${news.name}` : ' · News and receipts'}
           </span>
           <span className="city-updates__toggle" aria-hidden="true">⌄</span>
@@ -39,7 +39,7 @@ export const NewsMoment = ({ projection }: { readonly projection: PlayerProjecti
         </div>
       </details>
       <p className="city-updates__latest" role="status" aria-live="polite" aria-atomic="true">
-        {latest ? <><strong>{latest.title}</strong> {latest.text}</> : 'Keep this panel handy. Everything you need is on your phone.'}
+        <span key={latest?.id ?? 'empty'}>{latest ? <><strong>{latest.title}</strong> {latest.text}</> : 'Keep this panel handy. Everything you need is on your phone.'}</span>
       </p>
     </section>
   );

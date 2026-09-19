@@ -8,7 +8,9 @@ Welcome to ECONOVA: CITY. Your group of 4 to 6 players competes to build the str
 
 Here is the shape of it: you buy properties, develop them, collect income from them, and use cards and Influence to steer the city in your favor. Your score at the end is not just the Credits sitting in your account. It also counts your properties, any districts you control, whatever Influence you have left, and your secret objective if you complete it.
 
-Before you sit down to play, bring a charged phone. Your organizer will send you a player link. Open it, enter your room code and your name, and keep that browser tab open for the whole game. Each room is its own separate game, completely independent from any other room running at the same time. You will use your phone for anything private, like your own decisions and cards, and the projector screen for the board everyone shares.
+Before you sit down to play, bring a charged phone. Your organizer will send you a player link. Open it, enter your room code and your name, and keep that browser tab open for the whole game. Each room is its own separate game, completely independent from any other room running at the same time. Everything you need is on your phone: the board, your cards and decisions, and City updates for news, policies, rent and trade results. No projector is needed.
+
+Tap **How to play** for a short reminder, or tap any board space to learn what happens there. **Your next step** takes you to your controls. For quiet cues, tap **Sound off** to turn sound on. Sound is optional and starts muted when you open the game.
 
 You start the game with 1,000 Credits, 5 Influence, and 2 Strategy Cards. You will also be shown two secret objectives and asked to pick one. Keep your choice to yourself. Nobody else needs to know, and if you complete it by the end of the game, it earns you 200 extra points.
 
@@ -16,7 +18,7 @@ You start the game with 1,000 Credits, 5 Influence, and 2 Strategy Cards. You wi
 
 ### On your turn
 
-1. Roll when the game prompts you. The server moves your piece and applies whatever effects come from that movement.
+1. Roll when the game prompts you. The server moves your piece forward and applies whatever effects come from that movement. The only exception is if you hold the Shortcut card and have not played a card yet this turn: then the game asks whether you want to spend it to move backward instead. Without that card you always move forward, and you will not be asked.
 2. Resolve the space you land on. Depending on where you land, you might be offered a property to buy, owe a landing fee, draw a card, or face an event choice.
 3. Use your available Actions, then end your turn. You normally get 2 Actions per turn. Keep an eye on how many you have left, since some card effects can use one up earlier in the turn than you'd expect.
 
@@ -90,10 +92,10 @@ Whoever has the highest total wins. If two or more players are tied, it is broke
 
 ## Organizer's 30-second introduction
 
-"Your goal is the highest score after eight rounds. Buy properties, develop them, and work toward your secret objective. On your turn, roll, resolve whatever space you land on, then use your available Actions. Watch your phone for anything that needs your decision, and the projector for the shared board. Cards, auctions, and Council votes can all shift your plans along the way. Keep your game tab open, and let me know right away if you lose your connection."
+"Your goal is the highest score after eight rounds. Buy properties, improve them, and work toward your secret objective. On your turn, roll, follow the prompt, then use your available Actions and end your turn. Watch your phone between turns too: auctions, trades and Council votes may need you. Open City updates for news, policies and receipts. Keep your game tab open, and tell me if your connection does not recover."
 
 ## Organizer check before sharing
 
-Before the event, rehearse joining, taking a turn, auctions, Council voting, and reconnecting on the phones and projectors you will actually use. Council, Develop, and Influence controls were repaired in commit 84526dc; the in-app How to play guide is now implemented. Accurate modified-cost displays and the remaining multiplayer release checks still need attention. This handout describes approved rules, not a guarantee that every release check is complete. See `docs/qa/UX_AUDIT_2026-09-17.md` and the latest agent status before running the event.
+Before the event, rehearse joining, taking a turn, auctions, Council voting, and reconnecting on the phones you will actually use. Check that players can find current policies, rent receipts and trade results without a projector. Try sound on and off in the room. This handout describes approved rules, not a guarantee that every release check is complete. Read the latest agent status before running the event.
 
 Rule references: canonical Sections 2, 9-15, 19-23, 25-29; approved operator-pause decision DECISION-048. The sections meant to be shared with players deliberately leave out room codes, credentials, private inspection details, and any recovery promises that are not actually documented.
