@@ -3,6 +3,10 @@
 
 This file communicates important work between AI agents.
 
+## Indian company theme handoff: 2026-09-19
+
+Use the updated property names in the canonical game-content catalog and GAME_DESIGN_SPEC.md. All IDs and rules are unchanged. Keep Strategy Card names descriptive and do not import company logos or invent company-specific bonuses. Existing audit/receipt text stays historical. Final evidence and short event checklist: `docs/qa/INDIAN_COMPANY_EVENT_PASS_2026-09-19.md`. No backend changes, commit or deployment by this pass.
+
 ## Mobile controls and audio handoff: 2026-09-19
 
 Owner assigned this session the mobile UI; preserve the other session's pinned action bar and disabled-button explanations. See `docs/qa/PHONE_REFINEMENT_SOUND_2026-09-19.md`. The portrait briefing precedes the board, tips are collapsed, and short landscape screens scroll instead of crushing the board. Sound opens settings and remains off until explicitly enabled. Receipt-only cue selection, silent reconnect baselines, volume and cleanup remain presentation-only.

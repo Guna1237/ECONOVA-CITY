@@ -14,6 +14,16 @@ import {
 } from "../src/index.js";
 
 describe("canonical game content", () => {
+  it("uses the Indian-company labels without moving or re-identifying any property", () => {
+    const names = ["Amul", "Zoho", "Saregama", "TVS Motor", "Britannia", "Infosys", "Bajaj Auto", "PVR INOX", "Wipro", "Parle", "Mahindra", "T-Series", "Zee", "TCS", "ITC Foods", "Tata Motors"];
+    expect(PROPERTIES.map(property => property.name)).toEqual(names);
+    expect(new Set(names).size).toBe(16);
+    expect(PROPERTIES.map(property => property.id)).toEqual(names.map((_, index) => `P${String(index + 1).padStart(2, "0")}`));
+    expect(PROPERTIES.map(property => property.boardPosition)).toEqual([1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18]);
+    for (const property of PROPERTIES) {
+      expect(BOARD_SPACES[property.boardPosition]).toMatchObject({ propertyId: property.id, name: property.name });
+    }
+  });
   it("defines the locked 20-space board with 16 properties", () => {
     expect(BOARD_SPACES).toHaveLength(20);
     expect(PROPERTIES).toHaveLength(16);
@@ -26,7 +36,7 @@ describe("canonical game content", () => {
   it("defines each property exactly once with its locked economics", () => {
     expect(new Set(PROPERTIES.map(({ id }) => id)).size).toBe(16);
     expect(PROPERTIES.find(({ id }) => id === "P01")).toMatchObject({
-      name: "Street Bites",
+      name: "Amul",
       district: "food",
       tier: "cheap",
       boardPosition: 1,
@@ -34,7 +44,7 @@ describe("canonical game content", () => {
       developmentCosts: [40, 60, 80]
     });
     expect(PROPERTIES.find(({ id }) => id === "P16")).toMatchObject({
-      name: "AutoPilot HQ",
+      name: "Tata Motors",
       district: "mobility",
       tier: "premium",
       boardPosition: 18,

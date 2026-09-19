@@ -8,6 +8,15 @@ import { BoardSpace } from '../src/board/BoardSpace.js';
 import { GameBoard } from '../src/board/GameBoard.js';
 
 const id = 'board-player' as PlayerId;
+describe('company labels on small boards', () => {
+  it.each(['Saregama', 'Britannia', 'Mahindra'])('keeps %s accessible with optional visual breaks', (name) => {
+    const space = BOARD_SPACES.find(entry => entry.name === name)!;
+    const html = renderToStaticMarkup(createElement(BoardSpace, { space, ownerSeat: null, developmentLevel: 0 }));
+    expect(html).toContain(`title="${name}"`);
+    expect(html).toContain(`aria-label="${name},`);
+    expect(html).toContain('\u00ad');
+  });
+});
 const state: PublicProjectionDto = {
   gameId: 'board-test', roomId: 'BOARD1' as RoomId, stateVersion: 1,
   phase: 'player_turn', round: 3, turnOrder: [id], currentTurnIndex: 0,

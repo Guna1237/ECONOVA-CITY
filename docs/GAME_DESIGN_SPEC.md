@@ -5,6 +5,8 @@
 **Purpose:** Single source of truth for all gameplay. Supersedes all prior conflicting descriptions in PRODUCT.md, GAME_RULES.md, GAME_CONTENT.md, and DECISIONS.md where conflicts exist.
 **Approved:** 2026-09-04
 
+**Owner-approved naming update, 2026-09-19:** The 16 property cards use familiar Indian company/brand names. Names are game labels, not real company valuations, sponsorship or endorsement. Property IDs, districts, board positions, tiers and every gameplay value are unchanged. Strategy-card names remain descriptive of their effects. Existing saved receipts retain the name recorded when the event happened; new receipts use the current catalog.
+
 > [!IMPORTANT]
 > This specification resolves DECISION-044, DECISION-045, and DECISION-046. Those decisions are APPROVED in `docs/DECISIONS.md`, and all affected documents must match this specification.
 
@@ -72,34 +74,34 @@ The city is a circular loop of 20 spaces, numbered 0–19. Players move clockwis
 | Space | Type | Name | District / Tier |
 |:---:|---|---|---|
 | 0 | **Special: City Center** | City Center | — |
-| 1 | Property | Street Bites | Food / Cheap |
-| 2 | Property | CloudNine Labs | Tech / Cheap |
-| 3 | Property | Neon Arena | Entertainment / Cheap |
-| 4 | Property | Metro Link | Mobility / Cheap |
+| 1 | Property | Amul | Food / Cheap |
+| 2 | Property | Zoho | Tech / Cheap |
+| 3 | Property | Saregama | Entertainment / Cheap |
+| 4 | Property | TVS Motor | Mobility / Cheap |
 | 5 | **Special: Innovation Hub** | Innovation Hub | — |
-| 6 | Property | Harvest Table | Food / Mid |
-| 7 | Property | DataForge | Tech / Mid |
-| 8 | Property | Velocity Motors | Mobility / Mid |
-| 9 | Property | Pixel Palace | Entertainment / Mid |
+| 6 | Property | Britannia | Food / Mid |
+| 7 | Property | Infosys | Tech / Mid |
+| 8 | Property | Bajaj Auto | Mobility / Mid |
+| 9 | Property | PVR INOX | Entertainment / Mid |
 | 10 | **Special: Market Square** | Market Square | — |
-| 11 | Property | Quantum Dynamics | Tech / Mid |
-| 12 | Property | FreshFusion | Food / Mid |
-| 13 | Property | SkyRail Transit | Mobility / Mid |
-| 14 | Property | The Grand Stage | Entertainment / Mid |
-| 15 | Property | Cyber Coliseum | Entertainment / Premium |
-| 16 | Property | NexGen AI | Tech / Premium |
-| 17 | Property | Epicurean Tower | Food / Premium |
-| 18 | Property | AutoPilot HQ | Mobility / Premium |
+| 11 | Property | Wipro | Tech / Mid |
+| 12 | Property | Parle | Food / Mid |
+| 13 | Property | Mahindra | Mobility / Mid |
+| 14 | Property | T-Series | Entertainment / Mid |
+| 15 | Property | Zee | Entertainment / Premium |
+| 16 | Property | TCS | Tech / Premium |
+| 17 | Property | ITC Foods | Food / Premium |
+| 18 | Property | Tata Motors | Mobility / Premium |
 | 19 | **Special: Observatory** | Observatory | — |
 
 **District verification:**
 
 | District | Cheap | Mid 1 | Mid 2 | Premium | Total |
 |---|---|---|---|---|---|
-| Food | Street Bites (1) | Harvest Table (6) | FreshFusion (12) | Epicurean Tower (17) | 4 ✓ |
-| Tech | CloudNine Labs (2) | DataForge (7) | Quantum Dynamics (11) | NexGen AI (16) | 4 ✓ |
-| Entertainment | Neon Arena (3) | Pixel Palace (9) | The Grand Stage (14) | Cyber Coliseum (15) | 4 ✓ |
-| Mobility | Metro Link (4) | Velocity Motors (8) | SkyRail Transit (13) | AutoPilot HQ (18) | 4 ✓ |
+| Food | Amul (1) | Britannia (6) | Parle (12) | ITC Foods (17) | 4 ✓ |
+| Tech | Zoho (2) | Infosys (7) | Wipro (11) | TCS (16) | 4 ✓ |
+| Entertainment | Saregama (3) | PVR INOX (9) | T-Series (14) | Zee (15) | 4 ✓ |
+| Mobility | TVS Motor (4) | Bajaj Auto (8) | Mahindra (13) | Tata Motors (18) | 4 ✓ |
 
 Properties from different districts are intentionally interleaved to reduce the advantage of landing streaks in one district. The 4 special spaces are distributed at positions 0, 5, 10, 19.
 
@@ -111,22 +113,22 @@ Properties from different districts are intentionally interleaved to reduce the 
 
 | ID | Name | Tier | Base Price | Base Value | L1 Dev Cost | L2 Dev Cost | L3 Dev Cost | Total Investment |
 |---|---|---|---|---|---|---|---|---|
-| P01 | Street Bites | Cheap | 80 | 80 | 40 | 60 | 80 | 260 |
-| P02 | CloudNine Labs | Cheap | 80 | 80 | 40 | 60 | 80 | 260 |
-| P03 | Neon Arena | Cheap | 80 | 80 | 40 | 60 | 80 | 260 |
-| P04 | Metro Link | Cheap | 80 | 80 | 40 | 60 | 80 | 260 |
-| P05 | Harvest Table | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
-| P06 | DataForge | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
-| P07 | Velocity Motors | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
-| P08 | Pixel Palace | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
-| P09 | Quantum Dynamics | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
-| P10 | FreshFusion | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
-| P11 | SkyRail Transit | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
-| P12 | The Grand Stage | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
-| P13 | Cyber Coliseum | Premium | 300 | 300 | 100 | 150 | 200 | 750 |
-| P14 | NexGen AI | Premium | 300 | 300 | 100 | 150 | 200 | 750 |
-| P15 | Epicurean Tower | Premium | 300 | 300 | 100 | 150 | 200 | 750 |
-| P16 | AutoPilot HQ | Premium | 300 | 300 | 100 | 150 | 200 | 750 |
+| P01 | Amul | Cheap | 80 | 80 | 40 | 60 | 80 | 260 |
+| P02 | Zoho | Cheap | 80 | 80 | 40 | 60 | 80 | 260 |
+| P03 | Saregama | Cheap | 80 | 80 | 40 | 60 | 80 | 260 |
+| P04 | TVS Motor | Cheap | 80 | 80 | 40 | 60 | 80 | 260 |
+| P05 | Britannia | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
+| P06 | Infosys | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
+| P07 | Bajaj Auto | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
+| P08 | PVR INOX | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
+| P09 | Wipro | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
+| P10 | Parle | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
+| P11 | Mahindra | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
+| P12 | T-Series | Mid | 150 | 150 | 60 | 90 | 120 | 420 |
+| P13 | Zee | Premium | 300 | 300 | 100 | 150 | 200 | 750 |
+| P14 | TCS | Premium | 300 | 300 | 100 | 150 | 200 | 750 |
+| P15 | ITC Foods | Premium | 300 | 300 | 100 | 150 | 200 | 750 |
+| P16 | Tata Motors | Premium | 300 | 300 | 100 | 150 | 200 | 750 |
 
 ### 6.2 Property Value Formula
 
@@ -978,9 +980,9 @@ When a player reconnects:
 1. **Roll:** Server generates 4.
 2. **Movement bonus:** Ava does not control Entertainment, so no bonus. She moves 4 spaces: 12 → 13 → 14 → 15 → 16.
 3. **Passing City Center?** No (she moved from 12 to 16, didn't pass Space 0). No Credits bonus.
-4. **Landing:** Space 16 = NexGen AI (Tech / Premium). It's owned by player "Ben" at Level 1.
+4. **Landing:** Space 16 = TCS (Tech / Premium). It's owned by player "Ben" at Level 1.
 5. **Landing Fee:** BaseFee 50 + (1 × 30) + (Demand × 15). Suppose Tech Demand is +1: 50 + 30 + 15 = **95 Credits**. Ava pays 95 to Ben. Ava now has 355 Credits.
-6. **Action 1:** Ava plays "Quick Build" (SC05) on her property FreshFusion (Food/Mid, currently Level 1). It upgrades to Level 2 for free. Card is consumed.
+6. **Action 1:** Ava plays "Quick Build" (SC05) on her property Parle (Food/Mid, currently Level 1). It upgrades to Level 2 for free. Card is consumed.
 7. **Action 2:** Ava uses Influence action. Spends 1 Influence to increase Food Demand by +1 (from 0 to +1). Ava now has 2 Influence.
 8. **End Turn.** Next player's turn begins.
 

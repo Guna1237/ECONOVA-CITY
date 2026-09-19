@@ -3,6 +3,10 @@
 
 This file tracks authorized work and its ownership.
 
+## Indian company names and event copy, owner: Codex, 2026-09-19
+
+IMPLEMENTED: 16 company-themed property names, unchanged gameplay/IDs, consistent canonical examples, simpler phone/property text and narrow-board wrapping. Final checks and remaining event rehearsal: `docs/qa/INDIAN_COMPANY_EVENT_PASS_2026-09-19.md`. Preserve concurrent Button test relocation.
+
 ## Mobile controls and sound, owner: Codex, 2026-09-19
 
 IMPLEMENTED: action-first portrait briefing, collapsible tips, reciprocal board/action links, usable short-landscape layout and opt-in sound settings with volume and distinct receipt cues. Verification and limitations: `docs/qa/PHONE_REFINEMENT_SOUND_2026-09-19.md`. No backend/engine/gameplay edits. Next validation is live event-phone audio and multiplayer rehearsal, not another UI framework or rules change.

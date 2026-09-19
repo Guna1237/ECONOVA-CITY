@@ -3,6 +3,10 @@
 
 This document records important decisions made during the development of ECONOVA: CITY.
 
+## Owner-approved company names, 2026-09-19
+
+Status: APPROVED. Use familiar Indian company/brand names on the 16 property cards: Amul, Zoho, Saregama, TVS Motor, Britannia, Infosys, Bajaj Auto, PVR INOX, Wipro, Parle, Mahindra, T-Series, Zee, TCS, ITC Foods and Tata Motors. The canonical mapping is in GAME_DESIGN_SPEC.md and game-content/properties.ts. This changes names only, not IDs, positions, districts, prices, fees or scoring. Keep descriptive Strategy Card names. Names do not imply real valuations, affiliation or endorsement; do not add company logos or external asset requests. Preserve historical receipts rather than rewriting saved event text.
+
 Its purpose is to prevent AI agents from repeatedly reconsidering the same decisions, introducing conflicting architectures, or changing important product behavior without understanding why the current approach was selected.
 
 This document is a decision record, not a task list.

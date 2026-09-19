@@ -999,8 +999,8 @@
 .eco-space__name {
   font-size: clamp(8px, 1.6cqw, 23px);
   line-height: 1.05;
-  overflow-wrap: normal;
-  hyphens: none;
+  overflow-wrap: anywhere;
+  hyphens: manual;
 }
 
 .eco-space[data-corner='true'] .eco-space__name { font-size: clamp(9px, 1.8cqw, 26px); }

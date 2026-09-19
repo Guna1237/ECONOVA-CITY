@@ -28,7 +28,10 @@ const SPECIAL_NOTE: Record<string, string> = {
  * enough to depend on, so the break points are given explicitly.
  */
 const SOFT_BREAKS: Record<string, string> = {
-  Observatory: 'Obser­vatory'
+  Observatory: 'Obser­vatory',
+  Saregama: 'Sare­gama',
+  Britannia: 'Britan­nia',
+  Mahindra: 'Mahin­dra'
 };
 
 const breakable = (name: string): string =>
@@ -148,7 +151,7 @@ export const BoardSpace = ({
       </span>
 
       <span className="eco-space__name">{property.name.split(/(?<=[a-z])(?=[A-Z])/u).map((part, index) => (
-        <Fragment key={index}>{index === 0 ? null : <wbr />}{part}</Fragment>
+        <Fragment key={index}>{index === 0 ? null : <wbr />}{breakable(part)}</Fragment>
       ))}</span>
 
       <PropertyMotif propertyId={property.id} className="eco-space__motif" />

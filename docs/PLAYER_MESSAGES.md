@@ -4,7 +4,7 @@ Copy the sections below into your group chat or read them aloud. They describe t
 
 ## Send before the event
 
-Bring a charged phone. You will play ECONOVA: CITY in groups of 4 to 6. Buy properties, improve them, and aim for the highest score after 8 rounds. No need to memorize a rulebook.
+Bring a charged phone. You will play ECONOVA: CITY in groups of 4 to 6. Buy company spaces like Amul, Infosys and Tata Motors, improve them, and aim for the highest score after 8 rounds. These are game spaces, not real investments. No need to memorize a rulebook.
 
 Open the player link, enter the room code and your name, and keep that tab open. Tap **How to play** for the basics. Tap any board space to learn what it does.
 

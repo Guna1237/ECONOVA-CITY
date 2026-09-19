@@ -309,7 +309,7 @@ export const ActionDock = ({
     Icon: typeof BoardMark;
     count?: number;
   }[] = [
-    { id: 'holdings', label: 'Holdings', Icon: PropertyMark, count: self.propertyIds.length },
+    { id: 'holdings', label: 'Properties', Icon: PropertyMark, count: self.propertyIds.length },
     { id: 'cards', label: 'Cards', Icon: CardMark, count: self.cards.length },
     { id: 'objective', label: 'Goal', Icon: ObjectiveMark },
     { id: 'roster', label: 'Players', Icon: BoardMark }
@@ -360,7 +360,7 @@ export const ActionDock = ({
           <section className="player-panel">
             <h2 className="player-panel__title">
               <PropertyMark width={16} height={16} />
-              Holdings
+              Your properties
               <span>{self.propertyIds.length}</span>
             </h2>
             <HoldingsPanel onInspect={onInspectSpace} />

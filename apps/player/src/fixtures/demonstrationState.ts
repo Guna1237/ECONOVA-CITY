@@ -103,7 +103,7 @@ export const demonstrationPlayerState: PlayerProjectionDto = {
     credits: 620,
     activity: [
       { id: 'demo:1', round: 2, title: 'Trade declined', text: 'Lin declined the offer. Nothing was exchanged.' },
-      { id: 'demo:2', round: 3, title: 'Rent received', text: 'Sam paid you 20 Credits for Street Bites.' }
+      { id: 'demo:2', round: 3, title: 'Rent received', text: 'Sam paid you 20 Credits for Amul.' }
     ],
     influence: 7,
     // Canonical hand limit is GAME_CONFIG.strategyCardHandLimit.

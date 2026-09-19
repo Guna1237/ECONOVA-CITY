@@ -42,9 +42,9 @@ describe('turn briefing', () => {
   });
 
   it('names the property and its price when one is unowned', () => {
-    // The demonstration player stands on Harvest Table (a Food property).
+    // The demonstration player stands on Britannia (a Food property).
     const brief = briefFor(atStage('awaiting_property_decision'));
-    expect(brief.headline).toContain('Harvest Table');
+    expect(brief.headline).toContain('Britannia');
     expect(brief.detail).toContain('Food');
     expect(brief.detail).toMatch(/\d/);
     expect(brief.hint).toBe('buy');
@@ -62,7 +62,7 @@ describe('turn briefing', () => {
       })
     );
     expect(brief.headline).toBe('Pay 38');
-    expect(brief.detail).toContain('DataForge');
+    expect(brief.detail).toContain('Infosys');
     expect(brief.tone).toBe('alert');
   });
 
@@ -78,7 +78,7 @@ describe('turn briefing', () => {
   });
 
   it('counts down the actions left and points at ending the turn', () => {
-    expect(briefFor(base).headline).toBe('Your actions');
+    expect(briefFor(base).headline).toBe('Choose an action');
     const spent = withPublic({
       turn: { ...base.public.turn!, actionsRemaining: 0 }
     });

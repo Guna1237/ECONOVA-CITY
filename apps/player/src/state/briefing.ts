@@ -159,7 +159,7 @@ export const briefFor = (projection: PlayerProjectionDto): Briefing => {
     const stage = turn === null ? null : STAGE_LABEL[turn.stage] ?? null;
     return {
       ...base,
-      headline: current === null ? 'The city is resolving' : `${current}'s turn`,
+      headline: current === null ? 'Getting the next turn ready' : `${current}'s turn`,
       detail: stage === null ? 'Waiting for the next player.' : `${stage}.`,
       tone: 'waiting',
       hint: null
@@ -224,12 +224,12 @@ export const briefFor = (projection: PlayerProjectionDto): Briefing => {
       const remaining = turn.actionsRemaining;
       return {
         ...base,
-        headline: remaining === 0 ? 'No actions left' : 'Your actions',
+        headline: remaining === 0 ? 'No actions left' : 'Choose an action',
         detail:
           remaining === 0
             ? 'End your turn to pass to the next player.'
-            : `${remaining} of ${GAME_CONFIG.turnActions} remaining${
-                space === null ? '' : ` · you are on ${space.name}`
+            : `${remaining} ${remaining === 1 ? 'Action' : 'Actions'} left${
+                space === null ? '' : ` · you are at ${space.name}`
               }.`,
         tone: 'you',
         hint: remaining === 0 ? null : 'develop'

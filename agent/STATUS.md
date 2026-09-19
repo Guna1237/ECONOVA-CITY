@@ -3,6 +3,10 @@
 
 This file records the current development state.
 
+## Indian company names and event copy: 2026-09-19
+
+Owner-requested name-only property refresh and simpler Player wording implemented. IDs, economics, engine and backend unchanged. Tile wrapping protects longer company names on narrow phones. Full file list, verification and event-day checks: `docs/qa/INDIAN_COMPANY_EVENT_PASS_2026-09-19.md`. Final verification in progress. Concurrent Button test relocation preserved; no commit or deployment by this pass.
+
 ## Mobile controls and sound refinement: 2026-09-19 (Codex)
 
 Implemented action-first portrait guidance, collapsed tips, reciprocal board navigation, readable short-landscape layout, and opt-in sound settings with quieter differentiated cues. Preserved pinned controls, disabled-action feedback, artwork and all server/engine behavior. Corrected a stale Projector privacy test to include the existing public seat index. Full evidence/files: `docs/qa/PHONE_REFINEMENT_SOUND_2026-09-19.md`.

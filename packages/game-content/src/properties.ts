@@ -64,22 +64,22 @@ const defineProperty = (
 };
 
 export const PROPERTIES = Object.freeze([
-  defineProperty("P01", "Street Bites", "food", "cheap", 1),
-  defineProperty("P02", "CloudNine Labs", "tech", "cheap", 2),
-  defineProperty("P03", "Neon Arena", "entertainment", "cheap", 3),
-  defineProperty("P04", "Metro Link", "mobility", "cheap", 4),
-  defineProperty("P05", "Harvest Table", "food", "mid", 6),
-  defineProperty("P06", "DataForge", "tech", "mid", 7),
-  defineProperty("P07", "Velocity Motors", "mobility", "mid", 8),
-  defineProperty("P08", "Pixel Palace", "entertainment", "mid", 9),
-  defineProperty("P09", "Quantum Dynamics", "tech", "mid", 11),
-  defineProperty("P10", "FreshFusion", "food", "mid", 12),
-  defineProperty("P11", "SkyRail Transit", "mobility", "mid", 13),
-  defineProperty("P12", "The Grand Stage", "entertainment", "mid", 14),
-  defineProperty("P13", "Cyber Coliseum", "entertainment", "premium", 15),
-  defineProperty("P14", "NexGen AI", "tech", "premium", 16),
-  defineProperty("P15", "Epicurean Tower", "food", "premium", 17),
-  defineProperty("P16", "AutoPilot HQ", "mobility", "premium", 18)
+  defineProperty("P01", "Amul", "food", "cheap", 1),
+  defineProperty("P02", "Zoho", "tech", "cheap", 2),
+  defineProperty("P03", "Saregama", "entertainment", "cheap", 3),
+  defineProperty("P04", "TVS Motor", "mobility", "cheap", 4),
+  defineProperty("P05", "Britannia", "food", "mid", 6),
+  defineProperty("P06", "Infosys", "tech", "mid", 7),
+  defineProperty("P07", "Bajaj Auto", "mobility", "mid", 8),
+  defineProperty("P08", "PVR INOX", "entertainment", "mid", 9),
+  defineProperty("P09", "Wipro", "tech", "mid", 11),
+  defineProperty("P10", "Parle", "food", "mid", 12),
+  defineProperty("P11", "Mahindra", "mobility", "mid", 13),
+  defineProperty("P12", "T-Series", "entertainment", "mid", 14),
+  defineProperty("P13", "Zee", "entertainment", "premium", 15),
+  defineProperty("P14", "TCS", "tech", "premium", 16),
+  defineProperty("P15", "ITC Foods", "food", "premium", 17),
+  defineProperty("P16", "Tata Motors", "mobility", "premium", 18)
 ]);
 
 export const PROPERTY_BY_ID = new Map(PROPERTIES.map((property) => [property.id, property]));

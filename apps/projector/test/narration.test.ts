@@ -32,9 +32,9 @@ describe('projector narration', () => {
   });
 
   it('names the property a decision is about', () => {
-    // The demonstration current player stands on Harvest Table.
-    expect(narrate(stage('awaiting_property_decision'))).toContain('Harvest Table');
-    expect(narrate(stage('landing_fee_reaction'))).toContain('Harvest Table');
+    // The demonstration current player stands on Britannia.
+    expect(narrate(stage('awaiting_property_decision'))).toContain('Britannia');
+    expect(narrate(stage('landing_fee_reaction'))).toContain('Britannia');
   });
 
   it('lets a whole-city phase speak over the individual turn', () => {

@@ -179,7 +179,7 @@ export const PropertyInspector = ({
 
       <div>
         <div className="eco-label" style={{ marginBottom: 'var(--s2)' }}>
-          Printed values
+          Starting values
         </div>
         <div
           style={{
@@ -193,11 +193,11 @@ export const PropertyInspector = ({
           <Figure label="Base income" value={formatCredits(property.baseIncome)} />
           <Figure label="Base landing fee" value={formatCredits(property.baseFee)} />
           <Figure
-            label="Per development level"
+            label="Each upgrade adds"
             value={`+${property.developmentIncomeBonus} income · +${property.developmentFeeBonus} fee`}
           />
           <Figure
-            label="Per demand step"
+            label="Each +1 Demand adds"
             value={`+${property.demandIncomeMultiplier} income · +${property.demandFeeMultiplier} fee`}
           />
         </div>
@@ -208,14 +208,14 @@ export const PropertyInspector = ({
             color: 'var(--ink-faint)'
           }}
         >
-          Amounts charged are resolved by the city against current demand,
-          policies and events.
+          These are starting values. Development, Demand, policies and events
+          can change what you pay or earn.
         </p>
       </div>
 
       <div>
         <div className="eco-label" style={{ marginBottom: 'var(--s2)' }}>
-          Development ladder
+          Base upgrade costs
         </div>
         <div style={{ display: 'flex', gap: 'var(--s2)' }}>
           {property.developmentCosts.map((cost, index) => (

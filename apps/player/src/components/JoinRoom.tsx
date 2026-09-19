@@ -43,9 +43,10 @@ export const JoinRoom = ({
         <div className="player-welcome__brand"><EconovaCrest size={64} withWordmark /><HowToPlay /></div>
         <p className="player-welcome__edition">ECONOVA: CITY</p>
         <h1 id="welcome-title">Build your city.<br /><span>Make your move.</span></h1>
-        <p className="player-welcome__intro">Buy properties. Shape the market. Build the highest score in eight rounds.</p>
+        <p className="player-welcome__intro">Buy companies, collect rent, and trade with other players. The highest score after 8 rounds wins.</p>
         <NovaArt kind="pieces" className="player-welcome__pieces" />
         <div className="player-welcome__facts"><span>4 to 6 players</span><span>8 rounds</span><span>One shared city</span></div>
+        <p className="player-welcome__note">Company names are used as game labels. Prices and results are fictional. No affiliation or endorsement.</p>
       </section>
       <form className="player-join__panel" onSubmit={submit}>
         <div className="player-join__heading"><NovaArt kind="property" /><div><p className="eco-label">Ready to play?</p><h2>Join your room</h2></div></div>
