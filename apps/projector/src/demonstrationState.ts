@@ -55,10 +55,10 @@ export const demonstrationPublicState: PublicProjectionDto = {
     deadlineAt: Date.now() + 42_000
   },
   players: [
-    { playerId: P1, name: 'Ada', position: 6, propertyIds: ownedBy(P1), connected: true },
-    { playerId: P2, name: 'Rafa', position: 12, propertyIds: ownedBy(P2), connected: true },
-    { playerId: P3, name: 'Mei', position: 15, propertyIds: ownedBy(P3), connected: true },
-    { playerId: P4, name: 'Jonas', position: 0, propertyIds: ownedBy(P4), connected: false }
+    { playerId: P1, name: 'Ada', seatIndex: 0, position: 6, propertyIds: ownedBy(P1), connected: true },
+    { playerId: P2, name: 'Rafa', seatIndex: 1, position: 12, propertyIds: ownedBy(P2), connected: true },
+    { playerId: P3, name: 'Mei', seatIndex: 2, position: 15, propertyIds: ownedBy(P3), connected: true },
+    { playerId: P4, name: 'Jonas', seatIndex: 3, position: 0, propertyIds: ownedBy(P4), connected: false }
   ],
   properties,
   demand: { food: 1, tech: 2, entertainment: -1, mobility: 0 },

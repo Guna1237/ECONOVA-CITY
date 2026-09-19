@@ -65,6 +65,8 @@ export const Development = ({
   if (level === 0) return null;
   const structures = ARCHITECTURE[district].slice(0, level);
   const centring = level === 1 ? 17 : level === 2 ? 9 : 3;
+  const span = level === 1 ? 15 : level === 2 ? 28 : 42;
+  const midX = level === 1 ? 7.5 : level === 2 ? 14 : 21;
 
   return (
     <svg
@@ -75,9 +77,8 @@ export const Development = ({
       {...props}
     >
       <g transform={`translate(${centring} 0)`}>
-      {/* Contact shadow: the miniatures are standing on the print. */}
       <ellipse
-        cx={level === 1 ? 7.5 : level === 2 ? 14 : 21}
+        cx={midX}
         cy="22.7"
         rx={level === 1 ? 7 : level === 2 ? 13 : 20}
         ry="1.5"
@@ -86,19 +87,27 @@ export const Development = ({
 
       {structures.map((path, index) => (
         <g key={index}>
-          {/* A cast shadow to one side, then the body, then a lit face and a
-              seated outline — enough to read as a solid object. */}
           <path d={path} fill="rgba(90,68,34,0.22)" transform="translate(1.2 0.4)" />
           <path d={path} fill="currentColor" />
           <path
             d={path}
-            fill="rgba(255,255,255,0.34)"
-            transform="translate(-0.5 -0.5)"
+            fill="rgba(255,255,255,0.30)"
+            transform="translate(-0.4 -0.4)"
             clipPath="inset(0 55% 0 0)"
           />
-          <path d={path} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="0.6" />
+          <path d={path} fill="none" stroke="rgba(0,0,0,0.40)" strokeWidth="0.7" strokeLinejoin="round" />
         </g>
       ))}
+
+      <line
+        x1={midX - span / 2}
+        y1="22"
+        x2={midX + span / 2}
+        y2="22"
+        stroke="rgba(0,0,0,0.25)"
+        strokeWidth="0.8"
+        strokeLinecap="round"
+      />
 
       {level === 3 && landmark ? (
         <path

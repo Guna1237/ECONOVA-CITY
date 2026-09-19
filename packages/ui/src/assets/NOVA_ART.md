@@ -1,8 +1,8 @@
 # Nova City artwork provenance
 
-## Playable PNG pawns, 2026-09-19
+## Vector SVG pawns, 2026-09-19
 
-Per owner request, the six live seat pieces now use the original supplied PNG, checked in as `nova-pawn-sheet.png` (531,879 bytes; SHA-256 below). `SeatPiece` renders six SVG viewports over this unchanged raster image: x=33,79,124,168,213,258; y=305; width=46; height=75. No redrawing, recoloring, external URL, or runtime extraction. Existing component shape keys remain compatible. Static import and the package asset-copy build ship the same PNG to consumers. Visible seat numbers supplement color. Initial lobby join order fixes identity across shuffled/rotating turns. This supersedes the original PDF note about live landmark silhouettes.
+Seat pieces are now vector SVG paths (tower, bridge, market, transit, spire, rotunda) filled with `currentColor`, which inherits the seat color token (`--seat-N`). The previous raster `nova-pawn-sheet.png` has been removed. Each shape is a distinct building silhouette with a highlight edge and dark outline for readability at small sizes. Visible seat numbers supplement color and shape. Join-order seat identity is fixed by the server's `seatIndex` field.
 
 ## Board PNG, received 2026-09-18
 
